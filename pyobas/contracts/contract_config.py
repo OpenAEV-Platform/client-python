@@ -2,7 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict
+from typing import Dict, List
 
 from pyobas import utils
 from pyobas.contracts.contract_utils import ContractCardinality, ContractVariable
