@@ -1,4 +1,3 @@
-import json
 from typing import Any, Dict
 
 from pyobas import exceptions as exc

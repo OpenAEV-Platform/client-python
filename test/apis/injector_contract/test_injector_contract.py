@@ -1,4 +1,3 @@
-import json
 from unittest import TestCase, main, mock
 from unittest.mock import ANY
 
@@ -8,10 +7,6 @@ from pyobas.apis.inputs.search import (
     FilterGroup,
     InjectorContractSearchPaginationInput,
 )
-
-
-def create_mock_api_client():
-    return mock.MagicMock()
 
 
 def mock_response(**kwargs):
