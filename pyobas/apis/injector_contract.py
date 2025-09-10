@@ -54,9 +54,7 @@ class InjectorContractManager(CreateMixin, UpdateMixin, DeleteMixin, RESTManager
     ) -> Dict[str, Any]:
         path = f"{self.path}/search"
         # force the serialisation here since we only need a naive serialisation to json
-        result = self.openbas.http_post(
-            path, post_data=json.dumps(input, default=lambda x: x.__dict__), **kwargs
-        )
+        result = self.openbas.http_post(path, post_data=input.to_dict(), **kwargs)
         return result
 
     @exc.on_http_error(exc.OpenBASUpdateError)

@@ -42,7 +42,7 @@ class TestInjectorContract(TestCase):
             None,
         )
 
-        expected_json = json.dumps(search_input, default=lambda x: x.__dict__)
+        expected_json = search_input.to_dict()
         api_client.injector_contract.search(search_input)
 
         mock_request.assert_called_once_with(
