@@ -14,38 +14,34 @@ class InjectorContract(RESTObject):
 class InjectorContractManager(CreateMixin, UpdateMixin, DeleteMixin, RESTManager):
     _path = "/injector_contracts"
     _obj_cls = InjectorContract
-    _create_attrs = (
-        RequiredOptional(
-            required=(
-                "contract_content",
-                "contract_id",
-                "contract_labels",
-                "injector_id",
-            ),
-            optional=(
-                "contract_attack_patterns_ids",
-                "contract_attack_patterns_external_ids",
-                "contract_vulnerability_external_ids",
-                "contract_manual",
-                "contract_platforms",
-                "external_contract_id",
-                "is_atomic_testing",
-            ),
+    _create_attrs = RequiredOptional(
+        required=(
+            "contract_content",
+            "contract_id",
+            "contract_labels",
+            "injector_id",
+        ),
+        optional=(
+            "contract_attack_patterns_ids",
+            "contract_attack_patterns_external_ids",
+            "contract_vulnerability_external_ids",
+            "contract_manual",
+            "contract_platforms",
+            "external_contract_id",
+            "is_atomic_testing",
         ),
     )
-    _update_attrs = (
-        RequiredOptional(
-            required=(
-                "contract_content",
-                "contract_labels",
-            ),
-            optional=(
-                "contract_attack_patterns_ids",
-                "contract_vulnerability_ids",
-                "contract_manual",
-                "contract_platforms",
-                "is_atomic_testing",
-            ),
+    _update_attrs = RequiredOptional(
+        required=(
+            "contract_content",
+            "contract_labels",
+        ),
+        optional=(
+            "contract_attack_patterns_ids",
+            "contract_vulnerability_ids",
+            "contract_manual",
+            "contract_platforms",
+            "is_atomic_testing",
         ),
     )
 

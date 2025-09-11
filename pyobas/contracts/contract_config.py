@@ -134,6 +134,7 @@ class Contract:
     contract_vulnerability_external_ids: List[str] = field(default_factory=list)
     is_atomic_testing: bool = True
     platforms: List[str] = field(default_factory=list)
+    external_id: str = None
 
     def add_attack_pattern(self, var: str):
         self.contract_attack_patterns_external_ids.append(var)
@@ -143,6 +144,20 @@ class Contract:
 
     def add_variable(self, var: ContractVariable):
         self.variables.append(var)
+
+    def to_contract_add_input(self, source_id: str):
+        return {
+            "contract_id": self.contract_id,
+            "external_contract_id": self.external_id,
+            "injector_id": source_id,
+            "contract_manual": self.manual,
+            "contract_labels": self.label,
+            "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
+            "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
+            "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
+            "is_atomic_testing": self.is_atomic_testing,
+            "contract_platforms": self.platforms,
+        }
 
 
 @dataclass
@@ -169,7 +184,6 @@ def prepare_contracts(contracts):
                 "contract_id": c.contract_id,
                 "contract_labels": c.label,
                 "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
-                "contract_vulnerability_external_ids": c.contract_vulnerability_external_ids,
                 "contract_content": json.dumps(c, cls=utils.EnhancedJSONEncoder),
                 "contract_platforms": c.platforms,
             },
