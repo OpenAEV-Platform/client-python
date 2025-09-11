@@ -131,11 +131,15 @@ class Contract:
         + VariableHelper.uri_variables()
     )
     contract_attack_patterns_external_ids: List[str] = field(default_factory=list)
+    contract_vulnerability_external_ids: List[str] = field(default_factory=list)
     is_atomic_testing: bool = True
     platforms: List[str] = field(default_factory=list)
 
     def add_attack_pattern(self, var: str):
         self.contract_attack_patterns_external_ids.append(var)
+
+    def add_vulnerability(self, var: str):
+        self.contract_vulnerability_external_ids.append(var)
 
     def add_variable(self, var: ContractVariable):
         self.variables.append(var)
@@ -165,6 +169,7 @@ def prepare_contracts(contracts):
                 "contract_id": c.contract_id,
                 "contract_labels": c.label,
                 "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
+                "contract_vulnerability_external_ids": c.contract_vulnerability_external_ids,
                 "contract_content": json.dumps(c, cls=utils.EnhancedJSONEncoder),
                 "contract_platforms": c.platforms,
             },
