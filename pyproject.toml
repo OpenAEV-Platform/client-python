@@ -1,7 +1,7 @@
 [project]
-name = "pyobas"
+name = "pyoaev"
 dynamic = ["version"]
-description = "Python API client for OpenBAS."
+description = "Python API client for OpenAEV."
 authors = [
     {name = "Filigran", email = "contact@filigran.io"}
     ]
@@ -70,7 +70,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 
 [tool.setuptools.dynamic]
-version = { attr = "pyobas.__version__" }
+version = { attr = "pyoaev.__version__" }
 
 [tool.isort]
 profile = "black"

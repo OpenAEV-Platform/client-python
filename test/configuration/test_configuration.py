@@ -2,40 +2,40 @@ import os
 import unittest
 from unittest.mock import patch
 
-from pyobas.configuration import Configuration
+from pyoaev.configuration import Configuration
 
 TEST_CONFIG_HINTS = {
     "string_config_direct": {"data": "this is string_config_direct"},
     "string_config_no_default": {
-        "env": "PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT",
-        "file_path": ["pyobas_test_configuration", "string_config_no_default"],
+        "env": "PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT",
+        "file_path": ["pyoaev_test_configuration", "string_config_no_default"],
     },
     "int_config_no_default": {
-        "env": "PYOBAS_TEST_CONFIGURATION_INT_CONFIG_NO_DEFAULT",
-        "file_path": ["pyobas_test_configuration", "int_config_no_default"],
+        "env": "PYOAEV_TEST_CONFIGURATION_INT_CONFIG_NO_DEFAULT",
+        "file_path": ["pyoaev_test_configuration", "int_config_no_default"],
         "is_number": True,
     },
     "int_config_no_default_not_marked_number": {
-        "env": "PYOBAS_TEST_CONFIGURATION_INT_CONFIG_NO_DEFAULT",
+        "env": "PYOAEV_TEST_CONFIGURATION_INT_CONFIG_NO_DEFAULT",
         "file_path": [
-            "pyobas_test_configuration",
+            "pyoaev_test_configuration",
             "int_config_no_default_not_marked_number",
         ],
     },
     "string_config_with_default": {
-        "env": "PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_WITH_DEFAULT",
-        "file_path": ["pyobas_test_configuration", "string_config_with_default"],
+        "env": "PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_WITH_DEFAULT",
+        "file_path": ["pyoaev_test_configuration", "string_config_with_default"],
         "default": "default string config",
     },
     "int_config_with_default": {
-        "env": "PYOBAS_TEST_CONFIGURATION_INT_CONFIG_WITH_DEFAULT",
-        "file_path": ["pyobas_test_configuration", "int_config_with_default"],
+        "env": "PYOAEV_TEST_CONFIGURATION_INT_CONFIG_WITH_DEFAULT",
+        "file_path": ["pyoaev_test_configuration", "int_config_with_default"],
         "is_number": True,
         "default": 777_777,
     },
     "bool_config_with_default": {
-        "env": "PYOBAS_TEST_CONFIGURATION_BOOL_CONFIG_WITH_DEFAULT",
-        "file_path": ["pyobas_test_configuration", "bool_config_with_default"],
+        "env": "PYOAEV_TEST_CONFIGURATION_BOOL_CONFIG_WITH_DEFAULT",
+        "file_path": ["pyoaev_test_configuration", "bool_config_with_default"],
         "default": True,
     },
 }
@@ -84,7 +84,7 @@ class TestConfiguration(unittest.TestCase):
 
     @patch.dict(
         os.environ,
-        values={"PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "actual value"},
+        values={"PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "actual value"},
         clear=True,
     )
     def test_when_string_config_has_no_default_when_key_is_in_env_return_env_value(
@@ -100,7 +100,7 @@ class TestConfiguration(unittest.TestCase):
 
     @patch.dict(
         os.environ,
-        values={"PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_WITH_DEFAULT": "actual value"},
+        values={"PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_WITH_DEFAULT": "actual value"},
         clear=True,
     )
     def test_when_string_config_has_default_when_key_is_in_env_return_env_value(self):
@@ -114,14 +114,14 @@ class TestConfiguration(unittest.TestCase):
 
     @patch.dict(
         os.environ,
-        values={"PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "actual value"},
+        values={"PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "actual value"},
         clear=True,
     )
     def test_when_key_is_in_both_env_and_file_return_env_value(self):
         config_obj = Configuration(
             config_hints=TEST_CONFIG_HINTS,
             config_values={
-                "pyobas_test_configuration": {
+                "pyoaev_test_configuration": {
                     "string_config_no_default": "another value"
                 }
             },
@@ -133,14 +133,14 @@ class TestConfiguration(unittest.TestCase):
 
     @patch.dict(
         os.environ,
-        values={"PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "env value"},
+        values={"PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "env value"},
         clear=True,
     )
     def test_when_key_is_in_both_env_and_file_when_value_is_set_return_set_value(self):
         config_obj = Configuration(
             config_hints=TEST_CONFIG_HINTS,
             config_values={
-                "pyobas_test_configuration": {"string_config_no_default": "file value"}
+                "pyoaev_test_configuration": {"string_config_no_default": "file value"}
             },
         )
         config_obj.set("string_config_no_default", "set value")
@@ -155,7 +155,7 @@ class TestConfiguration(unittest.TestCase):
         config_obj = Configuration(
             config_hints=TEST_CONFIG_HINTS,
             config_values={
-                "pyobas_test_configuration": {
+                "pyoaev_test_configuration": {
                     "string_config_no_default": "another value"
                 }
             },
@@ -185,7 +185,7 @@ class TestConfiguration(unittest.TestCase):
 
     @patch.dict(
         os.environ,
-        values={"PYOBAS_TEST_CONFIGURATION_INT_CONFIG_NO_DEFAULT": "1234"},
+        values={"PYOAEV_TEST_CONFIGURATION_INT_CONFIG_NO_DEFAULT": "1234"},
         clear=True,
     )
     def test_when_int_config_has_no_default_when_key_is_in_env_return_env_value(self):
@@ -203,7 +203,7 @@ class TestConfiguration(unittest.TestCase):
         config_obj = Configuration(
             config_hints=TEST_CONFIG_HINTS,
             config_values={
-                "pyobas_test_configuration": {"int_config_no_default": 456_123}
+                "pyoaev_test_configuration": {"int_config_no_default": 456_123}
             },
         )
 
@@ -217,7 +217,7 @@ class TestConfiguration(unittest.TestCase):
         config_obj = Configuration(
             config_hints=TEST_CONFIG_HINTS,
             config_values={
-                "pyobas_test_configuration": {
+                "pyoaev_test_configuration": {
                     "int_config_no_default_not_marked_number": 842_204
                 }
             },
@@ -229,7 +229,7 @@ class TestConfiguration(unittest.TestCase):
 
     @patch.dict(
         os.environ,
-        values={"PYOBAS_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "yes"},
+        values={"PYOAEV_TEST_CONFIGURATION_STRING_CONFIG_NO_DEFAULT": "yes"},
         clear=True,
     )
     def test_when_string_config_has_no_default_when_string_is_boolean_when_key_is_in_env_return_env_value(
