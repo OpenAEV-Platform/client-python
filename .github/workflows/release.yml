@@ -30,7 +30,7 @@ jobs:
       - name: checkout repo content
         uses: actions/checkout@v4
         with:
-          repository: OpenBAS-Platform/client-python
+          repository: OpenAEV-Platform/client-python
           ref: ${{ inputs.branch_client_python }}
           path: client-python
       - name: setup python

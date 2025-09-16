@@ -18,16 +18,16 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "OpenBAS client for Python"
+project = "OpenAEV client for Python"
 copyright = "2024, Filigran"
-author = "OpenBAS Project"
+author = "OpenAEV Project"
 
 # The full version, including alpha/beta/rc tags
 release = "1.10.1"
 
 master_doc = "index"
 
-autoapi_modules = {"pyobas": {"prune": True}}
+autoapi_modules = {"pyoaev": {"prune": True}}
 
 pygments_style = "sphinx"
 
