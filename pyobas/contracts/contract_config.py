@@ -159,6 +159,17 @@ class Contract:
             "contract_platforms": self.platforms,
         }
 
+    def to_contract_update_input(self):
+        return {
+            "contract_manual": self.manual,
+            "contract_labels": self.label,
+            "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
+            "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
+            "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
+            "is_atomic_testing": self.is_atomic_testing,
+            "contract_platforms": self.platforms,
+        }
+
 
 @dataclass
 class ContractTeam(ContractCardinalityElement):
