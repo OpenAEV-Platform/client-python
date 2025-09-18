@@ -39,6 +39,7 @@ class InjectorContractManager(CreateMixin, UpdateMixin, DeleteMixin, RESTManager
         optional=(
             "contract_attack_patterns_ids",
             "contract_vulnerability_ids",
+            "contract_vulnerability_external_ids",
             "contract_manual",
             "contract_platforms",
             "is_atomic_testing",
