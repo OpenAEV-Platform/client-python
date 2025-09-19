@@ -216,3 +216,27 @@ class CreateMixin(_RestManagerBase):
             assert not isinstance(server_data, requests.Response)
             assert self._obj_cls is not None
         return self._obj_cls(self, server_data)
+
+
+class DeleteMixin(_RestManagerBase):
+    _computed_path: Optional[str]
+    _from_parent_attrs: Dict[str, Any]
+    _obj_cls: Optional[Type[base.RESTObject]]
+    _parent: Optional[base.RESTObject]
+    _parent_attrs: Dict[str, Any]
+    _path: Optional[str]
+    openbas: pyobas.OpenBAS
+
+    @exc.on_http_error(exc.OpenBASCreateError)
+    def delete(
+        self, id: Optional[Union[str, int]] = None, **kwargs: Any
+    ) -> requests.Response:
+        if id is None:
+            path = self.path
+        else:
+            path = f"{self.path}/{utils.EncodedId(id)}"
+
+        result = self.openbas.http_delete(path, **kwargs)
+        if TYPE_CHECKING:
+            assert isinstance(result, requests.Response)
+        return result
