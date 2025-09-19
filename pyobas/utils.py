@@ -144,12 +144,13 @@ def setup_logging_config(level, json_logging=True):
 
 
 class AppLogger:
-    def __init__(self, level, json_logging=True):
+    def __init__(self, level, json_logging=True, name: str = __name__):
         self.log_level = level
         self.json_logging = json_logging
+        setup_logging_config(self.log_level, self.json_logging)
+        self.local_logger = logging.getLogger(name)
 
     def __call__(self, name):
-        setup_logging_config(self.log_level, self.json_logging)
         self.local_logger = logging.getLogger(name)
         return self
 
