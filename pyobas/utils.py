@@ -129,8 +129,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record["level"] = record.levelname
 
 
-def logger(level, json_logging=True):
-    # Exceptions
+def setup_logging_config(level, json_logging=True):
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("pika").setLevel(logging.ERROR)
     # Exceptions
@@ -143,34 +142,42 @@ def logger(level, json_logging=True):
     else:
         logging.basicConfig(level=level)
 
-    class AppLogger:
-        def __init__(self, name):
-            self.local_logger = logging.getLogger(name)
 
-        @staticmethod
-        def prepare_meta(meta=None):
-            return None if meta is None else {"attributes": meta}
+class AppLogger:
+    def __init__(self, level, json_logging=True):
+        self.log_level = level
+        self.json_logging = json_logging
 
-        @staticmethod
-        def setup_logger_level(lib, log_level):
-            logging.getLogger(lib).setLevel(log_level)
+    def __call__(self, name):
+        setup_logging_config(self.log_level, self.json_logging)
+        self.local_logger = logging.getLogger(name)
+        return self
 
-        def debug(self, message, meta=None):
-            self.local_logger.debug(message, extra=AppLogger.prepare_meta(meta))
+    @staticmethod
+    def prepare_meta(meta=None):
+        return None if meta is None else {"attributes": meta}
 
-        def info(self, message, meta=None):
-            self.local_logger.info(message, extra=AppLogger.prepare_meta(meta))
+    @staticmethod
+    def setup_logger_level(lib, log_level):
+        logging.getLogger(lib).setLevel(log_level)
 
-        def warning(self, message, meta=None):
-            self.local_logger.warning(message, extra=AppLogger.prepare_meta(meta))
+    def debug(self, message, meta=None):
+        self.local_logger.debug(message, extra=AppLogger.prepare_meta(meta))
 
-        def error(self, message, meta=None):
-            # noinspection PyTypeChecker
-            self.local_logger.error(
-                message, exc_info=1, extra=AppLogger.prepare_meta(meta)
-            )
+    def info(self, message, meta=None):
+        self.local_logger.info(message, extra=AppLogger.prepare_meta(meta))
 
-    return AppLogger
+    def warning(self, message, meta=None):
+        self.local_logger.warning(message, extra=AppLogger.prepare_meta(meta))
+
+    def error(self, message, meta=None):
+        # noinspection PyTypeChecker
+        self.local_logger.error(message, exc_info=1, extra=AppLogger.prepare_meta(meta))
+
+
+# DEPRECATED: compatibility
+def logger(level, json_logging=True):
+    return AppLogger(level, json_logging)
 
 
 class PingAlive(threading.Thread):
