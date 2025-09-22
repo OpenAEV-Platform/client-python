@@ -1,8 +1,8 @@
 from unittest import TestCase, main, mock
 from unittest.mock import ANY
 
-from pyobas import OpenBAS
-from pyobas.apis.inputs.search import (
+from pyoaev import OpenAEV
+from pyoaev.apis.inputs.search import (
     Filter,
     FilterGroup,
     InjectorContractSearchPaginationInput,
@@ -27,7 +27,7 @@ def mock_response(**kwargs):
 class TestInjectorContract(TestCase):
     @mock.patch("requests.Session.request", side_effect=mock_response)
     def test_search_input_correctly_serialised(self, mock_request):
-        api_client = OpenBAS("url", "token")
+        api_client = OpenAEV("url", "token")
 
         search_input = InjectorContractSearchPaginationInput(
             0,

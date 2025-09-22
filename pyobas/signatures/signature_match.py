@@ -1,11 +1,11 @@
-from pyobas.exceptions import OpenBASError
-from pyobas.signatures.types import MatchTypes
+from pyoaev.exceptions import OpenAEVError
+from pyoaev.signatures.types import MatchTypes
 
 
 class SignatureMatch:
     def __init__(self, match_type: MatchTypes, match_score: int | None):
         if match_score is None and match_type != MatchTypes.MATCH_TYPE_SIMPLE:
-            raise OpenBASError(
+            raise OpenAEVError(
                 f"Match type {match_type} requires score to be set, found score = {match_score}"
             )
         self.match_type = match_type

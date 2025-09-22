@@ -14,10 +14,10 @@ from typing import Callable, Dict, List
 import pika
 from thefuzz import fuzz
 
-from pyobas import OpenBAS, utils
-from pyobas.configuration import Configuration
-from pyobas.daemons import CollectorDaemon
-from pyobas.exceptions import ConfigurationError
+from pyoaev import OpenAEV, utils
+from pyoaev.configuration import Configuration
+from pyoaev.daemons import CollectorDaemon
+from pyoaev.exceptions import ConfigurationError
 
 TRUTHY: List[str] = ["yes", "true", "True"]
 FALSY: List[str] = ["no", "false", "False"]
@@ -227,7 +227,7 @@ class PingAlive(utils.PingAlive):
 
 
 ### DEPRECATED
-class OpenBASConfigHelper:
+class OpenAEVConfigHelper:
     def __init__(self, base_path, variables: Dict):
         self.__config_obj = Configuration(
             config_hints=variables,
@@ -258,10 +258,10 @@ class OpenBASConfigHelper:
 
 
 ### DEPRECATED
-class OpenBASCollectorHelper:
+class OpenAEVCollectorHelper:
     def __init__(
         self,
-        config: OpenBASConfigHelper,
+        config: OpenAEVConfigHelper,
         icon,
         collector_type=None,
         security_platform_type=None,
@@ -307,11 +307,11 @@ class OpenBASCollectorHelper:
         self.__daemon.start()
 
 
-class OpenBASInjectorHelper:
-    def __init__(self, config: OpenBASConfigHelper, icon) -> None:
-        self.api = OpenBAS(
-            url=config.get_conf("openbas_url"),
-            token=config.get_conf("openbas_token"),
+class OpenAEVInjectorHelper:
+    def __init__(self, config: OpenAEVConfigHelper, icon) -> None:
+        self.api = OpenAEV(
+            url=config.get_conf("openaev_url"),
+            token=config.get_conf("openaev_token"),
         )
         # Get the mq configuration from api
         self.config = {
@@ -357,7 +357,7 @@ class OpenBASInjectorHelper:
         self.listen_queue.start()
 
 
-class OpenBASDetectionHelper:
+class OpenAEVDetectionHelper:
     def __init__(self, logger, relevant_signatures_types) -> None:
         self.logger = logger
         self.relevant_signatures_types = relevant_signatures_types

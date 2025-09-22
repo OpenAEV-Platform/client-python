@@ -1,12 +1,12 @@
 import unittest.mock
 from uuid import uuid4
 
-from pyobas.apis.inject_expectation.model import (
+from pyoaev.apis.inject_expectation.model import (
     DetectionExpectation,
     PreventionExpectation,
 )
-from pyobas.signatures.signature_type import SignatureType
-from pyobas.signatures.types import MatchTypes, SignatureTypes
+from pyoaev.signatures.signature_type import SignatureType
+from pyoaev.signatures.types import MatchTypes, SignatureTypes
 
 
 def create_mock_api_client():

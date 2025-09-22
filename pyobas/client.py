@@ -3,17 +3,17 @@ from urllib import parse
 
 import requests
 
-from pyobas import exceptions, utils
-from pyobas._version import __version__  # noqa: F401
+from pyoaev import exceptions, utils
+from pyoaev._version import __version__  # noqa: F401
 
 REDIRECT_MSG = (
-    "pyobas detected a {status_code} ({reason!r}) redirection. You must update "
-    "your OpenBAS URL to the correct URL to avoid issues. The redirection was from: "
+    "pyoaev detected a {status_code} ({reason!r}) redirection. You must update "
+    "your OpenAEV URL to the correct URL to avoid issues. The redirection was from: "
     "{source!r} to {target!r}"
 )
 
 
-class OpenBAS:
+class OpenAEV:
     def __init__(
         self,
         url: str,
@@ -33,16 +33,16 @@ class OpenBAS:
 
         self.url = url
         self.timeout = timeout
-        #: Headers that will be used in request to OpenBAS
+        #: Headers that will be used in request to OpenAEV
         self.headers = {
-            "User-Agent": "pyobas/" + __version__,
+            "User-Agent": "pyoaev/" + __version__,
             "Authorization": "Bearer " + token,
         }
         #: Whether SSL certificates should be validated
         self.ssl_verify = ssl_verify
 
         # Import backends
-        from pyobas import backends
+        from pyoaev import backends
 
         self.backend = backends.RequestsBackend(**kwargs)
         self._auth = backends.TokenAuth(token)
@@ -53,7 +53,7 @@ class OpenBAS:
         self.order_by = order_by
 
         # Import all apis
-        from pyobas import apis
+        from pyoaev import apis
 
         self.me = apis.MeManager(self)
         self.organization = apis.OrganizationManager(self)
@@ -133,7 +133,7 @@ class OpenBAS:
         timeout: Optional[float] = None,
         **kwargs: Any,
     ) -> requests.Response:
-        """Make an HTTP request to the OpenBAS server.
+        """Make an HTTP request to the OpenAEV server.
 
         Args:
             verb: The HTTP method to call ('get', 'post', 'put', 'delete')
@@ -152,7 +152,7 @@ class OpenBAS:
             A requests result object.
 
         Raises:
-            OpenBASHttpError: When the return code is not 2xx
+            OpenAEVHttpError: When the return code is not 2xx
         """
         query_data = query_data or {}
         raw_url = self._build_url(path)
@@ -238,7 +238,7 @@ class OpenBAS:
                                         messages.append(str(item))
                                 error_message = "; ".join(messages)
                             elif isinstance(errs, dict):
-                                # Handle nested validation errors from OpenBAS
+                                # Handle nested validation errors from OpenAEV
                                 if "children" in errs:
                                     # This is a validation error structure
                                     validation_errors = []
@@ -306,7 +306,7 @@ class OpenBAS:
                 error_message = result.response.reason or "Unknown error"
 
             if result.status_code == 401:
-                raise exceptions.OpenBASAuthenticationError(
+                raise exceptions.OpenAEVAuthenticationError(
                     response_code=result.status_code,
                     error_message=error_message or "Authentication failed",
                     response_body=result.content,
@@ -318,7 +318,7 @@ class OpenBAS:
                 # Only use HTTP reason as last resort
                 final_error_message = result.response.reason or "Unknown error"
 
-            raise exceptions.OpenBASHttpError(
+            raise exceptions.OpenAEVHttpError(
                 response_code=result.status_code,
                 error_message=final_error_message,
                 response_body=result.content,
@@ -343,7 +343,7 @@ class OpenBAS:
                 json_result = result.json()
                 return json_result
             except Exception as e:
-                raise exceptions.OpenBASParsingError(
+                raise exceptions.OpenAEVParsingError(
                     error_message="Failed to parse the server message"
                 ) from e
         else:
@@ -383,7 +383,7 @@ class OpenBAS:
                 json_result = result.json()
                 return json_result
         except Exception as e:
-            raise exceptions.OpenBASParsingError(
+            raise exceptions.OpenAEVParsingError(
                 error_message="Failed to parse the server message"
             ) from e
         return result
@@ -414,7 +414,7 @@ class OpenBAS:
                 assert isinstance(json_result, dict)
             return json_result
         except Exception as e:
-            raise exceptions.OpenBASParsingError(
+            raise exceptions.OpenAEVParsingError(
                 error_message="Failed to parse the server message"
             ) from e
 
@@ -444,7 +444,7 @@ class OpenBAS:
                 assert isinstance(json_result, dict)
             return json_result
         except Exception as e:
-            raise exceptions.OpenBASParsingError(
+            raise exceptions.OpenAEVParsingError(
                 error_message="Failed to parse the server message"
             ) from e
 
@@ -458,7 +458,7 @@ class OpenBAS:
         *,
         iterator: Optional[bool] = None,
         **kwargs: Any,
-    ) -> Union["OpenBASList", List[Dict[str, Any]]]:
+    ) -> Union["OpenAEVList", List[Dict[str, Any]]]:
         query_data = query_data or {}
 
         url = self._build_url(path)
@@ -467,15 +467,15 @@ class OpenBAS:
 
         if iterator and page is None:
             # Generator requested
-            return OpenBASList(self, url, query_data, **kwargs)
+            return OpenAEVList(self, url, query_data, **kwargs)
 
         # pagination requested, we return a list
-        bas_list = OpenBASList(self, url, query_data, get_next=False, **kwargs)
+        bas_list = OpenAEVList(self, url, query_data, get_next=False, **kwargs)
         items = list(bas_list)
         return items
 
 
-class OpenBASList:
+class OpenAEVList:
     """Generator representing a list of remote objects.
 
     The object handles the links returned by a query to the API, and will call
@@ -484,13 +484,13 @@ class OpenBASList:
 
     def __init__(
         self,
-        openbas: OpenBAS,
+        openaev: OpenAEV,
         url: str,
         query_data: Dict[str, Any],
         get_next: bool = True,
         **kwargs: Any,
     ) -> None:
-        self._openbas = openbas
+        self._openaev = openaev
 
         # Preserve kwargs for subsequent queries
         self._kwargs = kwargs.copy()
@@ -505,7 +505,7 @@ class OpenBASList:
         self, url: str, query_data: Optional[Dict[str, Any]] = None, **kwargs: Any
     ) -> None:
         query_data = query_data or {}
-        result = self._openbas.http_request("get", url, query_data=query_data, **kwargs)
+        result = self._openaev.http_request("get", url, query_data=query_data, **kwargs)
         try:
             next_url = result.links["next"]["url"]
         except KeyError:
@@ -522,7 +522,7 @@ class OpenBASList:
         try:
             self._data: List[Dict[str, Any]] = result.json()
         except Exception as e:
-            raise exceptions.OpenBASParsingError(
+            raise exceptions.OpenAEVParsingError(
                 error_message="Failed to parse the server message"
             ) from e
 
@@ -570,7 +570,7 @@ class OpenBASList:
             return int(self._total)
         return None
 
-    def __iter__(self) -> "OpenBASList":
+    def __iter__(self) -> "OpenAEVList":
         return self
 
     def __len__(self) -> int:

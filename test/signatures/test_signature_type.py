@@ -1,7 +1,7 @@
 import unittest
 
-from pyobas.signatures.signature_type import SignatureType
-from pyobas.signatures.types import MatchTypes, SignatureTypes
+from pyoaev.signatures.signature_type import SignatureType
+from pyoaev.signatures.types import MatchTypes, SignatureTypes
 
 
 class TestSignatureType(unittest.TestCase):

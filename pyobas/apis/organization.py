@@ -1,5 +1,5 @@
-from pyobas.base import RESTManager, RESTObject
-from pyobas.mixins import ListMixin, UpdateMixin
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.mixins import ListMixin, UpdateMixin
 
 
 class Organization(RESTObject):

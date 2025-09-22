@@ -3,7 +3,7 @@ import logging
 import os
 
 import requests
-from OBAS_utils.release_utils import check_release, closeRelease
+from OAEV_utils.release_utils import check_release, closeRelease
 
 logging.basicConfig(encoding="utf-8", level=logging.INFO)
 
@@ -38,15 +38,15 @@ os.environ["GIT_COMMITTER_EMAIL"] = "automation@filigran.io"
 
 # Python library release
 logging.info("[client-python] Starting the release")
-with open("./pyobas/__init__.py", "r") as file:
+with open("./pyoaev/__init__.py", "r") as file:
     filedata = file.read()
 filedata = filedata.replace(previous_version, new_version)
-with open("./pyobas/__init__.py", "w") as file:
+with open("./pyoaev/__init__.py", "w") as file:
     file.write(filedata)
-with open("./pyobas/_version.py", "r") as file:
+with open("./pyoaev/_version.py", "r") as file:
     filedata = file.read()
 filedata = filedata.replace(previous_version, new_version)
-with open("./pyobas/_version.py", "w") as file:
+with open("./pyoaev/_version.py", "w") as file:
     file.write(filedata)
 
 # Commit the change
@@ -66,7 +66,7 @@ os.system("gren release > /dev/null 2>&1")
 # Modify the release note
 logging.info("[client-python] Getting the current release note")
 release = requests.get(
-    "https://api.github.com/repos/OpenBAS-Platform/client-python/releases/latest",
+    "https://api.github.com/repos/OpenAEV-Platform/client-python/releases/latest",
     headers={
         "Accept": "application/vnd.github+json",
         "Authorization": "Bearer " + github_token,
@@ -79,7 +79,7 @@ release_body = release_data["body"]
 logging.info("[client-python] Generating the new release note")
 if not args.dev:
     github_release_note = requests.post(
-        "https://api.github.com/repos/OpenBAS-Platform/client-python/releases/generate-notes",
+        "https://api.github.com/repos/OpenAEV-Platform/client-python/releases/generate-notes",
         headers={
             "Accept": "application/vnd.github+json",
             "Authorization": "Bearer " + github_token,
@@ -102,7 +102,7 @@ if not args.dev:
 
     logging.info("[client-python] Updating the release")
     requests.patch(
-        "https://api.github.com/repos/OpenBAS-Platform/client-python/releases/"
+        "https://api.github.com/repos/OpenAEV-Platform/client-python/releases/"
         + str(release_data["id"]),
         headers={
             "Accept": "application/vnd.github+json",
@@ -114,7 +114,7 @@ if not args.dev:
 
 if not args.dev:
     closeRelease(
-        "https://api.github.com/repos/OpenBAS-Platform/client-python",
+        "https://api.github.com/repos/OpenAEV-Platform/client-python",
         new_version,
         github_token,
     )
@@ -124,4 +124,4 @@ logging.info(
 )
 
 if not args.dev:
-    check_release("https://pypi.org/simple/pyobas/", "pyobas-" + new_version, 10)
+    check_release("https://pypi.org/simple/pyoaev/", "pyoaev-" + new_version, 10)

@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 import yaml
 from pydantic import BaseModel, Field
 
-from pyobas.configuration.sources import DictionarySource, EnvironmentSource
+from pyoaev.configuration.sources import DictionarySource, EnvironmentSource
 
 CONFIGURATION_TYPES = str | int | bool | Any | None
 

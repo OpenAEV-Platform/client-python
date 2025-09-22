@@ -1,10 +1,10 @@
 from typing import Any, Dict
 
-from pyobas import exceptions as exc
-from pyobas.apis.inputs.search import InjectorContractSearchPaginationInput
-from pyobas.base import RESTManager, RESTObject
-from pyobas.mixins import CreateMixin, DeleteMixin, UpdateMixin
-from pyobas.utils import RequiredOptional
+from pyoaev import exceptions as exc
+from pyoaev.apis.inputs.search import InjectorContractSearchPaginationInput
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.mixins import CreateMixin, DeleteMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class InjectorContract(RESTObject):
@@ -46,11 +46,11 @@ class InjectorContractManager(CreateMixin, UpdateMixin, DeleteMixin, RESTManager
         ),
     )
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def search(
         self, input: InjectorContractSearchPaginationInput, **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/search"
         # force the serialisation here since we only need a naive serialisation to json
-        result = self.openbas.http_post(path, post_data=input.to_dict(), **kwargs)
+        result = self.openaev.http_post(path, post_data=input.to_dict(), **kwargs)
         return result
