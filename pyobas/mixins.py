@@ -13,10 +13,10 @@ from typing import (
 
 import requests
 
-import pyobas
-from pyobas import base
-from pyobas import exceptions as exc
-from pyobas import utils
+import pyoaev
+from pyoaev import base
+from pyoaev import exceptions as exc
+from pyoaev import utils
 
 __all__ = [
     "GetMixin",
@@ -33,7 +33,7 @@ else:
 
 
 class HeadMixin(_RestManagerBase):
-    @exc.on_http_error(exc.OpenBASHeadError)
+    @exc.on_http_error(exc.OpenAEVHeadError)
     def head(
         self, id: Optional[Union[str, int]] = None, **kwargs: Any
     ) -> "requests.structures.CaseInsensitiveDict[Any]":
@@ -44,7 +44,7 @@ class HeadMixin(_RestManagerBase):
         if id is not None:
             path = f"{path}/{utils.EncodedId(id)}"
 
-        return self.openbas.http_head(path, **kwargs)
+        return self.openaev.http_head(path, **kwargs)
 
 
 class GetMixin(HeadMixin, _RestManagerBase):
@@ -55,16 +55,16 @@ class GetMixin(HeadMixin, _RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openbas: pyobas.OpenBAS
+    openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenBASGetError)
+    @exc.on_http_error(exc.OpenAEVGetError)
     def get(self, id: Union[str, int], **kwargs: Any) -> base.RESTObject:
         if isinstance(id, str):
             id = utils.EncodedId(id)
         path = f"{self.path}/{id}"
         if TYPE_CHECKING:
             assert self._obj_cls is not None
-        server_data = self.openbas.http_get(path, **kwargs)
+        server_data = self.openaev.http_get(path, **kwargs)
         if TYPE_CHECKING:
             assert not isinstance(server_data, requests.Response)
         return self._obj_cls(self, server_data)
@@ -78,13 +78,13 @@ class GetWithoutIdMixin(HeadMixin, _RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openbas: pyobas.OpenBAS
+    openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenBASGetError)
+    @exc.on_http_error(exc.OpenAEVGetError)
     def get(self, **kwargs: Any) -> base.RESTObject:
         if TYPE_CHECKING:
             assert self.path is not None
-        server_data = self.openbas.http_get(self.path, **kwargs)
+        server_data = self.openaev.http_get(self.path, **kwargs)
         if TYPE_CHECKING:
             assert not isinstance(server_data, requests.Response)
             assert self._obj_cls is not None
@@ -99,27 +99,27 @@ class ListMixin(HeadMixin, _RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openbas: pyobas.OpenBAS
+    openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenBASListError)
+    @exc.on_http_error(exc.OpenAEVListError)
     def list(self, **kwargs: Any) -> Union[base.RESTObjectList, List[base.RESTObject]]:
 
-        if self.openbas.per_page:
-            kwargs.setdefault("per_page", self.openbas.per_page)
+        if self.openaev.per_page:
+            kwargs.setdefault("per_page", self.openaev.per_page)
 
         # global keyset pagination
-        if self.openbas.pagination:
-            kwargs.setdefault("pagination", self.openbas.pagination)
+        if self.openaev.pagination:
+            kwargs.setdefault("pagination", self.openaev.pagination)
 
-        if self.openbas.order_by:
-            kwargs.setdefault("order_by", self.openbas.order_by)
+        if self.openaev.order_by:
+            kwargs.setdefault("order_by", self.openaev.order_by)
 
         # Allow to overwrite the path, handy for custom listings
         path = kwargs.pop("path", self.path)
 
         if TYPE_CHECKING:
             assert self._obj_cls is not None
-        obj = self.openbas.http_list(path, **kwargs)
+        obj = self.openaev.http_list(path, **kwargs)
         if isinstance(obj, list):
             return [self._obj_cls(self, item, created_from_list=True) for item in obj]
         return base.RESTObjectList(self, self._obj_cls, obj)
@@ -140,7 +140,7 @@ class UpdateMixin(_RestManagerBase):
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
     _update_method: UpdateMethod = UpdateMethod.PUT
-    openbas: pyobas.OpenBAS
+    openaev: pyoaev.OpenAEV
 
     def _get_update_method(
         self,
@@ -151,15 +151,15 @@ class UpdateMixin(_RestManagerBase):
             http_put (default) or http_post
         """
         if self._update_method is UpdateMethod.POST:
-            http_method = self.openbas.http_post
+            http_method = self.openaev.http_post
         elif self._update_method is UpdateMethod.PATCH:
             # only patch uses required kwargs, so our types are a bit misaligned
-            http_method = self.openbas.http_patch  # type: ignore[assignment]
+            http_method = self.openaev.http_patch  # type: ignore[assignment]
         else:
-            http_method = self.openbas.http_put
+            http_method = self.openaev.http_put
         return http_method
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def update(
         self,
         id: Optional[Union[str, int]] = None,
@@ -191,9 +191,9 @@ class CreateMixin(_RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openbas: pyobas.OpenBAS
+    openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenBASCreateError)
+    @exc.on_http_error(exc.OpenAEVCreateError)
     def create(
         self, data: Optional[Dict[str, Any]] = None, icon: tuple = None, **kwargs: Any
     ) -> base.RESTObject:
@@ -209,7 +209,7 @@ class CreateMixin(_RestManagerBase):
             files = {}
         else:
             files = None
-        server_data = self.openbas.http_post(
+        server_data = self.openaev.http_post(
             path, post_data=data, files=files, **kwargs
         )
         if TYPE_CHECKING:
@@ -225,9 +225,9 @@ class DeleteMixin(_RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openbas: pyobas.OpenBAS
+    openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenBASCreateError)
+    @exc.on_http_error(exc.OpenAEVCreateError)
     def delete(
         self, id: Optional[Union[str, int]] = None, **kwargs: Any
     ) -> requests.Response:
@@ -236,7 +236,7 @@ class DeleteMixin(_RestManagerBase):
         else:
             path = f"{self.path}/{utils.EncodedId(id)}"
 
-        result = self.openbas.http_delete(path, **kwargs)
+        result = self.openaev.http_delete(path, **kwargs)
         if TYPE_CHECKING:
             assert isinstance(result, requests.Response)
         return result

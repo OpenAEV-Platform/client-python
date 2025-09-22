@@ -6,10 +6,10 @@ import textwrap
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Type, Union
 
-from pyobas.exceptions import OpenBASParsingError
+from pyoaev.exceptions import OpenAEVParsingError
 
 from . import utils
-from .client import OpenBAS, OpenBASList
+from .client import OpenAEV, OpenAEVList
 
 __all__ = [
     "RESTObject",
@@ -36,7 +36,7 @@ class RESTObject:
         created_from_list: bool = False,
     ) -> None:
         if not isinstance(attrs, dict):
-            raise OpenBASParsingError(
+            raise OpenAEVParsingError(
                 f"Attempted to initialize RESTObject with a non-dictionary value: "
                 f"{attrs!r}\nThis likely indicates an incorrect or malformed server "
                 f"response."
@@ -172,7 +172,7 @@ class RESTObject:
             if cls_name == "RESTManager" or not cls_name.endswith("Manager"):
                 continue
             cls = getattr(self._module, cls_name)
-            manager = cls(self.manager.openbas, parent=self)
+            manager = cls(self.manager.openaev, parent=self)
             # Since we have our own __setattr__ method, we can't use setattr()
             self.__dict__[attr] = manager
 
@@ -211,7 +211,7 @@ class RESTObject:
 
 class RESTObjectList:
     def __init__(
-        self, manager: "RESTManager", obj_cls: Type[RESTObject], _list: OpenBASList
+        self, manager: "RESTManager", obj_cls: Type[RESTObject], _list: OpenAEVList
     ) -> None:
         self.manager = manager
         self._obj_cls = obj_cls
@@ -286,10 +286,10 @@ class RESTManager:
     _computed_path: Optional[str]
     _parent: Optional[RESTObject]
     _parent_attrs: Dict[str, Any]
-    openbas: OpenBAS
+    openaev: OpenAEV
 
-    def __init__(self, openbas: OpenBAS, parent: Optional[RESTObject] = None) -> None:
-        self.openbas = openbas
+    def __init__(self, openaev: OpenAEV, parent: Optional[RESTObject] = None) -> None:
+        self.openaev = openaev
         self._parent = parent  # for nested managers
         self._computed_path = self._compute_path()
 

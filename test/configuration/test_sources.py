@@ -2,9 +2,9 @@ import os
 import unittest
 from unittest.mock import patch
 
-from pyobas.configuration.sources import DictionarySource, EnvironmentSource
+from pyoaev.configuration.sources import DictionarySource, EnvironmentSource
 
-TEST_ENV_VAR: str = "PYOBAS_TEST_ENV_VAR"
+TEST_ENV_VAR: str = "PYOAEV_TEST_ENV_VAR"
 
 
 class TestEnvironmentSource(unittest.TestCase):

@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
-from pyobas import exceptions as exc
-from pyobas.base import RESTManager, RESTObject
-from pyobas.utils import RequiredOptional
+from pyoaev import exceptions as exc
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.utils import RequiredOptional
 
 
 class Endpoint(RESTObject):
@@ -25,14 +25,14 @@ class EndpointManager(RESTManager):
         ),
     )
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def get(self, asset_id: str, **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/" + asset_id
-        result = self.openbas.http_get(path, **kwargs)
+        result = self.openaev.http_get(path, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def upsert(self, endpoint: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/agentless/upsert"
-        result = self.openbas.http_post(path, post_data=endpoint, **kwargs)
+        result = self.openaev.http_post(path, post_data=endpoint, **kwargs)
         return result

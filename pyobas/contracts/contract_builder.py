@@ -1,6 +1,6 @@
 from typing import List
 
-from pyobas.contracts.contract_config import ContractElement, ContractOutputElement
+from pyoaev.contracts.contract_config import ContractElement, ContractOutputElement
 
 
 class ContractBuilder:

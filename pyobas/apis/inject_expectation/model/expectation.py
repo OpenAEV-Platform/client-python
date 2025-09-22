@@ -5,8 +5,8 @@ from uuid import UUID
 from pydantic import BaseModel
 from thefuzz import fuzz
 
-from pyobas.signatures.signature_type import SignatureType
-from pyobas.signatures.types import MatchTypes, SignatureTypes
+from pyoaev.signatures.signature_type import SignatureType
+from pyoaev.signatures.types import MatchTypes, SignatureTypes
 
 
 class ExpectationTypeEnum(str, Enum):
@@ -51,7 +51,7 @@ class Expectation(BaseModel):
         self.__api_client = kw["api_client"]
 
     def update(self, success, sender_id, metadata):
-        """Update the expectation object in OpenBAS with the supplied outcome.
+        """Update the expectation object in OpenAEV with the supplied outcome.
 
         :param success: whether the expectation was fulfilled (true) or not (false)
         :type success: bool
@@ -157,7 +157,7 @@ class Expectation(BaseModel):
 
 class DetectionExpectation(Expectation):
     """An expectation that is specific to Detection, i.e. that is used
-    by OpenBAS to assert that an inject's execution was detected.
+    by OpenAEV to assert that an inject's execution was detected.
     """
 
     success_label: str = "Detected"
@@ -166,7 +166,7 @@ class DetectionExpectation(Expectation):
 
 class PreventionExpectation(Expectation):
     """An expectation that is specific to Prevention, i.e. that is used
-    by OpenBAS to assert that an inject's execution was prevented.
+    by OpenAEV to assert that an inject's execution was prevented.
     """
 
     success_label: str = "Prevented"

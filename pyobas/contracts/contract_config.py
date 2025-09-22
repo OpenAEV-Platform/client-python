@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List
 
-from pyobas import utils
-from pyobas.contracts.contract_utils import ContractCardinality, ContractVariable
-from pyobas.contracts.variable_helper import VariableHelper
+from pyoaev import utils
+from pyoaev.contracts.contract_utils import ContractCardinality, ContractVariable
+from pyoaev.contracts.variable_helper import VariableHelper
 
 
 class SupportedLanguage(str, Enum):

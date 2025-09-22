@@ -1,8 +1,8 @@
 import sched
 import time
 
-from pyobas.daemons import BaseDaemon
-from pyobas.utils import PingAlive
+from pyoaev.daemons import BaseDaemon
+from pyoaev.utils import PingAlive
 
 DEFAULT_PERIOD_SECONDS = 60
 

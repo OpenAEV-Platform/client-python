@@ -1,8 +1,8 @@
-OpenBAS client for Python
+OpenAEV client for Python
 =========================
 
-The pyobas library is designed to help OpenBAS users and developers to interact
-with the OpenBAS platform API.
+The pyoaev library is designed to help OpenAEV users and developers to interact
+with the OpenAEV platform API.
 
 The Python library requires Python >= 3.
 
@@ -11,7 +11,7 @@ The Python library requires Python >= 3.
    :caption: Contents:
 
    client_usage/getting_started.rst
-   pyobas/pyobas
+   pyoaev/pyoaev
 
 
 Indices and tables

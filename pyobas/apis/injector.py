@@ -1,6 +1,6 @@
-from pyobas.base import RESTManager, RESTObject
-from pyobas.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
-from pyobas.utils import RequiredOptional
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class Injector(RESTObject):

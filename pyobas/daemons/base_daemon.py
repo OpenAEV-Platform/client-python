@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 from inspect import signature
 from types import FunctionType
 
-from pyobas.client import OpenBAS
-from pyobas.configuration import Configuration
-from pyobas.exceptions import OpenBASError
-from pyobas.utils import logger
+from pyoaev.client import OpenAEV
+from pyoaev.configuration import Configuration
+from pyoaev.exceptions import OpenAEVError
+from pyoaev.utils import logger
 
 
 class BaseDaemon(ABC):
@@ -34,8 +34,8 @@ class BaseDaemon(ABC):
         self._configuration = configuration
         self._callback = callback
         self.api = api_client or BaseDaemon.__get_default_api_client(
-            url=self._configuration.get("openbas_url"),
-            token=self._configuration.get("openbas_token"),
+            url=self._configuration.get("openaev_url"),
+            token=self._configuration.get("openaev_token"),
         )
 
         # logging
@@ -83,7 +83,7 @@ class BaseDaemon(ABC):
             # Example:
             #
             # def standalone_func(collector):
-            #   collector.api.call_openbas()
+            #   collector.api.call_openaev()
             #
             # CollectorDaemon(config=<pyboas.configuration.Configuration>, standalone_func).start()
             if (
@@ -102,7 +102,7 @@ class BaseDaemon(ABC):
         configured callback, the method will abort and kill the daemon.
         """
         if self._callback is None:
-            raise OpenBASError("This daemon has no configured callback.")
+            raise OpenAEVError("This daemon has no configured callback.")
         self._setup()
         self._start_loop()
 
@@ -124,7 +124,7 @@ class BaseDaemon(ABC):
 
     @classmethod
     def __get_default_api_client(cls, url, token):
-        return OpenBAS(url=url, token=token)
+        return OpenAEV(url=url, token=token)
 
     @classmethod
     def __get_default_logger(cls, log_level, name):

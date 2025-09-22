@@ -1,5 +1,5 @@
-from pyobas.signatures.signature_match import SignatureMatch
-from pyobas.signatures.types import MatchTypes, SignatureTypes
+from pyoaev.signatures.signature_match import SignatureMatch
+from pyoaev.signatures.types import MatchTypes, SignatureTypes
 
 
 class SignatureType:

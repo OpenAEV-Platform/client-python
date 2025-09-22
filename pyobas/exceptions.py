@@ -2,7 +2,7 @@ import functools
 from typing import TYPE_CHECKING, Any, Callable, Optional, Type, TypeVar, Union, cast
 
 
-class OpenBASError(Exception):
+class OpenAEVError(Exception):
     def __init__(
         self,
         error_message: Union[str, bytes] = "",
@@ -144,43 +144,43 @@ class OpenBASError(Exception):
         return f"{message}"
 
 
-class OpenBASAuthenticationError(OpenBASError):
+class OpenAEVAuthenticationError(OpenAEVError):
     pass
 
 
-class OpenBASHttpError(OpenBASError):
+class OpenAEVHttpError(OpenAEVError):
     pass
 
 
-class OpenBASParsingError(OpenBASError):
+class OpenAEVParsingError(OpenAEVError):
     pass
 
 
-class RedirectError(OpenBASError):
+class RedirectError(OpenAEVError):
     pass
 
 
-class OpenBASHeadError(OpenBASError):
+class OpenAEVHeadError(OpenAEVError):
     pass
 
 
-class OpenBASGetError(OpenBASError):
+class OpenAEVGetError(OpenAEVError):
     pass
 
 
-class OpenBASUpdateError(OpenBASError):
+class OpenAEVUpdateError(OpenAEVError):
     pass
 
 
-class OpenBASListError(OpenBASError):
+class OpenAEVListError(OpenAEVError):
     pass
 
 
-class OpenBASCreateError(OpenBASError):
+class OpenAEVCreateError(OpenAEVError):
     pass
 
 
-class ConfigurationError(OpenBASError):
+class ConfigurationError(OpenAEVError):
     pass
 
 
@@ -197,7 +197,7 @@ def on_http_error(error: Type[Exception]) -> Callable[[__F], __F]:
         def wrapped_f(*args: Any, **kwargs: Any) -> Any:
             try:
                 return f(*args, **kwargs)
-            except OpenBASHttpError as e:
+            except OpenAEVHttpError as e:
                 raise error(e.error_message, e.response_code, e.response_body) from e
 
         return cast(__F, wrapped_f)
@@ -208,12 +208,12 @@ def on_http_error(error: Type[Exception]) -> Callable[[__F], __F]:
 # Export manually to keep mypy happy
 __all__ = [
     "ConfigurationError",
-    "OpenBASAuthenticationError",
-    "OpenBASHttpError",
-    "OpenBASParsingError",
+    "OpenAEVAuthenticationError",
+    "OpenAEVHttpError",
+    "OpenAEVParsingError",
     "RedirectError",
-    "OpenBASHeadError",
-    "OpenBASListError",
-    "OpenBASGetError",
-    "OpenBASUpdateError",
+    "OpenAEVHeadError",
+    "OpenAEVListError",
+    "OpenAEVGetError",
+    "OpenAEVUpdateError",
 ]

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
-from pyobas import exceptions as exc
-from pyobas.base import RESTManager, RESTObject
+from pyoaev import exceptions as exc
+from pyoaev.base import RESTManager, RESTObject
 
 
 class AttackPattern(RESTObject):
@@ -12,7 +12,7 @@ class AttackPatternManager(RESTManager):
     _path = "/attack_patterns"
     _obj_cls = AttackPattern
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def upsert(
         self,
         attack_patterns: List[Dict[str, Any]],
@@ -24,5 +24,5 @@ class AttackPatternManager(RESTManager):
             "ignore_dependencies": ignore_dependencies,
         }
         path = f"{self.path}/upsert"
-        result = self.openbas.http_post(path, post_data=data, **kwargs)
+        result = self.openaev.http_post(path, post_data=data, **kwargs)
         return result

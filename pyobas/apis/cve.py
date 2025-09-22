@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from pyobas import exceptions as exc
-from pyobas.base import RESTManager, RESTObject
+from pyoaev import exceptions as exc
+from pyoaev.base import RESTManager, RESTObject
 
 
 class Cve(RESTObject):
@@ -11,8 +11,8 @@ class Cve(RESTObject):
 class CveManager(RESTManager):
     _path = "/cves"
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def upsert(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/bulk"
-        result = self.openbas.http_post(path, post_data=data, **kwargs)
+        result = self.openaev.http_post(path, post_data=data, **kwargs)
         return result

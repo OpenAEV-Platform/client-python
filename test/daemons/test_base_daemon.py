@@ -1,13 +1,13 @@
 import unittest
 import unittest.mock
 
-from pyobas.configuration import Configuration
-from pyobas.daemons import BaseDaemon
-from pyobas.exceptions import OpenBASError
+from pyoaev.configuration import Configuration
+from pyoaev.daemons import BaseDaemon
+from pyoaev.exceptions import OpenAEVError
 
 TEST_DAEMON_CONFIG_HINTS = {
-    "openbas_url": {"data": "http://example.com"},
-    "openbas_token": {"data": "test"},
+    "openaev_url": {"data": "http://example.com"},
+    "openaev_token": {"data": "test"},
     "log_level": {"data": "info"},
     "name": {"data": "my test daemon"},
 }
@@ -64,7 +64,7 @@ class TestBaseDaemon(unittest.TestCase):
     def test_when_no_callback_daemon_cant_start(self):
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon()
 
-        with self.assertRaises(OpenBASError):
+        with self.assertRaises(OpenAEVError):
             daemon.start()
 
         mock_setup.assert_not_called()

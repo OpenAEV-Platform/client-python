@@ -1,14 +1,14 @@
 from typing import Any, Dict
 
-from pyobas import exceptions as exc
-from pyobas.apis.inject_expectation.model import (
+from pyoaev import exceptions as exc
+from pyoaev.apis.inject_expectation.model import (
     DetectionExpectation,
     ExpectationTypeEnum,
     PreventionExpectation,
 )
-from pyobas.base import RESTManager, RESTObject
-from pyobas.mixins import ListMixin, UpdateMixin
-from pyobas.utils import RequiredOptional
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.mixins import ListMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class InjectExpectation(RESTObject):
@@ -20,12 +20,12 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
     _obj_cls = InjectExpectation
     _update_attrs = RequiredOptional(required=("collector_id", "result", "is_success"))
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def expectations_assets_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/assets/" + source_id
-        result = self.openbas.http_get(
+        result = self.openaev.http_get(
             path,
             query_data=(
                 {"expiration_time": expiration_time} if expiration_time else None
@@ -35,7 +35,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         return result
 
     def expectations_models_for_source(self, source_id: str, **kwargs: Any):
-        """Returns all expectations from OpenBAS that have had no result yet
+        """Returns all expectations from OpenAEV that have had no result yet
             from the source_id (e.g. collector).
 
         :param source_id: the identifier of the collector requesting expectations
@@ -73,20 +73,20 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
                 )
         return expectations
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def prevention_expectations_for_source(
         self, source_id: str, **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/prevention" + source_id
-        result = self.openbas.http_get(path, **kwargs)
+        result = self.openaev.http_get(path, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def detection_expectations_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/detection/" + source_id
-        result = self.openbas.http_get(
+        result = self.openaev.http_get(
             path,
             query_data=(
                 {"expiration_time": expiration_time} if expiration_time else None
@@ -95,7 +95,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         )
         return result
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def update(
         self,
         inject_expectation_id: str,
@@ -103,16 +103,16 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         **kwargs: Any,
     ) -> Dict[str, Any]:
         path = f"{self.path}/{inject_expectation_id}"
-        result = self.openbas.http_put(path, post_data=inject_expectation, **kwargs)
+        result = self.openaev.http_put(path, post_data=inject_expectation, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def bulk_update(
         self,
         inject_expectation_input_by_id: Dict[str, Dict[str, Any]],
         **kwargs: Any,
     ) -> None:
         path = f"{self.path}/bulk"
-        self.openbas.http_put(
+        self.openaev.http_put(
             path, post_data={"inputs": inject_expectation_input_by_id}, **kwargs
         )

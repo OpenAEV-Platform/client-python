@@ -1,9 +1,9 @@
 from typing import Any, Dict
 
-from pyobas import exceptions as exc
-from pyobas.base import RESTManager, RESTObject
-from pyobas.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
-from pyobas.utils import RequiredOptional
+from pyoaev import exceptions as exc
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class SecurityPlatform(RESTObject):
@@ -24,10 +24,10 @@ class SecurityPlatformManager(
         ),
     )
 
-    @exc.on_http_error(exc.OpenBASUpdateError)
+    @exc.on_http_error(exc.OpenAEVUpdateError)
     def upsert(
         self, security_platform: Dict[str, Any], **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/upsert"
-        result = self.openbas.http_post(path, post_data=security_platform, **kwargs)
+        result = self.openaev.http_post(path, post_data=security_platform, **kwargs)
         return result

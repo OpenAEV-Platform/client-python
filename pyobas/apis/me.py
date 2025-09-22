@@ -1,7 +1,7 @@
 from typing import Any, cast
 
-from pyobas.base import RESTManager, RESTObject
-from pyobas.mixins import GetWithoutIdMixin, UpdateMixin
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.mixins import GetWithoutIdMixin, UpdateMixin
 
 
 class Me(RESTObject):
