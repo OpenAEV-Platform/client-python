@@ -1,6 +1,8 @@
 import sched
 import time
+from argparse import ArgumentError
 
+from pyobas import Configuration
 from pyobas.daemons import BaseDaemon
 from pyobas.utils import PingAlive
 
@@ -16,6 +18,19 @@ class CollectorDaemon(BaseDaemon):
     that this time is added to the time the loop takes to run, so the actual total
     time between each loop start is time_of_loop+period.
     """
+
+    def __init__(
+            self,
+            configuration: Configuration,
+            callback: callable = None,
+            logger=None,
+            api_client=None,
+            collector_type=None,
+    ):
+        super().__init__(configuration, callback, logger, api_client)
+        if collector_type is None:
+            raise ArgumentError('Must defined a value for collector type')
+        self.collector_type = collector_type
 
     def _setup(self):
         if self._configuration.get("collector_period") is None:
@@ -45,7 +60,7 @@ class CollectorDaemon(BaseDaemon):
             config = {
                 "collector_id": self._configuration.get("collector_id"),
                 "collector_name": self._configuration.get("collector_name"),
-                "collector_type": self._configuration.get("collector_type"),
+                "collector_type": self.collector_type,
                 "collector_period": self._configuration.get("collector_period"),
                 "collector_security_platform": security_platform_id,
             }
