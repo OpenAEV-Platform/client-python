@@ -28,7 +28,7 @@ class TestCollectorDaemon(unittest.TestCase):
                 "collector_id": {"data": "fake id"},
             }
         )
-        collector = CollectorDaemon(config)
+        collector = CollectorDaemon(configuration=config, collector_type="test")
 
         collector._setup()
 
