@@ -263,6 +263,7 @@ class OpenBASCollectorHelper:
         self,
         config: OpenBASConfigHelper,
         icon,
+        collector_type=None,
         security_platform_type=None,
         connect_run_and_terminate: bool = False,
     ) -> None:
@@ -276,6 +277,7 @@ class OpenBASCollectorHelper:
         self.__daemon = CollectorDaemon(
             configuration=config_obj,
             callback=None,
+            collector_type=collector_type,
         )
 
         self.__daemon.logger.warning(
@@ -292,7 +294,7 @@ class OpenBASCollectorHelper:
         self.config = {
             "collector_id": config_obj.get("collector_id"),
             "collector_name": config_obj.get("collector_name"),
-            "collector_type": config_obj.get("collector_type"),
+            "collector_type": collector_type,
             "collector_period": config_obj.get("collector_period"),
         }
 
