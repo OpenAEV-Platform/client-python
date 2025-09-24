@@ -20,16 +20,16 @@ class CollectorDaemon(BaseDaemon):
     """
 
     def __init__(
-            self,
-            configuration: Configuration,
-            callback: callable = None,
-            logger=None,
-            api_client=None,
-            collector_type=None,
+        self,
+        configuration: Configuration,
+        callback: callable = None,
+        logger=None,
+        api_client=None,
+        collector_type=None,
     ):
         super().__init__(configuration, callback, logger, api_client)
         if collector_type is None:
-            raise ArgumentError('Must defined a value for collector type')
+            raise ArgumentError("Must defined a value for collector type")
         self.collector_type = collector_type
 
     def _setup(self):
