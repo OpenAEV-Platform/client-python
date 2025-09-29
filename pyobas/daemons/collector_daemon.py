@@ -1,6 +1,5 @@
 import sched
 import time
-from argparse import ArgumentError
 
 from pyobas import Configuration
 from pyobas.daemons import BaseDaemon
@@ -29,7 +28,7 @@ class CollectorDaemon(BaseDaemon):
     ):
         super().__init__(configuration, callback, logger, api_client)
         if collector_type is None:
-            raise ArgumentError("Must defined a value for collector type")
+            raise ValueError("Must define a value for collector type")
         self.collector_type = collector_type
 
     def _setup(self):
