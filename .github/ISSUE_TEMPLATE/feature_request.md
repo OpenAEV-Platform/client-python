@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Ask for a new feature to be implemented in OpenBAS
+about: Ask for a new feature to be implemented in OpenAEV
 title: ''
 labels: feature, needs triage
 assignees: ''
@@ -15,11 +15,11 @@ Please replace every line in curly brackets { like this } with appropriate answe
 
 ## Current Workaround
 
-{ Please describe how you currently solve or work around this problem, given OpenBAS's limitation. }
+{ Please describe how you currently solve or work around this problem, given OpenAEV's limitation. }
 
 ## Proposed Solution
 
-{ Please describe the solution you would like OpenBAS to provide, to solve the problem above. }
+{ Please describe the solution you would like OpenAEV to provide, to solve the problem above. }
 
 ## Additional Information
 
