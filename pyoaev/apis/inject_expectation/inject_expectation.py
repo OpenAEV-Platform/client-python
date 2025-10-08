@@ -28,7 +28,13 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         result = self.openaev.http_get(
             path,
             query_data=(
-                {"expiration_time": expiration_time} if expiration_time else None
+                {"expiration_time": expiration_time}
+                if expiration_time
+                else {
+                    "expiration_time": 360
+                }  # 360 minutes (6 hours) - corresponds to the expiration time configured in the Expectations Expiration Manager.
+                # Expectations older than this duration will be automatically expired to prevent
+                # processing outdated data, particularly important when launching new collectors.
             ),
             **kwargs,
         )
