@@ -5,7 +5,7 @@ from pyoaev import OpenAEV
 from pyoaev.apis.inputs.search import (
     Filter,
     FilterGroup,
-    InjectorContractSearchPaginationInput,
+    SearchPaginationInput,
 )
 
 
@@ -29,7 +29,7 @@ class TestInjectorContract(TestCase):
     def test_search_input_correctly_serialised(self, mock_request):
         api_client = OpenAEV("url", "token")
 
-        search_input = InjectorContractSearchPaginationInput(
+        search_input = SearchPaginationInput(
             0,
             20,
             FilterGroup("or", [Filter("prop", "and", "eq", ["titi", "toto"])]),
@@ -38,11 +38,11 @@ class TestInjectorContract(TestCase):
         )
 
         expected_json = search_input.to_dict()
-        api_client.injector_contract.search(search_input)
+        api_client.endpoint.searchTargets(search_input)
 
         mock_request.assert_called_once_with(
             method="post",
-            url="url/api/injector_contracts/search",
+            url="url/api/endpoints/targets",
             params={},
             data=None,
             timeout=None,
