@@ -2,11 +2,7 @@ from unittest import TestCase, main, mock
 from unittest.mock import ANY
 
 from pyoaev import OpenAEV
-from pyoaev.apis.inputs.search import (
-    Filter,
-    FilterGroup,
-    SearchPaginationInput,
-)
+from pyoaev.apis.inputs.search import Filter, FilterGroup, SearchPaginationInput
 
 
 def mock_response(**kwargs):

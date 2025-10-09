@@ -40,7 +40,7 @@ class EndpointManager(RESTManager):
 
     @exc.on_http_error(exc.OpenAEVUpdateError)
     def searchTargets(
-            self, input: SearchPaginationInput, **kwargs: Any
+        self, input: SearchPaginationInput, **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/targets"
         result = self.openaev.http_post(path, post_data=input.to_dict(), **kwargs)
