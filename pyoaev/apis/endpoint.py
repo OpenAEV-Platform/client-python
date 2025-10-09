@@ -39,9 +39,7 @@ class EndpointManager(RESTManager):
         return result
 
     @exc.on_http_error(exc.OpenAEVListError)
-    def searchTargets(
-        self, input: SearchPaginationInput, **kwargs: Any
-    ) -> Dict[str, Any]:
+    def searchTargets(self, input: SearchPaginationInput, **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/targets"
         result = self.openaev.http_post(path, post_data=input.to_dict(), **kwargs)
         return result
