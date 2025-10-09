@@ -28,7 +28,7 @@ class TestInjectorContract(TestCase):
         search_input = SearchPaginationInput(
             0,
             20,
-            FilterGroup("or", [Filter("prop", "and", "eq", ["titi", "toto"])]),
+            FilterGroup("or", [Filter("targets", "and", "eq", ["target_1", "target_2", "target_3"])]),
             None,
             None,
         )
