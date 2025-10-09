@@ -39,7 +39,7 @@ class EndpointManager(RESTManager):
         return result
 
     @exc.on_http_error(exc.OpenAEVUpdateError)
-    def search(
+    def searchTargets(
             self, input: SearchPaginationInput, **kwargs: Any
     ) -> Dict[str, Any]:
         path = f"{self.path}/targets"
