@@ -31,9 +31,11 @@ class ContractFieldType(str, Enum):
     AssetGroup: str = "asset-group"
     Payload: str = "payload"
 
+
 class ContractFieldKey(str, Enum):
     Asset: str = "assets"
     AssetGroup: str = "asset_groups"
+
 
 class ContractOutputType(str, Enum):
     Text: str = "text"
@@ -278,6 +280,7 @@ class ContractAsset(ContractCardinalityElement):
     @property
     def get_type(self) -> str:
         return ContractFieldType.Asset.value
+
 
 @dataclass
 class ContractAssetGroup(ContractCardinalityElement):
