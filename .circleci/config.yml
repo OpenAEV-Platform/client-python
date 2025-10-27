@@ -1,7 +1,7 @@
 ---
 version: 2.1
 orbs:
-  slack: circleci/slack@5.1.1
+  slack: circleci/slack@5.2.0
 jobs:
   ensure_formatting:
     docker:
@@ -52,7 +52,7 @@ jobs:
           event: fail
           template: basic_fail_1
   build:
-    working_directory: ~/openbas-client
+    working_directory: ~/openaev-client
     docker:
       - image: cimg/python:3.13
     steps:
@@ -65,7 +65,7 @@ jobs:
           name: check version
           command: |
             package_version="$(
-                python3 -c 'import pyobas; print(pyobas.__version__)'
+                python3 -c 'import pyoaev; print(pyoaev.__version__)'
             )"
             [ "${CIRCLE_TAG}" = "${package_version}" ] \
               || printf "Version mismatch: %s is not equal to %s\n" \
@@ -79,17 +79,17 @@ jobs:
           event: fail
           template: basic_fail_1
       - persist_to_workspace:
-          root: ~/openbas-client
+          root: ~/openaev-client
           paths:
             - dist
   deploy:
-    working_directory: ~/openbas-client
+    working_directory: ~/openaev-client
     docker:
       - image: cimg/python:3.13
     steps:
       - checkout
       - attach_workspace:
-          at: ~/openbas-client
+          at: ~/openaev-client
       - run:
           name: install dependencies
           command: pip3 install --user .
@@ -125,7 +125,7 @@ jobs:
 
 workflows:
   version: 2
-  openbas_client_python:
+  openaev_client_python:
     jobs:
       - ensure_formatting:
           filters:

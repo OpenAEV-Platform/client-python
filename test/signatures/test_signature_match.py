@@ -1,15 +1,15 @@
 import unittest
 
-from pyobas.exceptions import OpenBASError
-from pyobas.signatures.signature_match import SignatureMatch
-from pyobas.signatures.types import MatchTypes
+from pyoaev.exceptions import OpenAEVError
+from pyoaev.signatures.signature_match import SignatureMatch
+from pyoaev.signatures.types import MatchTypes
 
 
 class TestSignatureMatch(unittest.TestCase):
     def test_non_simple_match_with_non_null_score_throws(self):
         score = None
         self.assertRaises(
-            OpenBASError, SignatureMatch, MatchTypes.MATCH_TYPE_FUZZY, score
+            OpenAEVError, SignatureMatch, MatchTypes.MATCH_TYPE_FUZZY, score
         )
 
     def test_simple_match_with_null_score_does_not_throw(self):

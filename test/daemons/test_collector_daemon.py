@@ -1,16 +1,16 @@
 import unittest
 from unittest.mock import mock_open, patch
 
-from pyobas.configuration import Configuration
-from pyobas.daemons import CollectorDaemon
-from pyobas.daemons.collector_daemon import DEFAULT_PERIOD_SECONDS
+from pyoaev.configuration import Configuration
+from pyoaev.daemons import CollectorDaemon
+from pyoaev.daemons.collector_daemon import DEFAULT_PERIOD_SECONDS
 
 
 class TestCollectorDaemon(unittest.TestCase):
-    @patch("pyobas.apis.DocumentManager.upsert")
-    @patch("pyobas.apis.CollectorManager.create")
+    @patch("pyoaev.apis.DocumentManager.upsert")
+    @patch("pyoaev.apis.CollectorManager.create")
     @patch("builtins.open", new_callable=mock_open, read_data="data")
-    @patch("pyobas.utils.PingAlive.start")
+    @patch("pyoaev.utils.PingAlive.start")
     def test_when_no_period_config_provided_set_default_period(
         self,
         mock_ping_alive,
@@ -23,12 +23,12 @@ class TestCollectorDaemon(unittest.TestCase):
         mock_document_upsert.return_value = {}
         config = Configuration(
             config_hints={
-                "openbas_url": {"data": "fake"},
-                "openbas_token": {"data": "fake"},
+                "openaev_url": {"data": "fake"},
+                "openaev_token": {"data": "fake"},
                 "collector_id": {"data": "fake id"},
             }
         )
-        collector = CollectorDaemon(config)
+        collector = CollectorDaemon(configuration=config, collector_type="test")
 
         collector._setup()
 
