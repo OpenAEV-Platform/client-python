@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = "1.18.20"
+__version__ = "2.0.0"
 
 from pyoaev._version import (  # noqa: F401
     __author__,
