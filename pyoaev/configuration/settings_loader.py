@@ -4,13 +4,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    HttpUrl,
-    PlainSerializer,
-)
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, PlainSerializer
 from pydantic_settings import (
     BaseSettings,
     DotEnvSettingsSource,
