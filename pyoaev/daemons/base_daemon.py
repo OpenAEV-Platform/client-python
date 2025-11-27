@@ -108,7 +108,7 @@ class BaseDaemon(ABC):
         parser.add_argument("--dump-config-schema", action='store_true')
         args = parser.parse_args()
         if args.dump_config_schema:
-            self.logger.info(self._configuration.schema())
+            print(self._configuration.schema())
             return
 
         if self._callback is None:
