@@ -1,4 +1,4 @@
-from pyoaev.security_domain.types import SecurityDomainsKeyWords, SecurityDomains
+from pyoaev.security_domain.types import SecurityDomains, SecurityDomainsKeyWords
 
 class SecurityDomainBuilder:
 
