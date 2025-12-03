@@ -121,6 +121,15 @@ class ContractConfig:
 
 
 @dataclass
+class Domain:
+    domain_id: str
+    domain_name: str
+    domain_color: str
+    domain_created_at: str
+    domain_updated_at: str
+
+
+@dataclass
 class Contract:
     contract_id: str
     label: dict[SupportedLanguage, str]
@@ -141,6 +150,7 @@ class Contract:
     is_atomic_testing: bool = True
     platforms: List[str] = field(default_factory=list)
     external_id: str = None
+    domains: List[Domain] = None
 
     def add_attack_pattern(self, var: str):
         self.contract_attack_patterns_external_ids.append(var)
@@ -163,6 +173,7 @@ class Contract:
             "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
             "is_atomic_testing": self.is_atomic_testing,
             "contract_platforms": self.platforms,
+            "contract_domains": self.domains,
         }
 
     def to_contract_update_input(self):
@@ -174,6 +185,7 @@ class Contract:
             "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
             "is_atomic_testing": self.is_atomic_testing,
             "contract_platforms": self.platforms,
+            "contract_domains": self.domains,
         }
 
 
@@ -203,6 +215,7 @@ def prepare_contracts(contracts):
                 "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
                 "contract_content": json.dumps(c, cls=utils.EnhancedJSONEncoder),
                 "contract_platforms": c.platforms,
+                "contract_domains": c.domains,
             },
             contracts,
         )
