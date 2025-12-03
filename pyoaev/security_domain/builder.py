@@ -1,5 +1,6 @@
 from pyoaev.security_domain.types import SecurityDomains, SecurityDomainsKeyWords
 
+
 class SecurityDomainBuilder:
 
     def _find_in_keywords(self, keywords, search):
