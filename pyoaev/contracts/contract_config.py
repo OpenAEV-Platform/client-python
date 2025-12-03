@@ -119,6 +119,7 @@ class ContractConfig:
     color_dark: str
     color_light: str
 
+
 @dataclass
 class Domain:
     domain_id: str
@@ -126,6 +127,7 @@ class Domain:
     domain_color: str
     domain_created_at: str
     domain_updated_at: str
+
 
 @dataclass
 class Contract:
