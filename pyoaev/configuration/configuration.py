@@ -146,7 +146,12 @@ class Configuration:
             return None
 
         return self.__process_value_to_type(
-            config.data or self.__dig_config_sources_for_key(config), config.is_number
+            (
+                self.__dig_config_sources_for_key(config)
+                if config.data is None
+                else config.data
+            ),
+            config.is_number,
         )
 
     def set(self, config_key: str, value: CONFIGURATION_TYPES):
