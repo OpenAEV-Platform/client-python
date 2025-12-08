@@ -40,5 +40,4 @@ class SecurityDomainBuilder:
         ) or self._find_in_keywords(SecurityDomainsKeyWords.CLOUD, description):
             domains.append(SecurityDomains.CLOUD.value)
 
-
         return domains
