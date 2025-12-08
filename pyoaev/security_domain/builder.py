@@ -9,11 +9,8 @@ class SecurityDomainBuilder:
     # Define the domain by item
     def get_associated_security_domains(self, name, description):
         domains = []
+        domains.append(SecurityDomains.ENDPOINT.value)
 
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.ENDPOINT, name
-        ) or self._find_in_keywords(SecurityDomainsKeyWords.ENDPOINT, description):
-            domains.append(SecurityDomains.ENDPOINT.value)
         if self._find_in_keywords(
             SecurityDomainsKeyWords.NETWORK, name
         ) or self._find_in_keywords(SecurityDomainsKeyWords.NETWORK, description):
@@ -43,7 +40,5 @@ class SecurityDomainBuilder:
         ) or self._find_in_keywords(SecurityDomainsKeyWords.CLOUD, description):
             domains.append(SecurityDomains.CLOUD.value)
 
-        if 0 == len(domains):
-            domains.append(SecurityDomains.ENDPOINT.value)
 
         return domains
