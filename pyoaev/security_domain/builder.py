@@ -7,37 +7,21 @@ class SecurityDomainBuilder:
         return any(keyword.lower() in search.lower() for keyword in keywords.value)
 
     # Define the domain by item
-    def get_associated_security_domains(self, name, description):
+    def get_associated_security_domains(self, name):
         domains = []
         domains.append(SecurityDomains.ENDPOINT.value)
 
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.NETWORK, name
-        ) or self._find_in_keywords(SecurityDomainsKeyWords.NETWORK, description):
+        if self._find_in_keywords(SecurityDomainsKeyWords.NETWORK, name):
             domains.append(SecurityDomains.NETWORK.value)
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.WEB_APP, name
-        ) or self._find_in_keywords(SecurityDomainsKeyWords.WEB_APP, description):
+        if self._find_in_keywords(SecurityDomainsKeyWords.WEB_APP, name):
             domains.append(SecurityDomains.WEB_APP.value)
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.EMAIL_INFILTRATION, name
-        ) or self._find_in_keywords(
-            SecurityDomainsKeyWords.EMAIL_INFILTRATION, description
-        ):
+        if self._find_in_keywords(SecurityDomainsKeyWords.EMAIL_INFILTRATION, name):
             domains.append(SecurityDomains.EMAIL_INFILTRATION.value)
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.DATA_EXFILTRATION, name
-        ) or self._find_in_keywords(
-            SecurityDomainsKeyWords.DATA_EXFILTRATION, description
-        ):
+        if self._find_in_keywords(SecurityDomainsKeyWords.DATA_EXFILTRATION, name):
             domains.append(SecurityDomains.DATA_EXFILTRATION.value)
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.URL_FILTERING, name
-        ) or self._find_in_keywords(SecurityDomainsKeyWords.URL_FILTERING, description):
+        if self._find_in_keywords(SecurityDomainsKeyWords.URL_FILTERING, name):
             domains.append(SecurityDomains.URL_FILTERING.value)
-        if self._find_in_keywords(
-            SecurityDomainsKeyWords.CLOUD, name
-        ) or self._find_in_keywords(SecurityDomainsKeyWords.CLOUD, description):
+        if self._find_in_keywords(SecurityDomainsKeyWords.CLOUD, name):
             domains.append(SecurityDomains.CLOUD.value)
 
         return domains
