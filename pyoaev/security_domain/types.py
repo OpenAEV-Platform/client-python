@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class SecurityDomainsKeyWords(Enum):
-    NETWORK = ["network", "ftp", "smb", "llmnr"]
+    NETWORK = ["network", "ftp", "smb", "llmnr", "nmap"]
     WEB_APP = ["web"]
-    EMAIL_INFILTRATION = ["email", "phishing"]
+    EMAIL_INFILTRATION = ["mail", "phishing"]
     DATA_EXFILTRATION = ["exfiltrat"]
     URL_FILTERING = ["bitsadmin"]
     CLOUD = ["aws", "azure", "gcp"]
