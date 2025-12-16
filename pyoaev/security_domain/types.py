@@ -1,15 +1,6 @@
 from enum import Enum
 
 
-class SecurityDomainsKeyWords(Enum):
-    NETWORK = ["network", "ftp", "smb", "llmnr", "nmap"]
-    WEB_APP = ["web"]
-    EMAIL_INFILTRATION = ["mail", "phishing"]
-    DATA_EXFILTRATION = ["exfiltrat"]
-    URL_FILTERING = ["bitsadmin"]
-    CLOUD = ["aws", "azure", "gcp"]
-
-
 class SecurityDomains(Enum):
     ENDPOINT = {"domain_name": "Endpoint", "domain_color": "#389CFF"}
     NETWORK = {"domain_name": "Network", "domain_color": "#009933"}
