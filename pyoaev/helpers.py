@@ -12,7 +12,6 @@ import traceback
 from typing import Callable, Dict, List
 
 import pika
-from pydantic_settings import BaseSettings
 from thefuzz import fuzz
 
 from pyoaev import OpenAEV, utils

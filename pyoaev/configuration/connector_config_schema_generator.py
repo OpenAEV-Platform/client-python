@@ -100,7 +100,7 @@ class ConnectorConfigSchemaGenerator(GenerateJsonSchema):
         json_schema = super().generate(schema, mode=mode)
 
         json_schema["$schema"] = self.schema_dialect
-        json_schema["$id"] = f"config.schema.json"
+        json_schema["$id"] = "config.schema.json"
         dereferenced_schema = self.dereference_schema(json_schema)
         flattened_schema = self.flatten_config_loader_schema(dereferenced_schema)
         return self.filter_schema(flattened_schema)
