@@ -12,13 +12,13 @@ import traceback
 from typing import Callable, Dict, List
 
 import pika
+from pydantic_settings import BaseSettings
 from thefuzz import fuzz
 
 from pyoaev import OpenAEV, utils
 from pyoaev.configuration import Configuration
 from pyoaev.daemons import CollectorDaemon
 from pyoaev.exceptions import ConfigurationError
-from pydantic_settings import BaseSettings
 
 TRUTHY: List[str] = ["yes", "true", "True"]
 FALSY: List[str] = ["no", "false", "False"]

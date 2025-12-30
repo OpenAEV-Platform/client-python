@@ -6,8 +6,10 @@ import yaml
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
+from pyoaev.configuration.connector_config_schema_generator import (
+    ConnectorConfigSchemaGenerator,
+)
 from pyoaev.configuration.sources import DictionarySource, EnvironmentSource
-from pyoaev.configuration.connector_config_schema_generator import ConnectorConfigSchemaGenerator
 
 CONFIGURATION_TYPES = str | int | bool | Any | None
 
@@ -175,7 +177,6 @@ class Configuration:
             self.__config_hints[config_key].data = value
 
     def schema(self):
-
         """
         Generates the complete connector schema using a custom schema generator compatible with Pydantic.
         Isolate custom class generator, Pydantic expects a class, not an instance

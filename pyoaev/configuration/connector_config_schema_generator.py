@@ -11,6 +11,7 @@ __FILTERED_ATTRIBUTES__ = [
     "CONNECTOR_ID",
 ]
 
+
 class ConnectorConfigSchemaGenerator(GenerateJsonSchema):
     @staticmethod
     def dereference_schema(schema_with_refs):
@@ -57,16 +58,16 @@ class ConnectorConfigSchemaGenerator(GenerateJsonSchema):
         }
 
         for (
-                config_loader_namespace_name,
-                config_loader_namespace_schema,
+            config_loader_namespace_name,
+            config_loader_namespace_schema,
         ) in root_schema["properties"].items():
             config_schema = config_loader_namespace_schema.get("properties", {})
-            required_config_vars = config_loader_namespace_schema.get(
-                "required", []
-            )
+            required_config_vars = config_loader_namespace_schema.get("required", [])
 
             for config_var_name, config_var_schema in config_schema.items():
-                property_name = f"{config_loader_namespace_name.upper()}_{config_var_name.upper()}"
+                property_name = (
+                    f"{config_loader_namespace_name.upper()}_{config_var_name.upper()}"
+                )
 
                 config_var_schema.pop("title", None)
 
@@ -82,7 +83,15 @@ class ConnectorConfigSchemaGenerator(GenerateJsonSchema):
         for filtered_attribute in __FILTERED_ATTRIBUTES__:
             if filtered_attribute in schema["properties"]:
                 del schema["properties"][filtered_attribute]
-                schema.update({"required": [item for item in schema["required"] if item != filtered_attribute]})
+                schema.update(
+                    {
+                        "required": [
+                            item
+                            for item in schema["required"]
+                            if item != filtered_attribute
+                        ]
+                    }
+                )
 
         return schema
 
@@ -91,9 +100,7 @@ class ConnectorConfigSchemaGenerator(GenerateJsonSchema):
         json_schema = super().generate(schema, mode=mode)
 
         json_schema["$schema"] = self.schema_dialect
-        json_schema["$id"] = (
-            f"config.schema.json"
-        )
+        json_schema["$id"] = f"config.schema.json"
         dereferenced_schema = self.dereference_schema(json_schema)
         flattened_schema = self.flatten_config_loader_schema(dereferenced_schema)
         return self.filter_schema(flattened_schema)

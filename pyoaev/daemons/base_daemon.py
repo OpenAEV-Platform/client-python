@@ -102,10 +102,8 @@ class BaseDaemon(ABC):
         follow-up with the main execution loop. Note that at this point, if there is no
         configured callback, the method will abort and kill the daemon.
         """
-        parser = argparse.ArgumentParser(
-            description="parse daemon options"
-        )
-        parser.add_argument("--dump-config-schema", action='store_true')
+        parser = argparse.ArgumentParser(description="parse daemon options")
+        parser.add_argument("--dump-config-schema", action="store_true")
         args = parser.parse_args()
         if args.dump_config_schema:
             print(self._configuration.schema())
