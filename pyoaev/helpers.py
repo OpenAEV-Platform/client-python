@@ -18,6 +18,7 @@ from pyoaev import OpenAEV, utils
 from pyoaev.configuration import Configuration
 from pyoaev.daemons import CollectorDaemon
 from pyoaev.exceptions import ConfigurationError
+from pydantic_settings import BaseSettings
 
 TRUTHY: List[str] = ["yes", "true", "True"]
 FALSY: List[str] = ["no", "false", "False"]
@@ -228,13 +229,23 @@ class PingAlive(utils.PingAlive):
 
 ### DEPRECATED
 class OpenAEVConfigHelper:
-    def __init__(self, base_path, variables: Dict):
-        self.__config_obj = Configuration(
-            config_hints=variables,
-            config_file_path=os.path.join(
-                os.path.dirname(os.path.abspath(base_path)), "config.yml"
-            ),
-        )
+    def __init__(self, base_path, variables: Dict | None, config_obj: Configuration):
+        if config_obj is not None:
+            self.__config_obj = config_obj
+        else:
+            self.__config_obj = Configuration(
+                config_hints=variables,
+                config_file_path=os.path.join(
+                    os.path.dirname(os.path.abspath(base_path)), "config.yml"
+                ),
+            )
+
+    @staticmethod
+    def from_configuration_object(config: Configuration):
+        return OpenAEVConfigHelper(None, None, config)
+
+    def get_config_obj(self) -> Configuration:
+        return self.__config_obj
 
     def get_conf(self, variable, is_number=None, default=None, required=None):
         result = None
