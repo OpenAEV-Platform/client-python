@@ -12,5 +12,5 @@ class SecurityDomains(Enum):
     DATA_EXFILTRATION = {"domain_name": "Data Exfiltration", "domain_color": "#9933CC"}
     URL_FILTERING = {"domain_name": "URL Filtering", "domain_color": "#66CCFF"}
     CLOUD = {"domain_name": "Cloud", "domain_color": "#9999CC"}
-    TABLE_TOP = {"domain_name": "Table Top", "domain_color": "#FFCC33"}
+    TABLE_TOP = {"domain_name": "Tabletop", "domain_color": "#FFCC33"}
     TOCLASSIFY = {"domain_name": "To classify", "domain_color": "#FFFFFF"}
