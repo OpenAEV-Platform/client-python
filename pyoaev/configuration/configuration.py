@@ -4,7 +4,11 @@ from typing import Any, Dict, Optional
 
 import yaml
 from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 
+from pyoaev.configuration.connector_config_schema_generator import (
+    ConnectorConfigSchemaGenerator,
+)
 from pyoaev.configuration.sources import DictionarySource, EnvironmentSource
 
 CONFIGURATION_TYPES = str | int | bool | Any | None
@@ -111,6 +115,7 @@ class Configuration:
         config_hints: Dict[str, dict | str],
         config_values: dict = None,
         config_file_path: str = os.path.join(os.curdir, "config.yml"),
+        config_base_model: BaseSettings = None,
     ):
         self.__config_hints = {
             key: (
@@ -128,6 +133,8 @@ class Configuration:
         )
 
         self.__config_values = (config_values or {}) | file_contents
+
+        self.__base_model = config_base_model
 
     def get(self, config_key: str) -> CONFIGURATION_TYPES:
         """Gets the value pointed to by the configuration key. If the key is defined
@@ -168,6 +175,19 @@ class Configuration:
             self.__config_hints[config_key] = ConfigurationHint(**{"data": value})
         else:
             self.__config_hints[config_key].data = value
+
+    def schema(self):
+        """
+        Generates the complete connector schema using a custom schema generator compatible with Pydantic.
+        Isolate custom class generator, Pydantic expects a class, not an instance
+        Always subclass GenerateJsonSchema and pass the class to Pydantic, not an instance
+        :return: The generated connector schema as a dictionary.
+        """
+        return self.__base_model.model_json_schema(
+            by_alias=False,
+            schema_generator=ConnectorConfigSchemaGenerator,
+            mode="validation",
+        )
 
     @staticmethod
     def __process_value_to_type(value: CONFIGURATION_TYPES, is_number_hint: bool):
