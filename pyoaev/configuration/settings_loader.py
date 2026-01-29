@@ -112,10 +112,6 @@ class ConfigLoaderCollector(BaseConfigModel):
 
     name: str = Field(description="Name of the collector")
 
-    platform: str | None = Field(
-        default="SIEM",
-        description="Platform type for the collector (e.g., EDR, SIEM, etc.).",
-    )
     log_level: LogLevelToLower | None = Field(
         default="error",
         description="Determines the verbosity of the logs.",
