@@ -45,6 +45,7 @@ class ContractOutputType(str, Enum):
     IPv4: str = "ipv4"
     IPv6: str = "ipv6"
     CVE: str = "cve"
+    Asset: str = "asset"
 
 
 class ExpectationType(str, Enum):
