@@ -57,7 +57,7 @@ dev = [
 ]
 doc = [
     "autoapi (>=2.0.1,<2.1.0)",
-    "sphinx-autodoc-typehints (>=3.2.0,<3.3.0)",
+    "sphinx-autodoc-typehints (>=3.8.0,<3.9.0)",
     "sphinx-rtd-theme (>=3.0.2,<3.1.0)"
 ]
 
