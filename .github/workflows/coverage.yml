@@ -1,0 +1,45 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-print-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v8.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          uv venv && uv pip install -e '.[dev]' coverage
+
+      - name: Run tests with coverage
+        run: uv run coverage run -m unittest
+
+      - name: Print coverage summary
+        run: uv run coverage report -m --fail-under=70
+
+      - name: Generate coverage XML
+        run: uv run coverage xml -o coverage.xml
+      
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() && hashFiles('coverage.xml') != '' }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: connectors
+          fail_ci_if_error: false
+          verbose: true
