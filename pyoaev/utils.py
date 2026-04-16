@@ -186,6 +186,7 @@ class PingAlive(threading.Thread):
         threading.Thread.__init__(self)
         self.ping_type = ping_type
         self.api = api
+        self.tenant_id = getattr(self.api, "tenant_id", None)
         self.config = config
         self.logger = logger
         self.in_error = False
@@ -203,9 +204,15 @@ class PingAlive(threading.Thread):
             self.exit_event.wait(40)
 
     def run(self) -> None:
-        self.logger.info("Starting PingAlive thread")
+        self.logger.info(
+            "Starting PingAlive thread",
+            {"tenant_id": str(self.tenant_id) if self.tenant_id else None},
+        )
         self.ping()
 
     def stop(self) -> None:
-        self.logger.info("Preparing PingAlive for clean shutdown")
+        self.logger.info(
+            "Preparing PingAlive for clean shutdown",
+            {"tenant_id": str(self.tenant_id) if self.tenant_id else None},
+        )
         self.exit_event.set()

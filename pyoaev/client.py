@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, BinaryIO, Dict, List, Optional, Union
 from urllib import parse
+from uuid import UUID
 
 import requests
 
@@ -23,6 +24,7 @@ class OpenAEV:
         pagination: Optional[str] = None,
         order_by: Optional[str] = None,
         ssl_verify: Union[bool, str] = True,
+        tenant_id: Optional[UUID] = None,
         **kwargs: Any,
     ) -> None:
 
@@ -32,6 +34,7 @@ class OpenAEV:
             raise ValueError("A TOKEN must be set")
 
         self.url = url
+        self.tenant_id = tenant_id
         self.timeout = timeout
         #: Headers that will be used in request to OpenAEV
         self.headers = {
@@ -109,9 +112,14 @@ class OpenAEV:
         Returns:
             The full URL
         """
-        if path.startswith("http://") or path.startswith("https://"):
+        if parse.urlparse(path).scheme in ("http", "https"):
             return path
-        return f"{self.url}/api{path}"
+        base_url = self.url.rstrip("/")
+        normalized_path = path.lstrip("/")
+        if self.tenant_id:
+            return f"{base_url}/api/tenants/{self.tenant_id}/{normalized_path}"
+        else:
+            return f"{base_url}/api/{normalized_path}"
 
     def _get_session_opts(self) -> Dict[str, Any]:
         return {
