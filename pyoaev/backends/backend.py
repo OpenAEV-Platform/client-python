@@ -1,5 +1,6 @@
 import dataclasses
 import json
+from http.cookiejar import DefaultCookiePolicy
 from typing import TYPE_CHECKING, Any, BinaryIO, Dict, Optional, Union
 
 import requests
@@ -67,6 +68,7 @@ class RequestsResponse(protocol.BackendResponse):
 class RequestsBackend(protocol.Backend):
     def __init__(self, session: Optional[requests.Session] = None) -> None:
         self._client: requests.Session = session or requests.Session()
+        self._client.cookies.set_policy(DefaultCookiePolicy(allowed_domains=[]))
 
     @property
     def client(self) -> requests.Session:
