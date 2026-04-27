@@ -60,18 +60,20 @@ def build_config(tenant_case):
 
 @given(parsers.parse('a daemon configuration with "{tenant_case}"'))
 def daemon_config(context, monkeypatch, tenant_case):
-    captured = build_config(tenant_case)
+    captured = {}
+    config_map = build_config(tenant_case)
 
-    def fake_client(url, token, tenant_id=None):
+    def _fake_client(url, token, tenant_id=None):
         captured["url"] = url
         captured["token"] = token
         captured["tenant_id"] = tenant_id
         return MagicMock()
 
-    monkeypatch.setattr("pyoaev.daemons.base_daemon.OpenAEV", fake_client)
+    mock_client = MagicMock(side_effect=_fake_client)
+    monkeypatch.setattr("pyoaev.daemons.base_daemon.OpenAEV", mock_client)
+    context["mock_client"] = mock_client
 
     config = MagicMock()
-    config_map = build_config(tenant_case)
     config.get.side_effect = lambda key: config_map.get(key)
 
     context["config"] = config
@@ -108,10 +110,11 @@ def init_daemon(context):
 def check_tenant(context, expected_tenant_id):
     captured = context["captured"]
 
-    daemon = context["daemon"]
-    assert daemon.api is not None
+    mock_client = context["mock_client"]
+    assert mock_client.call_count == 1
 
-    expected = None if expected_tenant_id == "None" else UUID(expected_tenant_id)
     assert captured["url"] == "url"
     assert captured["token"] == "token"
+
+    expected = None if expected_tenant_id == "None" else UUID(expected_tenant_id)
     assert captured["tenant_id"] == expected
