@@ -2,9 +2,36 @@ from unittest.mock import MagicMock
 from uuid import UUID
 
 import pytest
+from pytest_bdd import given, parsers, scenario, then, when
 
 from pyoaev import OpenAEV
 from pyoaev.apis.inputs.search import Filter, FilterGroup, SearchPaginationInput
+
+
+# --------------------------------------------------
+# SCENARIO
+# --------------------------------------------------
+@scenario(
+    "multi_tenant_endpoint_search_targets.feature",
+    "searchTargets routing behavior",
+)
+def test_search_targets_routing():
+    pass
+
+
+# --------------------------------------------------
+# FIXTURE CONTEXT
+# --------------------------------------------------
+
+
+@pytest.fixture
+def context():
+    return {}
+
+
+# --------------------------------------------------
+# HELPERS
+# --------------------------------------------------
 
 
 class MockResponse:
@@ -39,35 +66,62 @@ def build_search_input():
     )
 
 
-@pytest.mark.parametrize(
-    "tenant_id, expected_url",
-    [
-        (
-            None,
-            "url/api/endpoints/targets",
-        ),
-        (
-            UUID("2cffad3a-0001-4078-b0e2-ef74274022c3"),
-            "url/api/tenants/2cffad3a-0001-4078-b0e2-ef74274022c3/endpoints/targets",
-        ),
-    ],
-    ids=[
-        "legacy_routing_no_tenant",
-        "tenant_routing_enabled",
-    ],
-)
-def test_search_input_correctly_serialised(monkeypatch, tenant_id, expected_url):
-    mock_request = MagicMock(return_value=MockResponse())
-    monkeypatch.setattr("requests.Session.request", mock_request)
+# --------------------------------------------------
+# GIVEN
+# --------------------------------------------------
 
-    api_client = OpenAEV("url", "token", tenant_id=tenant_id)
-    search_input = build_search_input()
-    expected_json = search_input.to_dict()
-    api_client.endpoint.searchTargets(search_input)
+
+@given(parsers.parse('an OpenAEV client with tenant_id "{tenant_id}"'))
+def client(context, monkeypatch, tenant_id):
+    captured = {}
+
+    def _fake_request(method, url, **kwargs):
+        captured["method"] = method
+        captured["url"] = url
+        captured["json"] = kwargs.get("json")
+        return MockResponse()
+
+    mock_request = MagicMock(side_effect=_fake_request)
+    monkeypatch.setattr("requests.Session.request", mock_request)
+    context["mock_request"] = mock_request
+
+    context["tenant_id"] = None if tenant_id == "None" else UUID(tenant_id)
+    context["captured"] = captured
+
+
+@given("a valid SearchPaginationInput")
+def search_input(context):
+    context["search_input"] = build_search_input()
+
+
+# --------------------------------------------------
+# WHEN
+# --------------------------------------------------
+
+
+@when("I call searchTargets on endpoint")
+def call_search_targets(context):
+    api_client = OpenAEV(
+        "url",
+        "token",
+        tenant_id=context["tenant_id"],
+    )
+
+    api_client.endpoint.searchTargets(context["search_input"])
+
+
+# --------------------------------------------------
+# THEN
+# --------------------------------------------------
+
+
+@then(parsers.parse('the request URL should be "{expected_url}"'))
+def check_request(context, expected_url):
+    captured = context["captured"]
+    search_input = context["search_input"]
+    mock_request = context["mock_request"]
 
     assert mock_request.call_count == 1
-    _, kwargs = mock_request.call_args
-
-    assert kwargs["method"] == "post"
-    assert kwargs["json"] == expected_json
-    assert kwargs["url"] == expected_url
+    assert captured["method"] == "post"
+    assert captured["url"] == expected_url
+    assert captured["json"] == search_input.to_dict()
