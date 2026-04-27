@@ -2,7 +2,6 @@
 
 from uuid import UUID
 
-import pytest
 from pydantic import ValidationError
 from pytest_bdd import given, parsers, scenario, then, when
 
