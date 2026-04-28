@@ -8,7 +8,7 @@ import urllib.parse
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 import requests
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 
 class _StdoutStream:
@@ -116,7 +116,7 @@ class RequiredOptional:
                 )
 
 
-class CustomJsonFormatter(jsonlogger.JsonFormatter):
+class CustomJsonFormatter(JsonFormatter):
     def add_fields(self, log_record, record, message_dict):
         super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
         if not log_record.get("timestamp"):
