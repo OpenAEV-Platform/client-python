@@ -58,7 +58,7 @@ To learn about how to use the OpenAEV Python client and read some examples and c
 
 ### API reference
 
-To learn about the methods available for executing queries and retrieving their answers, refer to [the client API Reference](https://openaev-client-for-python.readthedocs.io/en/latest/pyoaev/pyoaev.html).
+To learn about the methods available for executing queries and retrieving their answers, refer to [the client API Reference](https://openaev-client-for-python.readthedocs.io/en/latest/autoapi/index.html).
 
 ## Tests
 
