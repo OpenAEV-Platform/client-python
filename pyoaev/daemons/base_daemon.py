@@ -2,6 +2,7 @@ import argparse
 from abc import ABC, abstractmethod
 from inspect import signature
 from types import FunctionType
+from uuid import UUID
 
 from pyoaev.client import OpenAEV
 from pyoaev.configuration import Configuration
@@ -37,6 +38,7 @@ class BaseDaemon(ABC):
         self.api = api_client or BaseDaemon.__get_default_api_client(
             url=self._configuration.get("openaev_url"),
             token=self._configuration.get("openaev_token"),
+            tenant_id=self._configuration.get("openaev_tenant_id"),
         )
 
         # logging
@@ -131,8 +133,8 @@ class BaseDaemon(ABC):
         )
 
     @classmethod
-    def __get_default_api_client(cls, url, token):
-        return OpenAEV(url=url, token=token)
+    def __get_default_api_client(cls, url, token, tenant_id: UUID | None):
+        return OpenAEV(url=url, token=token, tenant_id=tenant_id)
 
     @classmethod
     def __get_default_logger(cls, log_level, name):
