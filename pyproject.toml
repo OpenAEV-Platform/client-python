@@ -96,3 +96,8 @@ warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[tool.coverage.run]
+omit = [
+    "test/*",
+]
