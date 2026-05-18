@@ -34,7 +34,7 @@ class DictionarySource:
         :return: value for the config key at specified path, or None if not found
         :rtype: str | None
         """
-        if(config_key_path is None):
+        if config_key_path is None:
             return None
 
         assert (
