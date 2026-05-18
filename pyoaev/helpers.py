@@ -322,6 +322,7 @@ class OpenAEVInjectorHelper:
         self.api = OpenAEV(
             url=config.get_conf("openaev_url"),
             token=config.get_conf("openaev_token"),
+            tenant_id=config.get_conf("openaev_tenant_id"),
         )
         # Get the mq configuration from api
         self.config = {

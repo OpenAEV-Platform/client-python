@@ -46,6 +46,19 @@ class ContractOutputType(str, Enum):
     IPv6: str = "ipv6"
     CVE: str = "cve"
     Asset: str = "asset"
+    Credentials: str = "credentials"
+    Username: str = "username"
+    Share: str = "share"
+    AdminUsername: str = "admin_username"
+    Group: str = "group"
+    Computer: str = "computer"
+    PasswordPolicy: str = "password_policy"
+    Delegation: str = "delegation"
+    Sid: str = "sid"
+    Vulnerability: str = "vulnerability"
+    AccountWithPasswordNotRequired: str = "account_with_password_not_required"
+    AsreproastableAccount: str = "asreproastable_account"
+    KerberoastableAccount: str = "kerberoastable_account"
 
 
 class ExpectationType(str, Enum):
