@@ -23,7 +23,7 @@ class DictionarySource:
     # this is quite hacky
     # it only strictly handles two levels of keys in a dict
     @classmethod
-    def get(cls, config_key_path: list[str], source_dict: dict) -> str | None:
+    def get(cls, config_key_path: list[str] | None, source_dict: dict) -> str | None:
         """Gets the value for the specified env var
 
         :param config_key_path: the two-level dictionary path to the config key
