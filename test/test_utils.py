@@ -250,8 +250,13 @@ class TestUtils(unittest.TestCase):
         ping_alive.run()
         ping_alive.stop()
 
-        ping_alive.logger.info.assert_any_call("Starting PingAlive thread")
-        ping_alive.logger.info.assert_any_call("Preparing PingAlive for clean shutdown")
+        ping_alive.logger.info.assert_any_call(
+            "Starting PingAlive thread", {"tenant_id": str(ping_alive.tenant_id)}
+        )
+        ping_alive.logger.info.assert_any_call(
+            "Preparing PingAlive for clean shutdown",
+            {"tenant_id": str(ping_alive.tenant_id)},
+        )
         self.assertTrue(ping_alive.exit_event.is_set())
 
 
