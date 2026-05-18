@@ -3,6 +3,7 @@ from abc import ABC
 from datetime import timedelta
 from pathlib import Path
 from typing import Annotated, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, PlainSerializer
 from pydantic_settings import (
@@ -98,6 +99,11 @@ class ConfigLoaderOAEV(BaseConfigModel):
     )
     token: str = Field(
         description="The token for the OpenAEV platform.",
+    )
+    tenant_id: UUID | None = Field(
+        default=None,
+        description="Identifier of the tenant within the OpenAEV platform. Used in multi-tenant environments to scope "
+        "API requests and ensure data isolation between different tenants.",
     )
 
 
