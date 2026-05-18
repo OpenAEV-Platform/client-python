@@ -14,7 +14,7 @@ class EnvironmentSource:
         :return: value of the env var, or None if not found
         :rtype: str | None
         """
-        return os.getenv(env_var)
+        return os.getenv(env_var) if env_var else None
 
 
 class DictionarySource:
@@ -34,6 +34,9 @@ class DictionarySource:
         :return: value for the config key at specified path, or None if not found
         :rtype: str | None
         """
+        if(config_key_path is None):
+            return None
+
         assert (
             isinstance(config_key_path, list)
             and len(config_key_path) == 2
