@@ -180,6 +180,12 @@ class OpenAEVCreateError(OpenAEVError):
     pass
 
 
+class SignatureTransmissionError(OpenAEVError):
+    """Signatures didn't make it. Validation rejected them, 4xx slammed the door, or retries ran dry."""
+
+    pass
+
+
 class ConfigurationError(OpenAEVError):
     pass
 
@@ -216,4 +222,5 @@ __all__ = [
     "OpenAEVListError",
     "OpenAEVGetError",
     "OpenAEVUpdateError",
+    "SignatureTransmissionError",
 ]
