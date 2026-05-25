@@ -208,11 +208,6 @@ def compiled_payload_single_target(
     "a compiled payload whose serialised size exceeds MAX_PAYLOAD_SIZE by at least a factor of 2"
 )
 def compiled_large_payload(context):
-    # Each target serialises to ~450 bytes with the canonical signature_target
-    # shape (`agent`/`asset`/`asset_group`) and the 140-char hostname below.
-    # Budget chosen so a single target fits but two don't, producing 6 chunks
-    # of one target each. Total payload (~2.7 KiB) exceeds max_payload_size
-    # (700 B) by ~4x, satisfying the feature's "at least factor of 2" wording.
     context["signature_manager"] = SignatureManager(
         context["mock_client"],
         logger=context["logger"],
@@ -321,8 +316,6 @@ def compiled_payload_grouped_by_expectation(
     expectation_a,
     expectation_b,
 ):
-    # Feed FLAT form (mixed expectation_types in a single signature_values list).
-    # SignatureManager must regroup it into the canonical wire schema.
     context["signatures"] = {
         "targets": [
             {
@@ -395,7 +388,7 @@ def assert_post_request_sent_to_callback(context, inject_id):
 @then("the POST request body contains signatures.targets as a list")
 def assert_targets_is_list(context):
     body = context["captured_calls"][-1]["post_data"]
-    assert isinstance(body["signatures"]["targets"], list)
+    assert isinstance(body["expectation_signature"]["targets"], list)
 
 
 @then(
@@ -405,7 +398,7 @@ def assert_targets_is_list(context):
 )
 def assert_expectation_type(context, expected_value):
     body = context["captured_calls"][-1]["post_data"]
-    assert body["signatures"]["targets"][0]["signature_values"][0][
+    assert body["expectation_signature"]["targets"][0]["signature_values"][0][
         "expectation_type"
     ] == (expected_value)
 
@@ -418,7 +411,7 @@ def assert_expectation_type(context, expected_value):
 def assert_signature_type(context, expected_value):
     body = context["captured_calls"][-1]["post_data"]
     assert (
-        body["signatures"]["targets"][0]["signature_values"][0]["values"][0][
+        body["expectation_signature"]["targets"][0]["signature_values"][0]["values"][0][
             "signature_type"
         ]
         == expected_value
@@ -433,7 +426,7 @@ def assert_signature_type(context, expected_value):
 def assert_signature_value(context, expected_value):
     body = context["captured_calls"][-1]["post_data"]
     assert (
-        body["signatures"]["targets"][0]["signature_values"][0]["values"][0][
+        body["expectation_signature"]["targets"][0]["signature_values"][0]["values"][0][
             "signature_value"
         ]
         == expected_value
@@ -443,7 +436,7 @@ def assert_signature_value(context, expected_value):
 @then("signatures.targets[0] contains a signature_target key")
 def assert_signature_target_key(context):
     body = context["captured_calls"][-1]["post_data"]
-    assert "signature_target" in body["signatures"]["targets"][0]
+    assert "signature_target" in body["expectation_signature"]["targets"][0]
 
 
 @then(
@@ -484,7 +477,7 @@ def assert_total_chunks_present(context):
     'each POST request body contains only "signatures", "chunk_index" and "total_chunks" at the top level'
 )
 def assert_chunked_envelope_is_strict(context):
-    expected_keys = {"signatures", "chunk_index", "total_chunks", "phase"}
+    expected_keys = {"expectation_signature", "chunk_index", "total_chunks", "phase"}
     for call_item in context["captured_calls"]:
         post_data = call_item["post_data"]
         assert set(post_data.keys()) == expected_keys, (
@@ -499,13 +492,12 @@ def assert_targets_union_matches_original(context):
     sent_targets = [
         target
         for call_item in context["captured_calls"]
-        for target in call_item["post_data"]["signatures"]["targets"]
+        for target in call_item["post_data"]["expectation_signature"]["targets"]
     ]
     assert len(sent_targets) == len(original_targets), (
         f"Expected {len(original_targets)} targets across all chunks, "
         f"got {len(sent_targets)}"
     )
-    # signature_target identifiers must match one-to-one (order-preserved).
     for original, sent in zip(original_targets, sent_targets):
         assert sent["signature_target"] == original["signature_target"]
 
@@ -622,7 +614,7 @@ def assert_no_exception_from_resolve_container_ip(context):
 )
 def assert_signature_values_nested_by_expectation_type(context):
     body = context["captured_calls"][-1]["post_data"]
-    entries = body["signatures"]["targets"][0]["signature_values"]
+    entries = body["expectation_signature"]["targets"][0]["signature_values"]
     expectation_types = {entry["expectation_type"] for entry in entries}
     assert expectation_types == {"DETECTION", "PREVENTION"}
 
@@ -632,14 +624,12 @@ def assert_signature_values_nested_by_expectation_type(context):
 )
 def assert_detection_values_grouped_correctly(context):
     body = context["captured_calls"][-1]["post_data"]
-    entries = body["signatures"]["targets"][0]["signature_values"]
+    entries = body["expectation_signature"]["targets"][0]["signature_values"]
     detection_entry = next(
         entry for entry in entries if entry["expectation_type"] == "DETECTION"
     )
-    # Two DETECTION items were fed in flat form; both must be grouped here.
     detection_values = {value["signature_value"] for value in detection_entry["values"]}
     assert detection_values == {"203.0.113.5", "host-a.internal"}
-    # No PREVENTION value should have leaked into the DETECTION group.
     assert "198.51.100.10" not in detection_values
 
 
@@ -648,7 +638,7 @@ def assert_detection_values_grouped_correctly(context):
 )
 def assert_prevention_values_grouped_correctly(context):
     body = context["captured_calls"][-1]["post_data"]
-    entries = body["signatures"]["targets"][0]["signature_values"]
+    entries = body["expectation_signature"]["targets"][0]["signature_values"]
     prevention_entry = next(
         entry for entry in entries if entry["expectation_type"] == "PREVENTION"
     )
@@ -656,6 +646,5 @@ def assert_prevention_values_grouped_correctly(context):
         value["signature_value"] for value in prevention_entry["values"]
     }
     assert prevention_values == {"198.51.100.10"}
-    # No DETECTION value should have leaked into the PREVENTION group.
     assert "203.0.113.5" not in prevention_values
     assert "host-a.internal" not in prevention_values

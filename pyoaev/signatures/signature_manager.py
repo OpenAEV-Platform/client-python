@@ -11,8 +11,13 @@ from pydantic import ValidationError
 
 from pyoaev.exceptions import OpenAEVError
 from pyoaev.signatures.models import (
+    ExpectationSignatureGroup,
     PostExecutionSignature,
     PreExecutionSignature,
+    SignaturePayload,
+    SignatureTarget,
+    SignatureValue,
+    TargetSignatures,
     ToolOutput,
 )
 
@@ -210,6 +215,49 @@ class SignatureManager:
             merged.update(tool.extra_signatures)
 
         return merged
+
+    def build_payload(
+        self,
+        post_signatures: dict[str, Any] | list[dict[str, Any]],
+        targets_meta: dict[str, str] | list[dict[str, str]],
+        expectation_type: str = "DETECTION",
+    ) -> dict[str, Any]:
+        """Build the nested wire payload from flat post-execution signatures.
+
+        Bridges the gap between compile_post_execution_signatures output (flat dicts)
+        and send_signatures input (nested wire format).
+
+        Args:
+            post_signatures: A single post-execution dict or a list (multi-target).
+            targets_meta: Target metadata dict(s) with keys like agent, asset, asset_group.
+            expectation_type: The expectation type label (e.g. 'DETECTION', 'PREVENTION').
+
+        Returns:
+            A payload dict ready for send_signatures.
+        """
+        if isinstance(post_signatures, dict):
+            post_signatures = [post_signatures]
+        if isinstance(targets_meta, dict):
+            targets_meta = [targets_meta] * len(post_signatures)
+
+        targets = []
+        for sig, meta in zip(post_signatures, targets_meta):
+            values = [
+                SignatureValue(signature_type=k, signature_value=str(v))
+                for k, v in sig.items()
+            ]
+            targets.append(
+                TargetSignatures(
+                    signature_target=SignatureTarget(**meta),
+                    signature_values=[
+                        ExpectationSignatureGroup(
+                            expectation_type=expectation_type, values=values
+                        )
+                    ],
+                )
+            )
+
+        return SignaturePayload(targets=targets).model_dump()
 
     def send_signatures(
         self,

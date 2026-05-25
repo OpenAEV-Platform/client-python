@@ -92,7 +92,7 @@ class SignatureApiManager(RESTManager):
         if len(serialized) <= self._max_payload_size:
             self._send_with_retry(inject_id, payload)
         else:
-            self._send_chunked(inject_id, payload["signatures"], phase=phase)
+            self._send_chunked(inject_id, payload["expectation_signature"], phase=phase)
 
     def _build_callback_payload(
         self,
@@ -119,7 +119,7 @@ class SignatureApiManager(RESTManager):
         try:
             envelope = SignatureCallbackPayload.model_validate(
                 {
-                    "signatures": signatures,
+                    "expectation_signature": signatures,
                     "phase": phase,
                     "chunk_index": chunk_index,
                     "total_chunks": total_chunks,
@@ -216,7 +216,7 @@ class SignatureApiManager(RESTManager):
             candidate = current_chunk + [target]
             size = len(
                 json.dumps(
-                    {"signatures": {"targets": candidate}},
+                    {"expectation_signature": {"targets": candidate}},
                     separators=(",", ":"),
                 ).encode()
             )
@@ -237,7 +237,7 @@ class SignatureApiManager(RESTManager):
             current_chunk = [target]
             solo_size = len(
                 json.dumps(
-                    {"signatures": {"targets": [target]}},
+                    {"expectation_signature": {"targets": [target]}},
                     separators=(",", ":"),
                 ).encode()
             )
@@ -280,7 +280,9 @@ class SignatureApiManager(RESTManager):
         result = self.openaev.http_post(path, post_data=data, **kwargs)
         return result
 
-    def _send_with_retry(self, inject_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+    def _send_with_retry(
+        self, inject_id: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
         """Retry callback() with exponential backoff on 5xx, immediate raise on 4xx.
 
         Args:

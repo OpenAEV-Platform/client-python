@@ -55,7 +55,7 @@ class SignatureCallbackPayload(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    signatures: SignaturePayload
+    expectation_signature: SignaturePayload
     phase: str | None = None
     chunk_index: int | None = None
     total_chunks: int | None = None
