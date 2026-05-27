@@ -1,5 +1,6 @@
 """Pydantic schemas pinning every shape SignatureManager touches."""
 
+import ipaddress
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -122,6 +123,90 @@ class ToolOutput(BaseModel):
     extra_signatures: dict[str, Any] | None = None
 
 
+class NetworkInjectorConfig(BaseModel):
+    """A single network target. Exactly one of ``target_ipv4``, ``target_ipv6``, or ``target_hostname``."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_ipv4: str | None = None
+    target_ipv6: str | None = None
+    target_hostname: str | None = None
+
+
+class CloudInjectorConfig(BaseModel):
+    """A single cloud target row. One config per region; fan out by passing a list."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cloud_provider: str
+    cloud_account_id: str
+    cloud_region: str
+    target_service: str | None = None
+
+
+class ExternalInjectorConfig(BaseModel):
+    """A single external scan target (e.g. Shodan): a query against an asset."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    query: str
+    target_ipv4: str | None = None
+    target_hostname: str | None = None
+
+
+InjectorConfig = NetworkInjectorConfig | CloudInjectorConfig | ExternalInjectorConfig
+
+
+# ---------------------------------------------------------------------------
+# Builders. Cheap helpers to turn raw injector input into typed configs.
+# ---------------------------------------------------------------------------
+
+
+def _classify_network_target(value: str) -> NetworkInjectorConfig:
+    """Decide whether ``value`` is an IPv4, IPv6, or hostname and wrap it."""
+    try:
+        addr = ipaddress.ip_address(value)
+    except ValueError:
+        return NetworkInjectorConfig(target_hostname=value)
+    if isinstance(addr, ipaddress.IPv4Address):
+        return NetworkInjectorConfig(target_ipv4=value)
+    return NetworkInjectorConfig(target_ipv6=value)
+
+
+def build_network_configs(
+    targets: list[str | dict[str, Any] | NetworkInjectorConfig],
+) -> list[NetworkInjectorConfig]:
+    """Forge a list of `NetworkInjectorConfig` from a heterogeneous target list.
+
+    Each item is one distinct asset. Accepted shapes:
+
+    - `NetworkInjectorConfig`: passed through unchanged.
+    - `dict`: validated against :class:`NetworkInjectorConfig`.
+    - `str`: auto-classified into IPv4 / IPv6 / hostname.
+
+    Args:
+        targets: Raw target list straight out of the injector.
+
+    Returns:
+        One `NetworkInjectorConfig` per input target, order preserved.
+
+    Raises:
+        TypeError: An item is not one of the accepted shapes.
+        ValidationError: A dict item fails the one-identity invariant.
+    """
+    configs: list[NetworkInjectorConfig] = []
+    for target in targets:
+        if isinstance(target, NetworkInjectorConfig):
+            configs.append(target)
+        elif isinstance(target, dict):
+            configs.append(NetworkInjectorConfig(**target))
+        elif isinstance(target, str):
+            configs.append(_classify_network_target(target))
+        else:
+            raise TypeError(f"unsupported network target type: {type(target).__name__}")
+    return configs
+
+
 __all__ = [
     "SignatureValue",
     "ExpectationSignatureGroup",
@@ -134,4 +219,9 @@ __all__ = [
     "ToolErrorInfo",
     "ToolTimeoutInfo",
     "ToolOutput",
+    "NetworkInjectorConfig",
+    "CloudInjectorConfig",
+    "ExternalInjectorConfig",
+    "InjectorConfig",
+    "build_network_configs",
 ]

@@ -5,6 +5,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
+from pyoaev.signatures.models import (
+    CloudInjectorConfig,
+    ExternalInjectorConfig,
+    NetworkInjectorConfig,
+    build_network_configs,
+)
 from pyoaev.signatures.signature_manager import SignatureManager
 
 # --------------------------------------------------
@@ -17,6 +23,14 @@ from pyoaev.signatures.signature_manager import SignatureManager
     "Network category returns required IP and timing fields and no cloud or query fields",
 )
 def test_network_category_required_fields():
+    pass
+
+
+@scenario(
+    "features/signature_manager_pre_execution.feature",
+    "Network hostname target returns hostname and no target_ipv4",
+)
+def test_network_hostname_target():
     pass
 
 
@@ -57,6 +71,14 @@ def test_network_multi_target_shared_source():
     "Cloud multi-region returns one dict per region with a shared account ID",
 )
 def test_cloud_multi_region():
+    pass
+
+
+@scenario(
+    "features/signature_manager_pre_execution.feature",
+    "Builder classifies a mixed list of targets into typed configs",
+)
+def test_builder_classifies_mixed_targets():
     pass
 
 
@@ -102,116 +124,104 @@ def signature_manager():
 
 
 @given(
-    parsers.parse(
-        "an inject_config with a single target asset having "
-        'target_ipv4="{target_ipv4}" and target_hostname="{target_hostname}"'
-    ),
-    target_fixture="inject_config",
+    parsers.parse('a NetworkInjectorConfig with target_ipv4="{target_ipv4}"'),
+    target_fixture="config",
 )
-def inject_config_single_network_target(target_ipv4, target_hostname):
-    return {
-        "target_assets": [
-            {
-                "target_ipv4": target_ipv4,
-                "target_hostname": target_hostname,
-            }
-        ]
-    }
+def network_config_ipv4(target_ipv4):
+    return NetworkInjectorConfig(target_ipv4=target_ipv4)
+
+
+@given(
+    parsers.parse('a NetworkInjectorConfig with target_hostname="{target_hostname}"'),
+    target_fixture="config",
+)
+def network_config_hostname(target_hostname):
+    return NetworkInjectorConfig(target_hostname=target_hostname)
 
 
 @given(
     parsers.parse(
-        'an inject_config with cloud_provider="{cloud_provider}", '
+        'a CloudInjectorConfig with cloud_provider="{cloud_provider}", '
         'cloud_account_id="{cloud_account_id}", cloud_region="{cloud_region}", '
         'and target_service="{target_service}"'
     ),
-    target_fixture="inject_config",
+    target_fixture="config",
 )
-def inject_config_cloud_single(
+def cloud_config_single(
     cloud_provider,
     cloud_account_id,
     cloud_region,
     target_service,
 ):
-    return {
-        "cloud_provider": cloud_provider,
-        "cloud_account_id": cloud_account_id,
-        "cloud_region": cloud_region,
-        "target_service": target_service,
-    }
+    return CloudInjectorConfig(
+        cloud_provider=cloud_provider,
+        cloud_account_id=cloud_account_id,
+        cloud_region=cloud_region,
+        target_service=target_service,
+    )
 
 
 @given(
     parsers.parse(
-        'an inject_config with target_ipv4="{target_ipv4}" and query="{query}"'
+        'an ExternalInjectorConfig with target_ipv4="{target_ipv4}" and query="{query}"'
     ),
-    target_fixture="inject_config",
+    target_fixture="config",
 )
-def inject_config_external_single(target_ipv4, query):
-    return {
-        "target_ipv4": target_ipv4,
-        "query": query,
-    }
+def external_config_single(target_ipv4, query):
+    return ExternalInjectorConfig(target_ipv4=target_ipv4, query=query)
 
 
 @given(
     parsers.parse(
-        'an inject_config with 3 target assets having IPs "{ip_1}", "{ip_2}", "{ip_3}"'
+        "a list of 3 NetworkInjectorConfig with target_ipv4 "
+        '"{ip_1}", "{ip_2}", "{ip_3}"'
     ),
-    target_fixture="inject_config",
+    target_fixture="config",
 )
-def inject_config_network_multi_target(ip_1, ip_2, ip_3):
-    return {
-        "target_assets": [
-            {"target_ipv4": ip_1},
-            {"target_ipv4": ip_2},
-            {"target_ipv4": ip_3},
-        ]
-    }
+def network_config_list(ip_1, ip_2, ip_3):
+    return [
+        NetworkInjectorConfig(target_ipv4=ip_1),
+        NetworkInjectorConfig(target_ipv4=ip_2),
+        NetworkInjectorConfig(target_ipv4=ip_3),
+    ]
 
 
 @given(
-    'an inject_config with 3 target assets and category="network"',
-    target_fixture="inject_config",
+    "a list of 3 NetworkInjectorConfig built from default IPv4 targets",
+    target_fixture="config",
 )
-def inject_config_network_multi_target_short():
-    return {
-        "target_assets": [
-            {"target_ipv4": "10.0.0.1"},
-            {"target_ipv4": "10.0.0.2"},
-            {"target_ipv4": "10.0.0.3"},
-        ]
-    }
+def network_config_list_default():
+    return [
+        NetworkInjectorConfig(target_ipv4="10.0.0.1"),
+        NetworkInjectorConfig(target_ipv4="10.0.0.2"),
+        NetworkInjectorConfig(target_ipv4="10.0.0.3"),
+    ]
 
 
 @given(
     parsers.parse(
-        'an inject_config with cloud_account_id="{cloud_account_id}" '
-        'and 3 AWS regions "{region_1}", "{region_2}", "{region_3}"'
+        'a list of 3 CloudInjectorConfig with cloud_account_id="{cloud_account_id}" '
+        'and regions "{region_1}", "{region_2}", "{region_3}"'
     ),
-    target_fixture="inject_config",
+    target_fixture="config",
 )
-def inject_config_cloud_multi_region(
-    cloud_account_id,
-    region_1,
-    region_2,
-    region_3,
-):
-    return {
-        "cloud_provider": "aws",
-        "cloud_account_id": cloud_account_id,
-        "regions": [region_1, region_2, region_3],
-    }
+def cloud_config_list(cloud_account_id, region_1, region_2, region_3):
+    return [
+        CloudInjectorConfig(
+            cloud_provider="aws",
+            cloud_account_id=cloud_account_id,
+            cloud_region=region,
+        )
+        for region in (region_1, region_2, region_3)
+    ]
 
 
 @given(
-    "an inject_config with a single network target",
-    target_fixture="inject_config",
+    parsers.parse('a raw mixed target list "{value_1}", "{value_2}", "{value_3}"'),
+    target_fixture="raw_targets",
 )
-def inject_config_single_network_target_for_time():
-    return {
-        "target_assets": [{"target_ipv4": "192.168.1.10"}],
-    }
+def raw_mixed_target_list(value_1, value_2, value_3):
+    return [value_1, value_2, value_3]
 
 
 @given(
@@ -272,34 +282,36 @@ def elapsed_5_seconds(context):
 
 
 @when(
-    parsers.parse('I call compile_pre_execution_signatures with category="{category}"'),
+    "I call compile_pre_execution_signatures with the config",
     target_fixture="result",
 )
-def call_compile_pre_execution_signatures(
-    signature_manager,
-    inject_config,
-    category,
-):
-    return signature_manager.compile_pre_execution_signatures(
-        inject_config=inject_config,
-        category=category,
-    )
+def call_compile_with_config(signature_manager, config):
+    return signature_manager.compile_pre_execution_signatures(config=config)
 
 
 @when(
-    'I call compile_pre_execution_signatures with category="network" at timestamp T1',
+    "I call compile_pre_execution_signatures with the config list",
     target_fixture="result",
 )
-def call_compile_pre_execution_signatures_at_t1(
-    signature_manager,
-    inject_config,
-    t1,
-):
+def call_compile_with_config_list(signature_manager, config):
+    return signature_manager.compile_pre_execution_signatures(config=config)
+
+
+@when(
+    "I call compile_pre_execution_signatures with the config at timestamp T1",
+    target_fixture="result",
+)
+def call_compile_at_t1(signature_manager, config, t1):
     with patch.object(signature_manager, "_utcnow", return_value=t1):
-        return signature_manager.compile_pre_execution_signatures(
-            inject_config=inject_config,
-            category="network",
-        )
+        return signature_manager.compile_pre_execution_signatures(config=config)
+
+
+@when(
+    "I build network configs from the raw list",
+    target_fixture="built_configs",
+)
+def build_configs_from_raw(raw_targets):
+    return build_network_configs(raw_targets)
 
 
 # --------------------------------------------------
@@ -435,3 +447,39 @@ def start_time_equals_t1_with_tolerance(result, t1):
 def start_time_not_equal_t0(result, signature_manager):
     start_time = parse_utc_iso8601(result["start_time"])
     assert start_time != signature_manager._test_t0
+
+
+@then(parsers.parse("the builder returns {count:d} NetworkInjectorConfig"))
+def builder_returns_n_configs(built_configs, count):
+    assert isinstance(built_configs, list)
+    assert len(built_configs) == count
+    assert all(isinstance(c, NetworkInjectorConfig) for c in built_configs)
+
+
+@then(
+    parsers.parse('the config at position {index:d} has target_ipv4 equal to "{value}"')
+)
+def config_has_target_ipv4(built_configs, index, value):
+    assert built_configs[index].target_ipv4 == value
+    assert built_configs[index].target_ipv6 is None
+    assert built_configs[index].target_hostname is None
+
+
+@then(
+    parsers.parse('the config at position {index:d} has target_ipv6 equal to "{value}"')
+)
+def config_has_target_ipv6(built_configs, index, value):
+    assert built_configs[index].target_ipv6 == value
+    assert built_configs[index].target_ipv4 is None
+    assert built_configs[index].target_hostname is None
+
+
+@then(
+    parsers.parse(
+        'the config at position {index:d} has target_hostname equal to "{value}"'
+    )
+)
+def config_has_target_hostname(built_configs, index, value):
+    assert built_configs[index].target_hostname == value
+    assert built_configs[index].target_ipv4 is None
+    assert built_configs[index].target_ipv6 is None

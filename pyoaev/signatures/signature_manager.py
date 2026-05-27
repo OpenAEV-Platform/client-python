@@ -5,13 +5,17 @@ import os
 import socket
 import subprocess
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
 from pyoaev.exceptions import OpenAEVError
 from pyoaev.signatures.models import (
+    CloudInjectorConfig,
     ExpectationSignatureGroup,
+    ExternalInjectorConfig,
+    InjectorConfig,
+    NetworkInjectorConfig,
     PostExecutionSignature,
     PreExecutionSignature,
     SignaturePayload,
@@ -48,120 +52,72 @@ class SignatureManager:
 
     def compile_pre_execution_signatures(
         self,
-        inject_config: dict[str, Any],
-        category: Literal["network", "cloud", "external"],
+        config: InjectorConfig | list[InjectorConfig],
     ) -> dict[str, Any] | list[dict[str, Any]]:
-        """Build pre-execution signature dicts off the inject config and category.
+        """Build pre-execution signature dicts from one or more typed injector configs.
+
+        The category is carried by the config type itself
+        (:class:`NetworkInjectorConfig`, :class:`CloudInjectorConfig`,
+        :class:`ExternalInjectorConfig`), so no separate ``category`` flag is needed.
 
         Args:
-            inject_config: The inject payload dict.
-            category: One of 'network', 'cloud', 'external'.
+            config: A single injector config or a homogeneous list of them.
+                Multi-target injects must be expressed as a list.
 
         Returns:
-            One dict for single-target, list of dicts for multi-target configs.
+            One dict when a single config is given, otherwise a list of dicts in
+            input order.
 
         Raises:
-            ValueError: Unknown category or required fields missing.
+            ValueError: Empty list, or mixed config types in a single call.
+            TypeError: Unknown injector config type.
         """
-        now = self._utcnow()
-        start_time = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-        if category == "network":
-            return self._compile_network_pre(inject_config, start_time)
-        elif category == "cloud":
-            return self._compile_cloud_pre(inject_config, start_time)
-        elif category == "external":
-            return self._compile_external_pre(inject_config, start_time)
-        else:
-            raise ValueError(f"Unknown category: {category!r}")
-
-    def _compile_network_pre(
-        self, config: dict[str, Any], start_time: str
-    ) -> dict[str, Any] | list[dict[str, Any]]:
-        ipv4 = self.resolve_container_ip()
-        ipv6 = self._cached_ipv6
-
-        assets = config.get("target_assets") or config.get("assets") or []
-        if not assets:
-            asset = config.get("asset")
-            if asset:
-                assets = [asset]
-
-        if not assets:
+        configs = list(config) if isinstance(config, list) else [config]
+        if not configs:
             raise ValueError(
-                "inject_config must contain 'target_assets', 'assets', or 'asset'"
+                "compile_pre_execution_signatures requires at least one config"
             )
 
-        results: list[dict[str, Any]] = []
-        for asset in assets:
-            sig = PreExecutionSignature(
-                start_time=start_time,
-                source_ipv4=ipv4,
-                source_ipv6=ipv6,
-                target_ipv4=asset["target_ipv4"],
-                target_ipv6=asset.get("target_ipv6"),
-                target_hostname=asset.get("target_hostname"),
+        first_type = type(configs[0])
+        if any(type(c) is not first_type for c in configs):
+            raise ValueError(
+                "compile_pre_execution_signatures does not mix injector config types; "
+                f"got {sorted({type(c).__name__ for c in configs})}"
             )
-            results.append(sig.model_dump(mode="json", exclude_none=True))
 
+        start_time = self._utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        results = [self._compile_one(cfg, start_time) for cfg in configs]
         return results[0] if len(results) == 1 else results
 
-    def _compile_cloud_pre(
-        self, config: dict[str, Any], start_time: str
-    ) -> dict[str, Any] | list[dict[str, Any]]:
-        cloud_provider = config["cloud_provider"]
-        cloud_account_id = config["cloud_account_id"]
-        target_service = config.get("target_service")
+    def _compile_one(self, config: InjectorConfig, start_time: str) -> dict[str, Any]:
+        """Project a single injector config into a flat pre-execution signature dict.
 
-        regions = config.get("regions") or []
-        if not regions:
-            region = config.get("cloud_region")
-            if region:
-                regions = [region]
+        Common pipeline for every category:
+          1. Seed the base dict with ``start_time`` and category-specific context
+             (network gets resolved source IPs; cloud/external add nothing).
+          2. Layer the config's own fields on top.
+          3. Run it through :class:`PreExecutionSignature` for validation
+             and emit JSON-ready output stripped of ``None``\\ s.
+        """
+        base: dict[str, Any] = {"start_time": start_time}
+        base.update(self._source_context(config))
+        base.update(config.model_dump(exclude_none=True))
+        return PreExecutionSignature(**base).model_dump(mode="json", exclude_none=True)
 
-        if not regions:
-            raise ValueError("inject_config must contain 'regions' or 'cloud_region'")
+    def _source_context(self, config: InjectorConfig) -> dict[str, Any]:
+        """Return the source identity bits injected for the config's category.
 
-        results: list[dict[str, Any]] = []
-        for region in regions:
-            sig = PreExecutionSignature(
-                start_time=start_time,
-                cloud_provider=cloud_provider,
-                cloud_account_id=cloud_account_id,
-                cloud_region=region,
-                target_service=target_service,
-            )
-            results.append(sig.model_dump(mode="json", exclude_none=True))
-
-        return results[0] if len(results) == 1 else results
-
-    def _compile_external_pre(
-        self, config: dict[str, Any], start_time: str
-    ) -> dict[str, Any] | list[dict[str, Any]]:
-        targets = config.get("targets") or []
-        if not targets:
-            query = config.get("query")
-            if query is None:
-                raise ValueError("inject_config must contain 'query'")
-            targets = [
-                {
-                    "target_ipv4": config["target_ipv4"],
-                    "target_hostname": config.get("target_hostname"),
-                    "query": query,
-                }
-            ]
-
-        results: list[dict[str, Any]] = []
-        for target in targets:
-            sig = PreExecutionSignature(
-                start_time=start_time,
-                target_ipv4=target["target_ipv4"],
-                target_hostname=target.get("target_hostname"),
-                query=target.get("query"),
-            )
-            results.append(sig.model_dump(mode="json", exclude_none=True))
-
-        return results[0] if len(results) == 1 else results
+        Only network signatures need the running container's source IPs;
+        cloud and external rows have no source identity to carry.
+        """
+        if isinstance(config, NetworkInjectorConfig):
+            return {
+                "source_ipv4": self.resolve_container_ip(),
+                "source_ipv6": self._cached_ipv6,
+            }
+        if isinstance(config, (CloudInjectorConfig, ExternalInjectorConfig)):
+            return {}
+        raise TypeError(f"unsupported injector config type: {type(config).__name__}")
 
     def compile_post_execution_signatures(
         self,
