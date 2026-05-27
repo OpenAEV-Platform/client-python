@@ -56,7 +56,9 @@ def _parse_iso8601_utc(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-@given("a SignatureManager initialised with constructor SignatureManager(client, logger)")
+@given(
+    "a SignatureManager initialised with constructor SignatureManager(client, logger)"
+)
 def signature_manager(context):
     context["signature_manager"] = SignatureManager(MagicMock(), MagicMock())
 
@@ -111,7 +113,9 @@ def timeout_tool_output_with_no_partial_results():
     return {"timeout_info": {"partial_results": []}}
 
 
-@when("I call compile_post_execution_signatures with the pre_signatures dict and tool_output")
+@when(
+    "I call compile_post_execution_signatures with the pre_signatures dict and tool_output"
+)
 def compile_post_execution_signatures(context, pre_signatures, tool_output):
     context["result"] = context["signature_manager"].compile_post_execution_signatures(
         pre_signatures, tool_output

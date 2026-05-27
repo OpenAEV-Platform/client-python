@@ -103,9 +103,11 @@ def _build_signature_payload(
                         "values": [
                             {
                                 "signature_type": "public_ip",
-                                "signature_value": signature_value
-                                if expectation_type == "DETECTION"
-                                else "198.51.100.10",
+                                "signature_value": (
+                                    signature_value
+                                    if expectation_type == "DETECTION"
+                                    else "198.51.100.10"
+                                ),
                             }
                         ],
                     }
