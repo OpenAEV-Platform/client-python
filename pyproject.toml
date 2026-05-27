@@ -42,7 +42,10 @@ dependencies = [
     # OpenAEV,
     "requests-toolbelt (>=1.0.0,<1.1.0)",
     "dataclasses-json (>=0.6.4,<0.7.0)",
-    "thefuzz (>=0.22,<0.23)"
+    "thefuzz (>=0.22,<0.23)",
+    # Ugly fix, we need to fix the CI to use: [dev]
+    "pytest (>=9.0.0,<9.1.0)",
+    "pytest-bdd (>=8.1.0, <8.2.0)",
 ]
 
 [project.optional-dependencies]
