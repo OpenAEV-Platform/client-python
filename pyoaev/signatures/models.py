@@ -25,13 +25,13 @@ class ExpectationSignatureGroup(BaseModel):
 
 
 class SignatureTarget(BaseModel):
-    """Target identity on the wire. Three fields, all mandatory, no exceptions."""
+    """Target identity on the wire."""
 
     model_config = ConfigDict(extra="allow")
 
-    agent: str
-    asset: str
-    asset_group: str
+    agent: str | None = None
+    asset: str | None = None
+    asset_group: str | None = None
 
 
 class TargetSignatures(BaseModel):
