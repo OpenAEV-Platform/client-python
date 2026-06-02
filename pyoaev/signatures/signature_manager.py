@@ -176,7 +176,7 @@ class SignatureManager:
         self,
         post_signatures: dict[str, Any] | list[dict[str, Any]],
         targets_meta: dict[str, str] | list[dict[str, str]],
-        expectation_type: str = "DETECTION",
+        expectation_types: list[str] = ["DETECTION"],
     ) -> dict[str, Any]:
         """Build the nested wire payload from flat post-execution signatures.
 
@@ -186,7 +186,7 @@ class SignatureManager:
         Args:
             post_signatures: A single post-execution dict or a list (multi-target).
             targets_meta: Target metadata dict(s) with keys like agent, asset, asset_group.
-            expectation_type: The expectation type label (e.g. 'DETECTION', 'PREVENTION').
+            expectation_types: The expectation type labels (e.g. 'DETECTION', 'PREVENTION').
 
         Returns:
             A payload dict ready for send_signatures.
@@ -209,6 +209,7 @@ class SignatureManager:
                         ExpectationSignatureGroup(
                             expectation_type=expectation_type, values=values
                         )
+                        for expectation_type in expectation_types
                     ],
                 )
             )
