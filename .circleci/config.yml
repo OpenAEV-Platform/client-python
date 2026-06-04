@@ -36,7 +36,7 @@ jobs:
           command: pip3 install --user .
       - run:
           name: run tests
-          command: python -m unittest
+          command: python -m pytest
   linter:
     docker:
       - image: alpine/flake8
