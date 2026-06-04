@@ -19,7 +19,6 @@ from pyoaev.signatures.models import (
     PostExecutionSignature,
     PreExecutionSignature,
     SignaturePayload,
-    SignatureTarget,
     SignatureValue,
     TargetSignatures,
     ToolOutput,
@@ -79,11 +78,12 @@ class SignatureManager:
             )
 
         first_type = type(configs[0])
-        if any(type(c) is not first_type for c in configs):
-            raise ValueError(
-                "compile_pre_execution_signatures does not mix injector config types; "
-                f"got {sorted({type(c).__name__ for c in configs})}"
-            )
+        for c in configs:
+            if not isinstance(c, first_type):
+                raise ValueError(
+                    "compile_pre_execution_signatures does not mix injector config types; "
+                    f"got {sorted({type(c).__name__ for c in configs})}"
+                )
 
         start_time = self._utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         results = [self._compile_one(cfg, start_time) for cfg in configs]
@@ -175,8 +175,7 @@ class SignatureManager:
     def build_payload(
         self,
         post_signatures: dict[str, Any] | list[dict[str, Any]],
-        targets_meta: dict[str, str] | list[dict[str, str]],
-        expectation_types: list[str] = ["DETECTION"],
+        expectation_types: list[str],
     ) -> dict[str, Any]:
         """Build the nested wire payload from flat post-execution signatures.
 
@@ -184,35 +183,28 @@ class SignatureManager:
         and send_signatures input (nested wire format).
 
         Args:
-            post_signatures: A single post-execution dict or a list (multi-target).
-            targets_meta: Target metadata dict(s) with keys like agent, asset, asset_group.
-            expectation_types: The expectation type labels (e.g. 'DETECTION', 'PREVENTION').
+            post_signatures: A single post-execution dict or a list (multi-targets).
+            expectation_types: The 1+ expectation type labels (e.g. ['DETECTION', 'PREVENTION']).
 
         Returns:
             A payload dict ready for send_signatures.
         """
         if isinstance(post_signatures, dict):
             post_signatures = [post_signatures]
-        if isinstance(targets_meta, dict):
-            targets_meta = [targets_meta] * len(post_signatures)
 
         targets = []
-        for sig, meta in zip(post_signatures, targets_meta):
+        for sig in post_signatures:
             values = [
                 SignatureValue(signature_type=k, signature_value=str(v))
                 for k, v in sig.items()
             ]
-            targets.append(
-                TargetSignatures(
-                    signature_target=SignatureTarget(**meta),
-                    signature_values=[
-                        ExpectationSignatureGroup(
-                            expectation_type=expectation_type, values=values
-                        )
-                        for expectation_type in expectation_types
-                    ],
+            signature_values = [
+                ExpectationSignatureGroup(
+                    expectation_type=expectation_type, values=values
                 )
-            )
+                for expectation_type in expectation_types
+            ]
+            targets.append(TargetSignatures(signature_values=signature_values))
 
         return SignaturePayload(targets=targets).model_dump()
 
@@ -268,6 +260,7 @@ class SignatureManager:
                 capture_output=True,
                 text=True,
                 timeout=5,
+                check=False,
             )
             if result.returncode == 0:
                 ip = result.stdout.strip().split()[0]
