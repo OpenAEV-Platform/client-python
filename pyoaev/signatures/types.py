@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class ExpectationType(str, Enum):
+    DETECTION = "DETECTION"
+    PREVENTION = "PREVENTION"
+    VULNERABILITY = "VULNERABILITY"
+
+
 class MatchTypes(str, Enum):
     MATCH_TYPE_FUZZY = "fuzzy"
     MATCH_TYPE_SIMPLE = "simple"

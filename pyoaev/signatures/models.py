@@ -3,7 +3,7 @@
 import ipaddress
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 
 class SignatureValue(BaseModel):
@@ -12,7 +12,7 @@ class SignatureValue(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     signature_type: str
-    signature_value: str
+    signature_value: JsonValue
 
 
 class ExpectationSignatureGroup(BaseModel):
@@ -22,6 +22,25 @@ class ExpectationSignatureGroup(BaseModel):
 
     expectation_type: str
     values: list[SignatureValue]
+
+
+class ExtraSignatureData(BaseModel):
+    """Format for extra signatures added to the default signatures"""
+
+    detection: dict[str, JsonValue] | None = Field(default_factory=dict)
+    prevention: dict[str, JsonValue] | None = Field(default_factory=dict)
+    vulnerability: dict[str, JsonValue] | None = Field(default_factory=dict)
+
+    def get_extra(self, expectation_type: str):
+        if expectation_type == "detection":
+            return self.detection
+        if expectation_type == "prevention":
+            return self.prevention
+        if expectation_type == "vulnerability":
+            return self.vulnerability
+        raise ValueError(
+            f"Expectation type should be one of the available parameters: {list(self.__fields__.keys())}"
+        )
 
 
 class TargetSignatures(BaseModel):
@@ -109,7 +128,6 @@ class ToolOutput(BaseModel):
     status: str | None = None
     error_info: ToolErrorInfo | None = None
     timeout_info: ToolTimeoutInfo | None = None
-    extra_signatures: dict[str, Any] | None = None
 
 
 class NetworkInjectorConfig(BaseModel):

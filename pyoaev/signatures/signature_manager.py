@@ -14,6 +14,7 @@ from pyoaev.signatures.models import (
     CloudInjectorConfig,
     ExpectationSignatureGroup,
     ExternalInjectorConfig,
+    ExtraSignatureData,
     InjectorConfig,
     NetworkInjectorConfig,
     PostExecutionSignature,
@@ -23,6 +24,7 @@ from pyoaev.signatures.models import (
     TargetSignatures,
     ToolOutput,
 )
+from pyoaev.signatures.types import ExpectationType
 
 if TYPE_CHECKING:
     from pyoaev.client import OpenAEV
@@ -167,15 +169,13 @@ class SignatureManager:
 
         merged = post.model_dump(mode="json", exclude_none=True)
 
-        if tool.extra_signatures:
-            merged.update(tool.extra_signatures)
-
         return merged
 
+    @staticmethod
     def build_payload(
-        self,
         post_signatures: dict[str, Any] | list[dict[str, Any]],
         expectation_types: list[str],
+        extra_signatures: ExtraSignatureData | None = None,
     ) -> dict[str, Any]:
         """Build the nested wire payload from flat post-execution signatures.
 
@@ -185,6 +185,8 @@ class SignatureManager:
         Args:
             post_signatures: A single post-execution dict or a list (multi-targets).
             expectation_types: The 1+ expectation type labels (e.g. ['DETECTION', 'PREVENTION']).
+            extra_signatures: Optional mapping of expectation types to additional signature fields that will be merged
+            into the base post_signatures.
 
         Returns:
             A payload dict ready for send_signatures.
@@ -192,19 +194,39 @@ class SignatureManager:
         if isinstance(post_signatures, dict):
             post_signatures = [post_signatures]
 
+        # Validate expectation types
+        [
+            ExpectationType(expectation_type.upper())
+            for expectation_type in expectation_types
+        ]
+
         targets = []
-        for sig in post_signatures:
-            values = [
-                SignatureValue(signature_type=k, signature_value=str(v))
-                for k, v in sig.items()
-            ]
-            signature_values = [
-                ExpectationSignatureGroup(
-                    expectation_type=expectation_type, values=values
+        for signature in post_signatures:
+            signature_values = []
+
+            for expectation_type in expectation_types:
+                signature_data = signature.copy()
+                signature_data.update(extra_signatures.get_extra(expectation_type))
+
+                values = [
+                    SignatureValue(
+                        signature_type=key,
+                        signature_value=value,
+                    )
+                    for key, value in signature_data.items()
+                ]
+
+                signature_values.append(
+                    ExpectationSignatureGroup(
+                        expectation_type=expectation_type,
+                        values=values,
+                    )
                 )
-                for expectation_type in expectation_types
-            ]
-            targets.append(TargetSignatures(signature_values=signature_values))
+            targets.append(
+                TargetSignatures(
+                    signature_values=signature_values,
+                )
+            )
 
         return SignaturePayload(targets=targets).model_dump()
 
