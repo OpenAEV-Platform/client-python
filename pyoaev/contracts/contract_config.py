@@ -57,6 +57,7 @@ class ContractOutputType(str, Enum):
     Sid: str = "sid"
     Vulnerability: str = "vulnerability"
     AccountWithPasswordNotRequired: str = "account_with_password_not_required"
+    ExpectationSignature: str = "expectation_signature"
     AsreproastableAccount: str = "asreproastable_account"
     KerberoastableAccount: str = "kerberoastable_account"
 
@@ -152,12 +153,14 @@ class Contract:
     config: ContractConfig
     manual: bool
     variables: List[ContractVariable] = field(
-        default_factory=lambda: [
-            VariableHelper.user_variable(),
-            VariableHelper.exercise_variable(),
-            VariableHelper.team_variable(),
-        ]
-        + VariableHelper.uri_variables()
+        default_factory=lambda: (
+            [
+                VariableHelper.user_variable(),
+                VariableHelper.exercise_variable(),
+                VariableHelper.team_variable(),
+            ]
+            + VariableHelper.uri_variables()
+        )
     )
     contract_attack_patterns_external_ids: List[str] = field(default_factory=list)
     contract_vulnerability_external_ids: List[str] = field(default_factory=list)
@@ -212,7 +215,6 @@ class ContractTeam(ContractCardinalityElement):
 
 @dataclass
 class ContractText(ContractCardinalityElement):
-
     defaultValue: str = ""
 
     @property
@@ -253,7 +255,6 @@ class ContractTuple(ContractCardinalityElement):
 
 @dataclass
 class ContractTextArea(ContractCardinalityElement):
-
     defaultValue: str = ""
     richText: bool = False
 
@@ -264,7 +265,6 @@ class ContractTextArea(ContractCardinalityElement):
 
 @dataclass
 class ContractCheckbox(ContractElement):
-
     defaultValue: bool = False
 
     @property
@@ -274,7 +274,6 @@ class ContractCheckbox(ContractElement):
 
 @dataclass
 class ContractAttachment(ContractCardinalityElement):
-
     @property
     def get_type(self) -> str:
         return ContractFieldType.Attachment.value
@@ -292,7 +291,6 @@ class ContractExpectations(ContractCardinalityElement):
 
 @dataclass
 class ContractSelect(ContractCardinalityElement):
-
     choices: dict[str, str] = None
 
     @property
@@ -320,7 +318,6 @@ class ContractAssetGroup(ContractCardinalityElement):
 
 @dataclass
 class ContractPayload(ContractCardinalityElement):
-
     @property
     def get_type(self) -> str:
         return ContractFieldType.Payload.value
