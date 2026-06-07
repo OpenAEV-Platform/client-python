@@ -1,39 +1,38 @@
 ---
 name: Bug report
-about: Create a report to help us improve OpenAEV
+about: Create a bug report to help us improve the OpenAEV Python client
 title: 'fix: '
-labels: bug, needs triage
+labels: needs triage, bug
 assignees: ''
+type: bug
 
 ---
 
-Please replace every line in curly brackets { like this } with an appropriate answer, and remove this line.
-
 ## Description
 
-{ Please provide a clear and concise description of the bug. }
+<!-- Please provide a clear and concise description of the bug. -->
 
 ## Environment
 
-1. OS (where OpenCTI server runs): { e.g. Mac OS 10, Windows 10, Ubuntu 16.4, etc. }
-2. OpenCTI version: { e.g. OpenCTI 1.0.2 }
+1. OS: { e.g. macOS 14, Windows 11, Ubuntu 22.04, etc. }
+2. Version: { e.g. 1.2.3 }
 3. Other environment details:
 
-## Reproducible Steps
+## Reproducible steps
 
 Steps to create the smallest reproducible scenario:
 1. { e.g. Run ... }
 2. { e.g. Click ... }
 3. { e.g. Error ... }
 
-## Expected Output
+## Expected output
 
-{ Please describe what you expected to happen. }
+<!-- Please describe what you expected to happen. -->
 
-## Actual Output
+## Actual output
 
-{ Please describe what actually happened. }
+<!-- Please describe what actually happened. -->
 
 ## Additional information
 
-{ Any additional information, including logs or screenshots if you have any. }
+<!-- Any additional information, including logs or screenshots if you have any. -->
