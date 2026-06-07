@@ -1,6 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
+    ":semanticCommits",
     "config:recommended"
   ],
   "labels": [
@@ -18,5 +19,4 @@
   "updateNotScheduled": false,
   "rebaseWhen": "conflicted",
   "commitMessageAction": "update",
-  "commitMessagePrefix": "[client-python] chore(deps):"
 }
