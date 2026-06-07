@@ -1,26 +1,29 @@
 ---
 name: Feature request
-about: Ask for a new feature to be implemented in OpenAEV
+about: Suggest a new feature or capability for the OpenAEV Python client
 title: 'feat: '
-labels: feature, needs triage
+labels: needs triage, feature
 assignees: ''
+type: feature
 
 ---
 
-Please replace every line in curly brackets { like this } with appropriate answers, and remove this line.
+## Use case
 
-## Problem to Solve
+<!-- Please describe the use case for which you need a solution. -->
 
-{ Please describe the problem you would like to solve. }
+## Current workaround
 
-## Current Workaround
+<!-- Please describe how you currently solve or work around this problem. -->
 
-{ Please describe how you currently solve or work around this problem, given OpenAEV's limitation. }
+## Proposed solution
 
-## Proposed Solution
+<!-- Please describe the solution you would like to be provided. -->
 
-{ Please describe the solution you would like OpenAEV to provide, to solve the problem above. }
+## Additional information
 
-## Additional Information
+<!-- Any additional information, including logs or screenshots if you have any. -->
 
-{ Any additional information, including logs or screenshots if you have any. }
+## If the feature request is approved, would you be willing to submit a PR?
+
+Yes / No (help can be provided if you need assistance submitting a PR)
