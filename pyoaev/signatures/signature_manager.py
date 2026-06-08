@@ -24,7 +24,6 @@ from pyoaev.signatures.models import (
     TargetSignatures,
     ToolOutput,
 )
-from pyoaev.signatures.types import ExpectationType
 
 if TYPE_CHECKING:
     from pyoaev.client import OpenAEV
@@ -193,12 +192,6 @@ class SignatureManager:
         """
         if isinstance(post_signatures, dict):
             post_signatures = [post_signatures]
-
-        # Validate expectation types
-        [
-            ExpectationType(expectation_type.upper())
-            for expectation_type in expectation_types
-        ]
 
         targets = []
         for signature in post_signatures:

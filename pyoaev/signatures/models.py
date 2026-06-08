@@ -3,7 +3,9 @@
 import ipaddress
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator
+
+from pyoaev.signatures.types import ExpectationType
 
 
 class SignatureValue(BaseModel):
@@ -23,6 +25,12 @@ class ExpectationSignatureGroup(BaseModel):
     expectation_type: str
     values: list[SignatureValue]
 
+    @field_validator("expectation_type", mode="after")
+    @classmethod
+    def is_expectation_type(cls, value: str) -> str:
+        ExpectationType(value.upper())
+        return value
+
 
 class ExtraSignatureData(BaseModel):
     """Format for extra signatures added to the default signatures"""
@@ -32,14 +40,14 @@ class ExtraSignatureData(BaseModel):
     vulnerability: dict[str, JsonValue] | None = Field(default_factory=dict)
 
     def get_extra(self, expectation_type: str):
-        if expectation_type == "detection":
+        if expectation_type.lower() == "detection":
             return self.detection
-        if expectation_type == "prevention":
+        if expectation_type.lower() == "prevention":
             return self.prevention
-        if expectation_type == "vulnerability":
+        if expectation_type.lower() == "vulnerability":
             return self.vulnerability
         raise ValueError(
-            f"Expectation type should be one of the available parameters: {list(self.__fields__.keys())}"
+            f"Expectation type should be one of the available parameters: {list(self.model_fields.keys())}"
         )
 
 
