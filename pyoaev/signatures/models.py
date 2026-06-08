@@ -3,7 +3,14 @@
 import ipaddress
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    field_validator,
+    model_validator,
+)
 
 from pyoaev.signatures.types import ExpectationType
 
@@ -146,6 +153,19 @@ class NetworkInjectorConfig(BaseModel):
     target_ipv4: str | None = None
     target_ipv6: str | None = None
     target_hostname: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def check_one(cls, data):
+        assert (
+            sum(
+                value != None
+                for key, value in data.items()
+                if key in ["target_ipv4", "target_ipv6", "target_hostname"]
+            )
+            == 1
+        )
+        return data
 
 
 class CloudInjectorConfig(BaseModel):
