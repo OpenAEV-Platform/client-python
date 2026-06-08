@@ -36,7 +36,7 @@ $ python3 -m pip install -e .[dev,doc]
 $ pre-commit install
 # Create your feature/fix
 # Create tests for your changes
-$ python -m unittest
+$ python -m pytest
 # Push you feature/fix on Github
 $ git add [file(s)]
 $ git commit -m "[descriptive message]"
@@ -62,10 +62,10 @@ To learn about the methods available for executing queries and retrieving their 
 
 ## Tests
 
-The standard `unittest` library is used for running the tests.
+The `pytest` library is used for running the tests.
 
 ```bash
-$ python -m unittest
+$ python -m pytest
 ```
 
 ## Code Coverage

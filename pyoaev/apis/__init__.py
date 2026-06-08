@@ -13,6 +13,7 @@ from .me import *  # noqa: F401,F403
 from .organization import *  # noqa: F401,F403
 from .payload import *  # noqa: F401,F403
 from .security_platform import *  # noqa: F401,F403
+from .signature import *  # noqa: F401,F403
 from .tag import *  # noqa: F401,F403
 from .team import *  # noqa: F401,F403
 from .user import *  # noqa: F401,F403

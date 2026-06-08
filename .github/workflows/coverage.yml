@@ -27,7 +27,7 @@ jobs:
           uv venv && uv pip install -e '.[dev]' coverage
 
       - name: Run tests with coverage
-        run: uv run coverage run -m unittest
+        run: uv run coverage run -m pytest
 
       - name: Print coverage summary
         run: uv run coverage report -m --fail-under=70

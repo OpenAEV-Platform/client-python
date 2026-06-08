@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class ExpectationType(str, Enum):
+    DETECTION = "DETECTION"
+    PREVENTION = "PREVENTION"
+    VULNERABILITY = "VULNERABILITY"
+
+
 class MatchTypes(str, Enum):
     MATCH_TYPE_FUZZY = "fuzzy"
     MATCH_TYPE_SIMPLE = "simple"
@@ -15,3 +21,8 @@ class SignatureTypes(str, Enum):
     SIG_TYPE_TARGET_HOSTNAME_ADDRESS = "target_hostname_address"
     SIG_TYPE_START_DATE = "start_date"
     SIG_TYPE_END_DATE = "end_date"
+    SIG_TYPE_CLOUD_PROVIDER = "cloud_provider"
+    SIG_TYPE_CLOUD_ACCOUNT_ID = "cloud_account_id"
+    SIG_TYPE_CLOUD_REGION = "cloud_region"
+    SIG_TYPE_TARGET_SERVICE = "target_service"
+    SIG_TYPE_QUERY = "query"
