@@ -21,7 +21,7 @@ Feature: SignatureManager signature transmission and container IP resolution
     Given a compiled payload with 1 target, expectation_type "DETECTION", signature_type "public_ip", signature_value "203.0.113.5"
     And the backend responds with HTTP 200
     When I call send_signatures for inject_id "inject-abc-001" with phase "execution_complete"
-    Then a POST request is sent to /injects/inject-abc-001/callback
+    Then a POST request is sent to /injects/execution/callback/inject-abc-001
     And the POST request body contains signatures.targets as a list
     And signatures.targets[0].signature_values[0].expectation_type equals "DETECTION"
     And signatures.targets[0].signature_values[0].values[0].signature_type equals "public_ip"

@@ -276,7 +276,7 @@ class SignatureApiManager(RESTManager):
         Returns:
             The parsed response from the backend.
         """
-        path = f"{self.path}/{inject_id}/callback"
+        path = f"{self.path}/execution/callback/{inject_id}"
         result = self.openaev.http_post(path, post_data=data, **kwargs)
         return result
 

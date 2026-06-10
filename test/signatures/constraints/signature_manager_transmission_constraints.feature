@@ -10,7 +10,7 @@ Feature: SignatureManager transmission constraints
     Given a compiled payload whose serialised size exceeds MAX_PAYLOAD_SIZE by at least a factor of 2
     And the backend responds with HTTP 200
     When I call send_signatures for inject_id "inject-abc-001" with phase "execution_complete"
-    Then the payload is sent as multiple sequential POST requests to /injects/inject-abc-001/callback
+    Then the payload is sent as multiple sequential POST requests to /injects/execution/callback/inject-abc-001
     And each POST request body contains chunk_index as a 0-based integer
     And each POST request body contains total_chunks as a positive integer matching the total number of chunks sent
     And each POST request body contains only "signatures", "chunk_index" and "total_chunks" at the top level
@@ -21,7 +21,7 @@ Feature: SignatureManager transmission constraints
     Given a compiled post-execution payload for inject_id "inject-abc-001"
     And the backend responds with HTTP 503 on every attempt
     When I call send_signatures for inject_id "inject-abc-001" with phase "execution_complete"
-    Then send_signatures sends a total of 4 POST requests to /injects/inject-abc-001/callback
+    Then send_signatures sends a total of 4 POST requests to /injects/execution/callback/inject-abc-001
     And a WARNING log message containing the retry attempt number is emitted before each of the 3 retry attempts
     And the wait before attempt 2 is 1 second
     And the wait before attempt 3 is 2 seconds
@@ -32,7 +32,7 @@ Feature: SignatureManager transmission constraints
     Given a compiled post-execution payload for inject_id "inject-abc-001"
     And the backend responds with HTTP 400 and body '{"error": "bad request"}'
     When I call send_signatures for inject_id "inject-abc-001" with phase "execution_complete"
-    Then only 1 POST request is sent to /injects/inject-abc-001/callback
+    Then only 1 POST request is sent to /injects/execution/callback/inject-abc-001
     And an ERROR log message containing status code 400 and the response body is emitted
     And an exception is raised immediately
     And no sleep or wait occurs before the exception is raised

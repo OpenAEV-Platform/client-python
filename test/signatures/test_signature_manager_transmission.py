@@ -379,12 +379,15 @@ def send_signatures_completes_without_exception(context):
 
 @then(
     parsers.parse(
-        "a POST request is sent to /injects/{inject_id}/callback",
+        "a POST request is sent to /injects/execution/callback/{inject_id}",
     )
 )
 def assert_post_request_sent_to_callback(context, inject_id):
     assert context["captured_calls"]
-    assert context["captured_calls"][-1]["path"] == f"/injects/{inject_id}/callback"
+    assert (
+        context["captured_calls"][-1]["path"]
+        == f"/injects/execution/callback/{inject_id}"
+    )
 
 
 @then("the POST request body contains signatures.targets as a list")
@@ -443,14 +446,14 @@ def assert_signature_target_key(context):
 
 @then(
     parsers.parse(
-        "the payload is sent as multiple sequential POST requests to /injects/{inject_id}/callback",
+        "the payload is sent as multiple sequential POST requests to /injects/execution/callback/{inject_id}",
     )
 )
 def assert_payload_sent_as_multiple_chunks(context, inject_id):
     assert context["send_exception"] is None
     assert len(context["captured_calls"]) > 1
     assert all(
-        call_item["path"] == f"/injects/{inject_id}/callback"
+        call_item["path"] == f"/injects/execution/callback/{inject_id}"
         for call_item in context["captured_calls"]
     )
 
@@ -515,13 +518,13 @@ def assert_payload_size_per_chunk(context):
 
 @then(
     parsers.parse(
-        "send_signatures sends a total of {total_requests:d} POST requests to /injects/{inject_id}/callback"
+        "send_signatures sends a total of {total_requests:d} POST requests to /injects/execution/callback/{inject_id}"
     )
 )
 def assert_total_post_requests(context, total_requests, inject_id):
     assert len(context["captured_calls"]) == total_requests
     assert all(
-        call_item["path"] == f"/injects/{inject_id}/callback"
+        call_item["path"] == f"/injects/execution/callback/{inject_id}"
         for call_item in context["captured_calls"]
     )
 
@@ -553,12 +556,15 @@ def assert_signature_transmission_error_after_retries(context):
 
 @then(
     parsers.parse(
-        "only {request_count:d} POST request is sent to /injects/{inject_id}/callback"
+        "only {request_count:d} POST request is sent to /injects/execution/callback/{inject_id}"
     )
 )
 def assert_single_post_request(context, request_count, inject_id):
     assert len(context["captured_calls"]) == request_count
-    assert context["captured_calls"][0]["path"] == f"/injects/{inject_id}/callback"
+    assert (
+        context["captured_calls"][0]["path"]
+        == f"/injects/execution/callback/{inject_id}"
+    )
 
 
 @then(
