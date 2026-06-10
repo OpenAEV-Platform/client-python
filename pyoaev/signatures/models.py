@@ -58,11 +58,22 @@ class ExtraSignatureData(BaseModel):
         )
 
 
+class SignatureTarget(BaseModel):
+    """Target identity on the wire."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    agent: str | None = None
+    asset: str | None = None
+    asset_group: str | None = None
+
+
 class TargetSignatures(BaseModel):
     """A target plus everything observed about it, grouped by expectation."""
 
     model_config = ConfigDict(extra="allow")
 
+    signature_target: SignatureTarget
     signature_values: list[ExpectationSignatureGroup]
 
 
@@ -245,6 +256,7 @@ def build_network_configs(
 __all__ = [
     "SignatureValue",
     "ExpectationSignatureGroup",
+    "SignatureTarget",
     "TargetSignatures",
     "SignaturePayload",
     "SignatureCallbackPayload",

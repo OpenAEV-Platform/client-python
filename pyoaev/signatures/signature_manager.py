@@ -20,6 +20,7 @@ from pyoaev.signatures.models import (
     PostExecutionSignature,
     PreExecutionSignature,
     SignaturePayload,
+    SignatureTarget,
     SignatureValue,
     TargetSignatures,
     ToolOutput,
@@ -173,6 +174,7 @@ class SignatureManager:
     @staticmethod
     def build_payload(
         post_signatures: dict[str, Any] | list[dict[str, Any]],
+        targets_meta: dict[str, str] | list[dict[str, str]],
         expectation_types: list[str],
         extra_signatures: ExtraSignatureData | None = None,
     ) -> dict[str, Any]:
@@ -183,6 +185,7 @@ class SignatureManager:
 
         Args:
             post_signatures: A single post-execution dict or a list (multi-targets).
+            targets_meta: Target metadata dict(s) with keys like agent, asset, asset_group.
             expectation_types: The 1+ expectation type labels (e.g. ['DETECTION', 'PREVENTION']).
             extra_signatures: Optional mapping of expectation types to additional signature fields that will be merged
             into the base post_signatures.
@@ -192,23 +195,19 @@ class SignatureManager:
         """
         if isinstance(post_signatures, dict):
             post_signatures = [post_signatures]
+        if isinstance(targets_meta, dict):
+            targets_meta = [targets_meta] * len(post_signatures)
 
         targets = []
-        for signature in post_signatures:
+        for signature, target in zip(post_signatures, targets_meta):
             signature_values = []
-
             for expectation_type in expectation_types:
                 signature_data = signature.copy()
                 signature_data.update(extra_signatures.get_extra(expectation_type))
-
                 values = [
-                    SignatureValue(
-                        signature_type=key,
-                        signature_value=value,
-                    )
+                    SignatureValue(signature_type=key, signature_value=value)
                     for key, value in signature_data.items()
                 ]
-
                 signature_values.append(
                     ExpectationSignatureGroup(
                         expectation_type=expectation_type,
@@ -217,6 +216,7 @@ class SignatureManager:
                 )
             targets.append(
                 TargetSignatures(
+                    signature_target=SignatureTarget(**target),
                     signature_values=signature_values,
                 )
             )
