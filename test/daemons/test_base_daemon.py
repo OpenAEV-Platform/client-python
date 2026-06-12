@@ -63,7 +63,9 @@ class TestBaseDaemon(unittest.TestCase):
             DaemonForTest(configuration=Configuration(config_hints={}))
 
     def test_when_no_callback_daemon_cant_start(self, m_argparser):
-        m_argparser.return_value.parse_args.return_value = unittest.mock.MagicMock(dump_config_schema=False)
+        m_argparser.return_value.parse_args.return_value = unittest.mock.MagicMock(
+            dump_config_schema=False
+        )
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon()
 
         with self.assertRaises(OpenAEVError):
@@ -73,7 +75,9 @@ class TestBaseDaemon(unittest.TestCase):
         mock_start_loop.assert_not_called()
 
     def test_when_callback_daemon_can_start(self, m_argparser):
-        m_argparser.return_value.parse_args.return_value = unittest.mock.MagicMock(dump_config_schema=False)
+        m_argparser.return_value.parse_args.return_value = unittest.mock.MagicMock(
+            dump_config_schema=False
+        )
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon(lambda: None)
 
         daemon.start()
