@@ -1,7 +1,6 @@
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
     ExpectationSignatureGroup,
-    ExternalInjectorConfig,
     ExtraSignatureData,
     InjectorConfig,
     NetworkInjectorConfig,
@@ -18,7 +17,6 @@ from pyoaev.signatures.types import ExpectationType, MatchTypes, SignatureTypes
 __all__ = [
     "CloudInjectorConfig",
     "ExpectationSignatureGroup",
-    "ExternalInjectorConfig",
     "ExpectationType",
     "ExtraSignatureData",
     "InjectorConfig",

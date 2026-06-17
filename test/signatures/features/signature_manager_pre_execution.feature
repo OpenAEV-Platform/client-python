@@ -40,14 +40,6 @@ Feature: SignatureManager pre-execution signature compilation
     And the returned dict does not contain target_ipv4
     And the returned dict does not contain target_ipv6
 
-  Scenario: External category returns scan target fields and no source IP
-    Given an ExternalInjectorConfig with target_ipv4="203.0.113.5" and query="port:22 os:linux"
-    When I call compile_pre_execution_signatures with the config
-    Then the returned dict contains target_ipv4 equal to "203.0.113.5"
-    And the returned dict contains query equal to "port:22 os:linux"
-    And the returned dict contains start_time as a UTC ISO 8601 string
-    But the returned dict does not contain source_ipv4
-
   Scenario Outline: Network multi-target returns one dict per target with a shared source IP
     Given a list of 3 NetworkInjectorConfig with target_ipv4 "10.0.0.1", "10.0.0.2", "10.0.0.3"
     And the running container has a resolvable IPv4 address "172.17.0.2"

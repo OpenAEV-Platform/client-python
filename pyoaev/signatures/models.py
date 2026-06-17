@@ -97,7 +97,7 @@ class SignatureCallbackPayload(BaseModel):
 
 
 class PreExecutionSignature(BaseModel):
-    """Pre-execution data dump. Field set varies by category: network, cloud, external."""
+    """Pre-execution data dump. Field set varies by category: network, cloud."""
 
     model_config = ConfigDict(extra="allow")
 
@@ -116,9 +116,6 @@ class PreExecutionSignature(BaseModel):
     cloud_account_id: str | None = None
     cloud_region: str | None = None
     target_service: str | None = None
-
-    # External
-    query: str | None = None
 
 
 class PostExecutionSignature(PreExecutionSignature):
@@ -190,17 +187,7 @@ class CloudInjectorConfig(BaseModel):
     target_service: str | None = None
 
 
-class ExternalInjectorConfig(BaseModel):
-    """A single external scan target (e.g. Shodan): a query against an asset."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    query: str
-    target_ipv4: str | None = None
-    target_hostname: str | None = None
-
-
-InjectorConfig = NetworkInjectorConfig | CloudInjectorConfig | ExternalInjectorConfig
+InjectorConfig = NetworkInjectorConfig | CloudInjectorConfig
 
 
 # ---------------------------------------------------------------------------
@@ -267,7 +254,6 @@ __all__ = [
     "ToolOutput",
     "NetworkInjectorConfig",
     "CloudInjectorConfig",
-    "ExternalInjectorConfig",
     "InjectorConfig",
     "build_network_configs",
 ]

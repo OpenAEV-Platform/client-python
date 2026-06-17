@@ -13,7 +13,6 @@ from pyoaev.exceptions import OpenAEVError
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
     ExpectationSignatureGroup,
-    ExternalInjectorConfig,
     ExtraSignatureData,
     InjectorConfig,
     NetworkInjectorConfig,
@@ -58,8 +57,8 @@ class SignatureManager:
         """Build pre-execution signature dicts from one or more typed injector configs.
 
         The category is carried by the config type itself
-        (:class:`NetworkInjectorConfig`, :class:`CloudInjectorConfig`,
-        :class:`ExternalInjectorConfig`), so no separate ``category`` flag is needed.
+        (:class:`NetworkInjectorConfig`, :class:`CloudInjectorConfig`),
+        so no separate ``category`` flag is needed.
 
         Args:
             config: A single injector config or a homogeneous list of them.
@@ -96,7 +95,7 @@ class SignatureManager:
 
         Common pipeline for every category:
           1. Seed the base dict with ``start_time`` and category-specific context
-             (network gets resolved source IPs; cloud/external add nothing).
+             (network gets resolved source IPs; cloud add nothing).
           2. Layer the config's own fields on top.
           3. Run it through :class:`PreExecutionSignature` for validation
              and emit JSON-ready output stripped of ``None``\\ s.
@@ -110,14 +109,14 @@ class SignatureManager:
         """Return the source identity bits injected for the config's category.
 
         Only network signatures need the running container's source IPs;
-        cloud and external rows have no source identity to carry.
+        cloud rows have no source identity to carry.
         """
         if isinstance(config, NetworkInjectorConfig):
             return {
                 "source_ipv4": self.resolve_container_ip(),
                 "source_ipv6": self._cached_ipv6,
             }
-        if isinstance(config, (CloudInjectorConfig, ExternalInjectorConfig)):
+        if isinstance(config, CloudInjectorConfig):
             return {}
         raise TypeError(f"unsupported injector config type: {type(config).__name__}")
 

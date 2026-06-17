@@ -7,7 +7,6 @@ from pytest_bdd import given, parsers, scenario, then, when
 
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
-    ExternalInjectorConfig,
     NetworkInjectorConfig,
     build_network_configs,
 )
@@ -39,14 +38,6 @@ def test_network_hostname_target():
     "Cloud category returns required cloud identity fields and no IP fields",
 )
 def test_cloud_category_required_fields():
-    pass
-
-
-@scenario(
-    "features/signature_manager_pre_execution.feature",
-    "External category returns scan target fields and no source IP",
-)
-def test_external_category_fields():
     pass
 
 
@@ -159,16 +150,6 @@ def cloud_config_single(
         cloud_region=cloud_region,
         target_service=target_service,
     )
-
-
-@given(
-    parsers.parse(
-        'an ExternalInjectorConfig with target_ipv4="{target_ipv4}" and query="{query}"'
-    ),
-    target_fixture="config",
-)
-def external_config_single(target_ipv4, query):
-    return ExternalInjectorConfig(target_ipv4=target_ipv4, query=query)
 
 
 @given(
