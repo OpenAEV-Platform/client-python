@@ -7,6 +7,17 @@ class ExpectationType(str, Enum):
     VULNERABILITY = "VULNERABILITY"
 
 
+class InjectExecutionActions(str, Enum):
+    PREREQUISITE_CHECK = "prerequisite_check"
+    PREREQUISITE_EXECUTION = "prerequisite_execution"
+    CLEANUP_EXECUTION = "cleanup_execution"
+    COMMAND_EXECUTION = "command_execution"
+    DNS_RESOLUTION = "dns_resolution"
+    FILE_EXECUTION = "file_execution"
+    FILE_DROP = "file_drop"
+    COMPLETE = "complete"
+
+
 class MatchTypes(str, Enum):
     MATCH_TYPE_FUZZY = "fuzzy"
     MATCH_TYPE_SIMPLE = "simple"

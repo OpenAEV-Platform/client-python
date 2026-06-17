@@ -12,7 +12,12 @@ from pyoaev.signatures.models import (
     build_network_configs,
 )
 from pyoaev.signatures.signature_manager import SignatureManager
-from pyoaev.signatures.types import ExpectationType, MatchTypes, SignatureTypes
+from pyoaev.signatures.types import (
+    ExpectationType,
+    InjectExecutionActions,
+    MatchTypes,
+    SignatureTypes,
+)
 
 __all__ = [
     "CloudInjectorConfig",
@@ -20,6 +25,7 @@ __all__ = [
     "ExpectationType",
     "ExtraSignatureData",
     "InjectorConfig",
+    "InjectExecutionActions",
     "MatchTypes",
     "NetworkInjectorConfig",
     "SignatureCallbackPayload",
