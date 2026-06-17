@@ -8,11 +8,12 @@ from pydantic import (
     ConfigDict,
     Field,
     JsonValue,
+    TypeAdapter,
     field_validator,
     model_validator,
 )
 
-from pyoaev.signatures.types import ExpectationType
+from pyoaev.signatures.types import ExpectationType, InjectExecutionActions
 
 
 class SignatureValue(BaseModel):
@@ -85,15 +86,30 @@ class SignaturePayload(BaseModel):
     targets: list[TargetSignatures]
 
 
+class SignatureOutputStructure(BaseModel):
+    """Structured output to be serialized as a str in the callback payload yet data has to follow model."""
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    signatures: SignaturePayload
+
+
 class SignatureCallbackPayload(BaseModel):
     """Outer POST envelope. Pure ``{signatures}`` when unchunked, plus chunk fields when split."""
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    expectation_signature: SignaturePayload
-    phase: str | None = None
-    chunk_index: int | None = None
-    total_chunks: int | None = None
+    execution_message: str
+    execution_output_structured: str | None = None
+    execution_status: str
+    execution_duration: int | None = None
+    execution_action: InjectExecutionActions | None = None
+
+    @field_validator("execution_output_structured", mode="after")
+    @classmethod
+    def is_proper_signature_output_structure(cls, value: str) -> str:
+        TypeAdapter(SignatureOutputStructure).validate_json(value)
+        return value
 
 
 class PreExecutionSignature(BaseModel):
