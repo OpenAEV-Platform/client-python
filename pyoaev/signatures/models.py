@@ -1,6 +1,8 @@
 """Pydantic schemas pinning every shape SignatureManager touches."""
 
 import ipaddress
+from collections import defaultdict
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import (
@@ -9,6 +11,7 @@ from pydantic import (
     Field,
     JsonValue,
     TypeAdapter,
+    computed_field,
     field_validator,
     model_validator,
 )
@@ -93,6 +96,60 @@ class SignatureOutputStructure(BaseModel):
 
     signatures: SignaturePayload
 
+    def normalize_signature_payload(self) -> None:
+        """
+        Regroup signature_values by expectation_type within each target.
+        """
+        normalized_targets: list[TargetSignatures] = []
+
+        for target in self.signatures.targets:
+            if not target.signature_values:
+                normalized_targets.append(target)
+                continue
+
+            grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+            order: list[str] = set()
+
+            for entry in target.signature_values:
+                order.add(entry.expectation_type)
+                grouped[entry.expectation_type].extend(entry.values)
+
+            normalized_target = TargetSignatures(
+                signature_target=target.signature_target,
+                signature_values=[
+                    ExpectationSignatureGroup(
+                        expectation_type=expectation_type,
+                        values=grouped[expectation_type],
+                    )
+                    for expectation_type in order
+                ],
+            )
+
+            normalized_targets.append(normalized_target)
+
+        self.signatures.targets = normalized_targets
+
+
+class ExecutionDetails(BaseModel):
+    """Helper to wrap the execution-related details for the callback payload"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    start_time: datetime = datetime.now(timezone.utc)
+    end_time: datetime | None = None
+
+    execution_status: str
+    execution_message: str = ""
+    execution_action: InjectExecutionActions | None = None
+
+    @computed_field
+    @property
+    def execution_duration(self) -> float:
+        try:
+            return (self.end_time - self.start_time).total_seconds()
+        except:
+            return 0.0
+
 
 class SignatureCallbackPayload(BaseModel):
     """Outer POST envelope. Pure ``{signatures}`` when unchunked, plus chunk fields when split."""
@@ -110,6 +167,19 @@ class SignatureCallbackPayload(BaseModel):
     def is_proper_signature_output_structure(cls, value: str) -> str:
         TypeAdapter(SignatureOutputStructure).validate_json(value)
         return value
+
+    @classmethod
+    def build_from_models(
+        cls, signatures: SignatureOutputStructure, execution_details: ExecutionDetails
+    ):
+        """Producing a SignatureCallbackPayload from the data of a SignatureOutputStructure and of a ExecutionDetails."""
+        return cls(
+            execution_message=execution_details.execution_message,
+            execution_output_structured=signatures.model_dump_json(exclude_none=True),
+            execution_status=execution_details.execution_status,
+            execution_duration=execution_details.execution_duration,
+            execution_action=execution_details.execution_action,
+        )
 
 
 class PreExecutionSignature(BaseModel):
@@ -183,7 +253,7 @@ class NetworkInjectorConfig(BaseModel):
     def check_one(cls, data):
         assert (
             sum(
-                value != None
+                value is not None
                 for key, value in data.items()
                 if key in ["target_ipv4", "target_ipv6", "target_hostname"]
             )
