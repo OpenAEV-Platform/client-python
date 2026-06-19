@@ -152,7 +152,7 @@ class ExecutionDetails(BaseModel):
 
 
 class SignatureCallbackPayload(BaseModel):
-    """Outer POST envelope. Pure ``{signatures}`` when unchunked, plus chunk fields when split."""
+    """Outer POST envelope validated by ``SignatureApiManager`` before wire transmission."""
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 

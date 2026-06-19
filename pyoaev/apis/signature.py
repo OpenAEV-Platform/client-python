@@ -1,5 +1,6 @@
 """Signature callback API — transport layer for compiled signature payloads."""
 
+import json
 import logging
 import time
 from typing import Any
@@ -69,6 +70,8 @@ class SignatureApiManager(RESTManager):
         inject_id: str,
         signatures: SignatureOutputStructure,
         execution_details: ExecutionDetails,
+        max_payload_size: int | None = None,
+        logger: logging.Logger | None = None,
     ) -> None:
         """Send compiled signatures to the inject callback endpoint.
 
@@ -82,18 +85,38 @@ class SignatureApiManager(RESTManager):
         Raises:
             SignatureTransmissionError: Validation failed, 4xx hit, or retries exhausted.
         """
-        self._logger.debug(
+        effective_max_size = (
+            max_payload_size if max_payload_size is not None else self._max_payload_size
+        )
+        effective_logger = logger if logger is not None else self._logger
+
+        effective_logger.debug(
             "send_signatures inject_id=%s, execution_status=%s, execution_action=%s",
             inject_id,
             execution_details.execution_status,
             execution_details.execution_action,
         )
-        signatures = signatures.normalize_signature_payload()
+        signatures.normalize_signature_payload()
         payload = self._build_callback_payload(
             signatures=signatures, execution_details=execution_details
         )
+        payload_size = len(json.dumps(payload).encode("utf-8"))
 
-        self._send_with_retry(inject_id, payload)
+        if payload_size <= effective_max_size:
+            self._send_with_retry(inject_id, payload, logger=effective_logger)
+            return
+
+        sig_data = json.loads(payload["execution_output_structured"])
+        targets = sig_data["signatures"]["targets"]
+        envelopes = self._split_into_envelopes(
+            payload,
+            sig_data,
+            targets,
+            max_payload_size=effective_max_size,
+            logger=effective_logger,
+        )
+        for envelope in envelopes:
+            self._send_with_retry(inject_id, envelope, logger=effective_logger)
 
     def _build_callback_payload(
         self,
@@ -120,7 +143,69 @@ class SignatureApiManager(RESTManager):
             raise SignatureTransmissionError(
                 error_message=f"Invalid signatures payload: {ve}",
             ) from ve
-        return envelope.model_dump(mode="json", exclude_none=True)
+        envelope_dict = envelope.model_dump(mode="json", exclude_none=True)
+        SignatureCallbackPayload.model_validate(envelope_dict)
+        return envelope_dict
+
+    def _split_into_envelopes(
+        self,
+        base_payload: dict[str, Any],
+        sig_data: dict[str, Any],
+        targets: list[dict[str, Any]],
+        max_payload_size: int | None = None,
+        logger: logging.Logger | None = None,
+    ) -> list[dict[str, Any]]:
+        effective_max = (
+            max_payload_size if max_payload_size is not None else self._max_payload_size
+        )
+        effective_logger = logger if logger is not None else self._logger
+
+        envelopes: list[dict[str, Any]] = []
+        current_targets: list[dict[str, Any]] = []
+
+        for target in targets:
+            trial_targets = current_targets + [target]
+            trial_envelope = self._build_envelope(base_payload, sig_data, trial_targets)
+            trial_size = len(json.dumps(trial_envelope).encode("utf-8"))
+
+            if trial_size > effective_max:
+                if current_targets:
+                    envelopes.append(
+                        self._build_envelope(base_payload, sig_data, current_targets)
+                    )
+                    current_targets = [target]
+                else:
+                    effective_logger.warning(
+                        "Single target exceeds max_payload_size (%d bytes > %d limit). Sending oversized envelope.",
+                        trial_size,
+                        effective_max,
+                    )
+                    envelopes.append(trial_envelope)
+                    current_targets = []
+            else:
+                current_targets = trial_targets
+
+        if current_targets:
+            envelopes.append(
+                self._build_envelope(base_payload, sig_data, current_targets)
+            )
+
+        return envelopes
+
+    def _build_envelope(
+        self,
+        base_payload: dict[str, Any],
+        sig_data: dict[str, Any],
+        targets_subset: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        subset_sig = dict(sig_data)
+        subset_sig["signatures"] = dict(sig_data["signatures"])
+        subset_sig["signatures"]["targets"] = targets_subset
+
+        envelope = dict(base_payload)
+        envelope["execution_output_structured"] = json.dumps(subset_sig)
+        SignatureCallbackPayload.model_validate(envelope)
+        return envelope
 
     @exc.on_http_error(exc.OpenAEVUpdateError)
     def callback(
@@ -141,7 +226,10 @@ class SignatureApiManager(RESTManager):
         return result
 
     def _send_with_retry(
-        self, inject_id: str, payload: dict[str, Any]
+        self,
+        inject_id: str,
+        payload: dict[str, Any],
+        logger: logging.Logger | None = None,
     ) -> dict[str, Any]:
         """Retry callback() with exponential backoff on 5xx, immediate raise on 4xx.
 
@@ -157,6 +245,7 @@ class SignatureApiManager(RESTManager):
         """
         from pyoaev.exceptions import OpenAEVError
 
+        effective_logger = logger if logger is not None else self._logger
         last_error: Exception | None = None
 
         for attempt in range(self.MAX_RETRIES + 1):
@@ -168,7 +257,7 @@ class SignatureApiManager(RESTManager):
                     body_str = ""
                     if ex.response_body:
                         body_str = ex.response_body.decode(errors="replace")
-                    self._logger.error(
+                    effective_logger.error(
                         "Client error %d sending signatures: %s",
                         status,
                         body_str or ex.error_message,
@@ -182,7 +271,7 @@ class SignatureApiManager(RESTManager):
                 last_error = ex
                 if attempt < self.MAX_RETRIES:
                     delay = self.RETRY_DELAYS[attempt]
-                    self._logger.warning(
+                    effective_logger.warning(
                         "Retry %d/%d after %ds (HTTP %s): %s",
                         attempt + 1,
                         self.MAX_RETRIES,
