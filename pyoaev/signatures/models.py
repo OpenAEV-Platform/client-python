@@ -51,13 +51,13 @@ class ExtraSignatureData(BaseModel):
     prevention: dict[str, JsonValue] | None = Field(default_factory=dict)
     vulnerability: dict[str, JsonValue] | None = Field(default_factory=dict)
 
-    def get_extra(self, expectation_type: str):
+    def get_extra(self, expectation_type: str) -> dict[str, JsonValue]:
         if expectation_type.lower() == "detection":
-            return self.detection
+            return self.detection or {}
         if expectation_type.lower() == "prevention":
-            return self.prevention
+            return self.prevention or {}
         if expectation_type.lower() == "vulnerability":
-            return self.vulnerability
+            return self.vulnerability or {}
         raise ValueError(
             f"Expectation type should be one of the available parameters: {list(self.model_fields.keys())}"
         )
