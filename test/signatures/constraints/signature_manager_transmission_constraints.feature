@@ -6,14 +6,13 @@ Feature: SignatureManager transmission constraints
   Background:
     Given a SignatureManager initialised with constructor SignatureManager(client, logger)
 
-  Scenario: Payload exceeding MAX_PAYLOAD_SIZE is auto-chunked with chunk metadata
+  Scenario: Payload exceeding MAX_PAYLOAD_SIZE is split into multiple sequential envelopes
     Given a compiled payload whose serialised size exceeds MAX_PAYLOAD_SIZE by at least a factor of 2
     And the backend responds with HTTP 200
     When I call send_signatures for inject_id "inject-abc-001" with phase "execution_complete"
     Then the payload is sent as multiple sequential POST requests to /injects/execution/callback/inject-abc-001
-    And each POST request body contains chunk_index as a 0-based integer
-    And each POST request body contains total_chunks as a positive integer matching the total number of chunks sent
-    And each POST request body contains only "signatures", "chunk_index" and "total_chunks" at the top level
+    And each POST request body is a valid self-contained envelope with the same structure as a single-send payload
+    And no POST request body contains chunk_index or total_chunks keys
     And the union of targets across all POST requests equals the original target set
     And no individual POST request body exceeds MAX_PAYLOAD_SIZE bytes
 
