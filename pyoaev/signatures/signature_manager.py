@@ -12,12 +12,14 @@ from pydantic import ValidationError
 from pyoaev.exceptions import OpenAEVError
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
+    ExecutionDetails,
     ExpectationSignatureGroup,
     ExtraSignatureData,
     InjectorConfig,
     NetworkInjectorConfig,
     PostExecutionSignature,
     PreExecutionSignature,
+    SignatureOutputStructure,
     SignaturePayload,
     SignatureTarget,
     SignatureValue,
@@ -32,7 +34,7 @@ if TYPE_CHECKING:
 class SignatureManager:
     """End-to-end signature pipeline: compile, merge, transmit. One class, three jobs."""
 
-    DEFAULT_MAX_PAYLOAD_SIZE = 1_048_576  # 1 MiB
+    DEFAULT_MAX_PAYLOAD_SIZE = 5_242_880  # 5 MiB
 
     def __init__(
         self,
@@ -230,19 +232,28 @@ class SignatureManager:
     ) -> None:
         """Ship signatures to the callback endpoint via the Signature API manager.
 
-        Delegates transport (retry, chunking, validation) to ``client.signature``.
+        Constructs typed ``SignatureOutputStructure`` and ``ExecutionDetails``
+        models, then delegates transport (retry, envelope splitting, validation)
+        to ``client.signature``.
 
         Args:
             inject_id: Inject UUID.
-            phase: Execution phase.
-            signatures: Full signatures dict, canonical or flat, both grouped on the fly.
+            phase: Execution phase (mapped to ``execution_status``).
+            signatures: Full signatures dict with a ``targets`` list.
 
         Raises:
             SignatureTransmissionError: Validation failed, 4xx hit, or retries exhausted.
         """
-        self.client.signature.max_payload_size = self.max_payload_size
-        self.client.signature.logger = self.logger
-        self.client.signature.send_signatures(inject_id, phase, signatures)
+        sig_output = SignatureOutputStructure(signatures=SignaturePayload(**signatures))
+        exec_details = ExecutionDetails(execution_status=phase)
+
+        self.client.signature.send_signatures(
+            inject_id,
+            sig_output,
+            exec_details,
+            max_payload_size=self.max_payload_size,
+            logger=self.logger,
+        )
 
     def resolve_container_ip(self) -> str:
         """Sniff the container's primary IPv4. Env var, hostname, then ``hostname -i``.
