@@ -262,7 +262,7 @@ class SignatureManager:
         Returns:
             The IPv4 string, or ``'unknown'`` with a single warning when all strategies fail.
         """
-        if self._cached_ipv4:
+        if self._cached_ipv4 and self._cached_ipv4 != "unknown":
             return self._cached_ipv4
 
         env_ip = os.environ.get("CONTAINER_IP")
