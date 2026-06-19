@@ -19,7 +19,7 @@ class SignatureType:
         self,
         label: SignatureTypes,
         match_type: MatchTypes = MatchTypes.MATCH_TYPE_SIMPLE,
-        match_score: int = None,
+        match_score: int | None = None,
     ):
         self.label = label
         self.match_policy = SignatureMatch(match_type, match_score)
