@@ -135,7 +135,7 @@ class ExecutionDetails(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    start_time: datetime = datetime.now(timezone.utc)
+    start_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     end_time: datetime | None = None
 
     execution_status: str
