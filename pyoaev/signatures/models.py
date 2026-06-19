@@ -108,10 +108,11 @@ class SignatureOutputStructure(BaseModel):
                 continue
 
             grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            order: list[str] = set()
+            order: list[str] = []
 
             for entry in target.signature_values:
-                order.add(entry.expectation_type)
+                if entry.expectation_type not in order:
+                    order.append(entry.expectation_type)
                 grouped[entry.expectation_type].extend(entry.values)
 
             normalized_target = TargetSignatures(
