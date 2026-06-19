@@ -204,7 +204,8 @@ class SignatureManager:
             signature_values = []
             for expectation_type in expectation_types:
                 signature_data = signature.copy()
-                signature_data.update(extra_signatures.get_extra(expectation_type))
+                if extra_signatures:
+                    signature_data.update(extra_signatures.get_extra(expectation_type))
                 values = [
                     SignatureValue(signature_type=key, signature_value=value)
                     for key, value in signature_data.items()
