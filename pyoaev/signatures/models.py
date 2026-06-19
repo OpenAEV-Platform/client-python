@@ -1,6 +1,7 @@
 """Pydantic schemas pinning every shape SignatureManager touches."""
 
 import ipaddress
+import math
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Any
@@ -178,7 +179,9 @@ class SignatureCallbackPayload(BaseModel):
             execution_message=execution_details.execution_message,
             execution_output_structured=signatures.model_dump_json(exclude_none=True),
             execution_status=execution_details.execution_status,
-            execution_duration=execution_details.execution_duration,
+            execution_duration=math.ceil(execution_details.execution_duration)
+            if execution_details.execution_duration is not None
+            else None,
             execution_action=execution_details.execution_action,
         )
 
