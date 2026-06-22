@@ -167,7 +167,7 @@ class ExecutionDetails(BaseModel):
     start_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     end_time: datetime | None = None
 
-    execution_status: str
+    execution_status: str = "unknown"
     execution_message: str = ""
     execution_action: InjectExecutionActions | None = None
 
