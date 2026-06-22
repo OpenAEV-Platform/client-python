@@ -47,17 +47,17 @@ class ExpectationSignatureGroup(BaseModel):
 class ExtraSignatureData(BaseModel):
     """Format for extra signatures added to the default signatures"""
 
-    detection: dict[str, JsonValue] | None = Field(default_factory=dict)
-    prevention: dict[str, JsonValue] | None = Field(default_factory=dict)
-    vulnerability: dict[str, JsonValue] | None = Field(default_factory=dict)
+    detection: dict[str, JsonValue] = Field(default_factory=dict)
+    prevention: dict[str, JsonValue] = Field(default_factory=dict)
+    vulnerability: dict[str, JsonValue] = Field(default_factory=dict)
 
     def get_extra(self, expectation_type: str) -> dict[str, JsonValue]:
         if expectation_type.lower() == "detection":
-            return self.detection or {}
+            return self.detection
         if expectation_type.lower() == "prevention":
-            return self.prevention or {}
+            return self.prevention
         if expectation_type.lower() == "vulnerability":
-            return self.vulnerability or {}
+            return self.vulnerability
         raise ValueError(
             f"Expectation type should be one of the available parameters: {list(self.model_fields.keys())}"
         )
@@ -179,9 +179,11 @@ class SignatureCallbackPayload(BaseModel):
             execution_message=execution_details.execution_message,
             execution_output_structured=signatures.model_dump_json(exclude_none=True),
             execution_status=execution_details.execution_status,
-            execution_duration=math.ceil(execution_details.execution_duration)
-            if execution_details.execution_duration is not None
-            else None,
+            execution_duration=(
+                math.ceil(execution_details.execution_duration)
+                if execution_details.execution_duration is not None
+                else None
+            ),
             execution_action=execution_details.execution_action,
         )
 
