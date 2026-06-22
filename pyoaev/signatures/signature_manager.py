@@ -177,7 +177,7 @@ class SignatureManager:
         post_signatures: dict[str, Any] | list[dict[str, Any]],
         targets_meta: dict[str, str] | list[dict[str, str]],
         expectation_types: list[str],
-        extra_signatures: ExtraSignatureData | None = None,
+        extra_signatures: ExtraSignatureData = ExtraSignatureData(),
     ) -> dict[str, Any]:
         """Build the nested wire payload from flat post-execution signatures.
 
@@ -204,8 +204,7 @@ class SignatureManager:
             signature_values = []
             for expectation_type in expectation_types:
                 signature_data = signature.copy()
-                if extra_signatures:
-                    signature_data.update(extra_signatures.get_extra(expectation_type))
+                signature_data.update(extra_signatures.get_extra(expectation_type))
                 values = [
                     SignatureValue(signature_type=key, signature_value=value)
                     for key, value in signature_data.items()
