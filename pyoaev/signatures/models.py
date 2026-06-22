@@ -20,6 +20,33 @@ from pydantic import (
 from pyoaev.signatures.types import ExpectationType, InjectExecutionActions
 
 
+class ToolErrorInfo(BaseModel):
+    """Crash report. Non-zero exit code and a timestamp if the tool left one behind."""
+
+    model_config = ConfigDict(extra="allow")
+
+    exit_code: int = 0
+    crash_timestamp: str | None = None
+
+
+class ToolTimeoutInfo(BaseModel):
+    """Timeout report. Whatever partial loot was rescued before the kill signal."""
+
+    model_config = ConfigDict(extra="allow")
+
+    partial_results: list[str] = []
+
+
+class ToolOutput(BaseModel):
+    """Whatever the tool spat out: status, error info, timeout info, or injector extras."""
+
+    model_config = ConfigDict(extra="allow")
+
+    status: str | None = None
+    error_info: ToolErrorInfo | None = None
+    timeout_info: ToolTimeoutInfo | None = None
+
+
 class SignatureValue(BaseModel):
     """One signature observation: a type and the value it carries."""
 
@@ -152,6 +179,25 @@ class ExecutionDetails(BaseModel):
         except:
             return 0.0
 
+    def post_execution_update(self, tool_output: ToolOutput, now: datetime) -> None:
+        """
+        Update execution-related metadata according to tool output and now timestamp
+        """
+        self.end_time = now
+
+        if tool_output.error_info and tool_output.error_info.exit_code != 0:
+            self.execution_status = "failed"
+            if tool_output.error_info.crash_timestamp:
+                self.end_time = tool_output.error_info.crash_timestamp
+        elif tool_output.timeout_info:
+            self.execution_status = "timeout"
+        elif tool_output.status == "partial":
+            self.execution_status = "partial"
+        else:
+            self.execution_status = "success"
+
+        self.execution_action = "complete"
+
 
 class SignatureCallbackPayload(BaseModel):
     """Outer POST envelope validated by ``SignatureApiManager`` before wire transmission."""
@@ -188,13 +234,21 @@ class SignatureCallbackPayload(BaseModel):
         )
 
 
-class PreExecutionSignature(BaseModel):
-    """Pre-execution data dump. Field set varies by category: network, cloud."""
+class ExecutionSignature(BaseModel):
+    """
+    Execution signature data. Field set varies by category: network, cloud. Plus outcome, end_time, and any partial results.
+    """
 
     model_config = ConfigDict(extra="allow")
 
     # Timing always emitted at call time.
-    start_time: str | None = None
+    start_time: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+    )
+    end_time: str | None = None
+    partial_results: list[str] | None = None
 
     # Network identity
     source_ipv4: str | None = None
@@ -209,40 +263,15 @@ class PreExecutionSignature(BaseModel):
     cloud_region: str | None = None
     target_service: str | None = None
 
+    def post_execution_update(self, tool_output: ToolOutput, now: datetime) -> None:
+        """ """
+        self.end_time = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-class PostExecutionSignature(PreExecutionSignature):
-    """Post-execution view: pre-execution fields plus outcome, end_time, and any partial results."""
+        if tool_output.error_info and tool_output.error_info.crash_timestamp:
+            self.end_time = tool_output.error_info.crash_timestamp
 
-    end_time: str | None = None
-    execution_status: str | None = None
-    partial_results: list[str] | None = None
-
-
-class ToolErrorInfo(BaseModel):
-    """Crash report. Non-zero exit code and a timestamp if the tool left one behind."""
-
-    model_config = ConfigDict(extra="allow")
-
-    exit_code: int = 0
-    crash_timestamp: str | None = None
-
-
-class ToolTimeoutInfo(BaseModel):
-    """Timeout report. Whatever partial loot was rescued before the kill signal."""
-
-    model_config = ConfigDict(extra="allow")
-
-    partial_results: list[str] = []
-
-
-class ToolOutput(BaseModel):
-    """Whatever the tool spat out: status, error info, timeout info, or injector extras."""
-
-    model_config = ConfigDict(extra="allow")
-
-    status: str | None = None
-    error_info: ToolErrorInfo | None = None
-    timeout_info: ToolTimeoutInfo | None = None
+        if tool_output.timeout_info and tool_output.timeout_info.partial_results:
+            self.partial_results = tool_output.timeout_info.partial_results
 
 
 class NetworkInjectorConfig(BaseModel):
@@ -339,8 +368,7 @@ __all__ = [
     "TargetSignatures",
     "SignaturePayload",
     "SignatureCallbackPayload",
-    "PreExecutionSignature",
-    "PostExecutionSignature",
+    "ExecutionSignature",
     "ToolErrorInfo",
     "ToolTimeoutInfo",
     "ToolOutput",
