@@ -13,11 +13,11 @@ from pyoaev.exceptions import OpenAEVError
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
     ExecutionDetails,
+    ExecutionSignature,
     ExpectationSignatureGroup,
     ExtraSignatureData,
     InjectorConfig,
     NetworkInjectorConfig,
-    ExecutionSignature,
     SignatureOutputStructure,
     SignaturePayload,
     SignatureTarget,
@@ -75,9 +75,7 @@ class SignatureManager:
         """
         configs = list(config) if isinstance(config, list) else [config]
         if not configs:
-            raise ValueError(
-                "build_execution_signatures requires at least one config"
-            )
+            raise ValueError("build_execution_signatures requires at least one config")
 
         first_type = type(configs[0])
         for c in configs:
@@ -217,7 +215,7 @@ class SignatureManager:
 
         Args:
             inject_id: Inject UUID.
-            phase: Execution phase (mapped to ``execution_status``).
+            execution_details: execution-related metadata as an ExecutionDetails object
             signatures: Full signatures dict with a ``targets`` list.
 
         Raises:

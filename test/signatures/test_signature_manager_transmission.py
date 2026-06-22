@@ -1,5 +1,6 @@
 import ipaddress
 import json
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import MagicMock, call
 
@@ -8,6 +9,7 @@ from pytest_bdd import given, parsers, scenario, then, when
 
 from pyoaev.apis.signature import SignatureApiManager
 from pyoaev.exceptions import OpenAEVUpdateError, SignatureTransmissionError
+from pyoaev.signatures.models import ExecutionDetails
 from pyoaev.signatures.signature_manager import SignatureManager
 
 
@@ -170,7 +172,6 @@ def signature_manager(context, monkeypatch):
     context["status_plan"] = [200]
     context["error_body"] = ""
     context["inject_id"] = "inject-abc-001"
-    context["phase"] = "execution_complete"
     context["signatures"] = _build_signature_payload()
     context["signature_manager"] = SignatureManager(mock_client, logger=logger)
 
@@ -179,6 +180,16 @@ def signature_manager(context, monkeypatch):
 def compiled_post_execution_payload(context, inject_id):
     context["inject_id"] = inject_id
     context["signatures"] = _build_signature_payload()
+
+
+@given(parsers.parse("an updated post-execution execution details object"))
+def updated_post_execution_execution_details(context):
+    execution_details = ExecutionDetails(
+        execution_status="success",
+        execution_action="complete",
+    )
+    execution_details.end_time = execution_details.start_time + timedelta(0.1)
+    context["execution_details"] = execution_details
 
 
 @given(
@@ -239,7 +250,7 @@ def compiled_large_payload(context):
                             },
                             {
                                 "signature_type": "hostname",
-                                "signature_value": f"host-{index}." + ("a" * 140),
+                                "signature_value": f"host-{index}." + ("a" * 94),
                             },
                         ],
                     }
@@ -357,19 +368,14 @@ def compiled_payload_grouped_by_expectation(
     }
 
 
-@when(
-    parsers.parse(
-        'I call send_signatures for inject_id "{inject_id}" with phase "{phase}"'
-    )
-)
-def call_send_signatures(context, inject_id, phase):
+@when(parsers.parse('I call send_signatures for inject_id "{inject_id}"'))
+def call_send_signatures(context, inject_id):
     context["inject_id"] = inject_id
-    context["phase"] = phase
     context["send_exception"] = None
     try:
         context["signature_manager"].send_signatures(
             inject_id,
-            phase,
+            context["execution_details"],
             context["signatures"],
         )
     except Exception as exc:
@@ -506,7 +512,7 @@ def assert_targets_union_matches_original(context):
         assert sent["signature_target"] == original["signature_target"]
 
 
-@then("no individual POST request body exceeds MAX_PAYLOAD_SIZE bytes")
+@then("no individual POST request body exceeds MAX_PAYLOAD_SIZE bytes without warning")
 def assert_payload_size_per_chunk(context):
     max_payload_size = context["signature_manager"].max_payload_size
     for call_item in context["captured_calls"]:

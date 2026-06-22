@@ -173,7 +173,7 @@ class ExecutionDetails(BaseModel):
     @computed_field
     @property
     def execution_message(self) -> str:
-        return f"Current action: {self.execution_action} - Current status: {self.execution_status}"
+        return f"Current action: {self.execution_action.value} - Current status: {self.execution_status}"
 
     @computed_field
     @property
@@ -200,7 +200,7 @@ class ExecutionDetails(BaseModel):
         else:
             self.execution_status = "success"
 
-        self.execution_action = "complete"
+        self.execution_action = InjectExecutionActions("complete")
 
 
 class SignatureCallbackPayload(BaseModel):

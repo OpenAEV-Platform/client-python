@@ -7,6 +7,7 @@ from pytest_bdd import given, parsers, scenario, then, when
 
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
+    ExecutionSignature,
     NetworkInjectorConfig,
     build_network_configs,
 )
@@ -263,28 +264,28 @@ def elapsed_5_seconds(context):
 
 
 @when(
-    "I call compile_pre_execution_signatures with the config",
+    "I call build_execution_signatures with the config",
     target_fixture="result",
 )
-def call_compile_with_config(signature_manager, config):
-    return signature_manager.compile_pre_execution_signatures(config=config)
+def call_build_with_config(signature_manager, config):
+    return signature_manager.build_execution_signatures(config=config)
 
 
 @when(
-    "I call compile_pre_execution_signatures with the config list",
+    "I call build_execution_signatures with the config list",
     target_fixture="result",
 )
-def call_compile_with_config_list(signature_manager, config):
-    return signature_manager.compile_pre_execution_signatures(config=config)
+def call_build_with_config_list(signature_manager, config):
+    return signature_manager.build_execution_signatures(config=config)
 
 
 @when(
-    "I call compile_pre_execution_signatures with the config at timestamp T1",
+    "I call build_execution_signatures with the config at timestamp T1",
     target_fixture="result",
 )
-def call_compile_at_t1(signature_manager, config, t1):
+def call_build_at_t1(signature_manager, config, t1):
     with patch.object(signature_manager, "_utcnow", return_value=t1):
-        return signature_manager.compile_pre_execution_signatures(config=config)
+        return signature_manager.build_execution_signatures(config=config)
 
 
 @when(
@@ -302,51 +303,51 @@ def build_configs_from_raw(raw_targets):
 
 @then("the returned dict contains source_ipv4 as a non-empty valid IPv4 address string")
 def source_ipv4_is_valid(result):
-    source_ipv4 = result["source_ipv4"]
+    source_ipv4 = result.source_ipv4
     assert source_ipv4
     ipaddress.IPv4Address(source_ipv4)
 
 
 @then("the returned dict contains start_time as a UTC ISO 8601 string")
 def start_time_is_utc_iso8601(result):
-    start_time = result["start_time"]
+    start_time = result.start_time
     parsed = parse_utc_iso8601(start_time)
     assert parsed.tzinfo is not None
 
 
 @then(parsers.parse('the returned dict contains target_ipv4 equal to "{value}"'))
 def returned_dict_target_ipv4(result, value):
-    assert result["target_ipv4"] == value
+    assert result.target_ipv4 == value
 
 
 @then(parsers.parse('the returned dict contains target_hostname equal to "{value}"'))
 def returned_dict_target_hostname(result, value):
-    assert result["target_hostname"] == value
+    assert result.target_hostname == value
 
 
 @then(parsers.parse('the returned dict contains cloud_provider equal to "{value}"'))
 def returned_dict_cloud_provider(result, value):
-    assert result["cloud_provider"] == value
+    assert result.cloud_provider == value
 
 
 @then(parsers.parse('the returned dict contains cloud_account_id equal to "{value}"'))
 def returned_dict_cloud_account_id(result, value):
-    assert result["cloud_account_id"] == value
+    assert result.cloud_account_id == value
 
 
 @then(parsers.parse('the returned dict contains cloud_region equal to "{value}"'))
 def returned_dict_cloud_region(result, value):
-    assert result["cloud_region"] == value
+    assert result.cloud_region == value
 
 
 @then(parsers.parse('the returned dict contains target_service equal to "{value}"'))
 def returned_dict_target_service(result, value):
-    assert result["target_service"] == value
+    assert result.target_service == value
 
 
 @then(parsers.parse('the returned dict contains query equal to "{value}"'))
 def returned_dict_query(result, value):
-    assert result["query"] == value
+    assert result.query == value
 
 
 @then(parsers.parse("the returned dict does not contain {field}"))
@@ -358,14 +359,14 @@ def returned_dict_does_not_contain_field(result, field):
 def return_value_is_list_of_three_dicts(result):
     assert isinstance(result, list)
     assert len(result) == 3
-    assert all(isinstance(item, dict) for item in result)
+    assert all(isinstance(item, ExecutionSignature) for item in result)
 
 
 @then(parsers.parse("the return value is a list of {count:d} dicts"))
 def return_value_is_list_of_n_dicts(result, count):
     assert isinstance(result, list)
     assert len(result) == count
-    assert all(isinstance(item, dict) for item in result)
+    assert all(isinstance(item, ExecutionSignature) for item in result)
 
 
 @then(
@@ -374,7 +375,7 @@ def return_value_is_list_of_n_dicts(result, count):
     )
 )
 def list_dict_contains_target_ipv4_at_position(result, index, target_ip):
-    assert result[index]["target_ipv4"] == target_ip
+    assert result[index].target_ipv4 == target_ip
 
 
 @then(
@@ -387,7 +388,7 @@ def list_dict_contains_source_ipv4_at_position(
     index,
     source_ipv4,
 ):
-    assert result[index]["source_ipv4"] == source_ipv4
+    assert result[index].source_ipv4 == source_ipv4
 
 
 @then(
@@ -396,7 +397,7 @@ def list_dict_contains_source_ipv4_at_position(
     )
 )
 def list_dict_contains_cloud_region_at_position(result, index, region):
-    assert result[index]["cloud_region"] == region
+    assert result[index].cloud_region == region
 
 
 @then(
@@ -405,28 +406,28 @@ def list_dict_contains_cloud_region_at_position(result, index, region):
     )
 )
 def list_dict_contains_cloud_account_id_at_position(result, index, account_id):
-    assert result[index]["cloud_account_id"] == account_id
+    assert result[index].cloud_account_id == account_id
 
 
 @then("all 3 dicts contain the same source_ipv4 value")
 def all_dicts_share_same_source_ipv4(result):
     assert isinstance(result, list)
     assert len(result) == 3
-    source_values = {item["source_ipv4"] for item in result}
+    source_values = {item.source_ipv4 for item in result}
     assert len(source_values) == 1
     ipaddress.IPv4Address(next(iter(source_values)))
 
 
 @then("the start_time in the returned dict equals T1 within 1 second tolerance")
 def start_time_equals_t1_with_tolerance(result, t1):
-    start_time = parse_utc_iso8601(result["start_time"])
+    start_time = parse_utc_iso8601(result.start_time)
     delta_seconds = abs((start_time - t1).total_seconds())
     assert delta_seconds <= 1
 
 
 @then("start_time does not equal T0")
 def start_time_not_equal_t0(result, signature_manager):
-    start_time = parse_utc_iso8601(result["start_time"])
+    start_time = parse_utc_iso8601(result.start_time)
     assert start_time != signature_manager._test_t0
 
 

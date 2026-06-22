@@ -10,6 +10,6 @@ Feature: SignatureManager pre-execution constraints
     Given a SignatureManager that was instantiated at timestamp T0
     And 5 seconds elapse after instantiation
     And a NetworkInjectorConfig with target_ipv4="192.168.1.10"
-    When I call compile_pre_execution_signatures with the config at timestamp T1
+    When I call build_execution_signatures with the config at timestamp T1
     Then the start_time in the returned dict equals T1 within 1 second tolerance
     And start_time does not equal T0
