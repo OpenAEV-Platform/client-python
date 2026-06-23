@@ -168,8 +168,12 @@ class ExecutionDetails(BaseModel):
     end_time: datetime | None = None
 
     execution_status: str = "unknown"
-    execution_message: str = ""
     execution_action: InjectExecutionActions | None = None
+
+    @computed_field
+    @property
+    def execution_message(self) -> str:
+        return f"Current action: {self.execution_action} - Current status: {self.execution_status}"
 
     @computed_field
     @property
