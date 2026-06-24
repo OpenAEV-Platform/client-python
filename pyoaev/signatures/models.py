@@ -1,6 +1,9 @@
 """Pydantic schemas pinning every shape SignatureManager touches."""
 
 import ipaddress
+import math
+from collections import defaultdict
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import (
@@ -8,11 +11,40 @@ from pydantic import (
     ConfigDict,
     Field,
     JsonValue,
+    TypeAdapter,
+    computed_field,
     field_validator,
     model_validator,
 )
 
-from pyoaev.signatures.types import ExpectationType
+from pyoaev.signatures.types import ExpectationType, InjectExecutionActions
+
+
+class ToolErrorInfo(BaseModel):
+    """Crash report. Non-zero exit code and a timestamp if the tool left one behind."""
+
+    model_config = ConfigDict(extra="allow")
+
+    exit_code: int = 0
+    crash_timestamp: str | None = None
+
+
+class ToolTimeoutInfo(BaseModel):
+    """Timeout report. Whatever partial loot was rescued before the kill signal."""
+
+    model_config = ConfigDict(extra="allow")
+
+    partial_results: list[str] = Field(default_factory=list)
+
+
+class ToolOutput(BaseModel):
+    """Whatever the tool spat out: status, error info, timeout info, or injector extras."""
+
+    model_config = ConfigDict(extra="allow")
+
+    status: str | None = None
+    error_info: ToolErrorInfo | None = None
+    timeout_info: ToolTimeoutInfo | None = None
 
 
 class SignatureValue(BaseModel):
@@ -42,11 +74,11 @@ class ExpectationSignatureGroup(BaseModel):
 class ExtraSignatureData(BaseModel):
     """Format for extra signatures added to the default signatures"""
 
-    detection: dict[str, JsonValue] | None = Field(default_factory=dict)
-    prevention: dict[str, JsonValue] | None = Field(default_factory=dict)
-    vulnerability: dict[str, JsonValue] | None = Field(default_factory=dict)
+    detection: dict[str, JsonValue] = Field(default_factory=dict)
+    prevention: dict[str, JsonValue] = Field(default_factory=dict)
+    vulnerability: dict[str, JsonValue] = Field(default_factory=dict)
 
-    def get_extra(self, expectation_type: str):
+    def get_extra(self, expectation_type: str) -> dict[str, JsonValue]:
         if expectation_type.lower() == "detection":
             return self.detection
         if expectation_type.lower() == "prevention":
@@ -58,11 +90,22 @@ class ExtraSignatureData(BaseModel):
         )
 
 
+class SignatureTarget(BaseModel):
+    """Target identity on the wire."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    agent: str | None = None
+    asset: str | None = None
+    asset_group: str | None = None
+
+
 class TargetSignatures(BaseModel):
     """A target plus everything observed about it, grouped by expectation."""
 
     model_config = ConfigDict(extra="allow")
 
+    signature_target: SignatureTarget
     signature_values: list[ExpectationSignatureGroup]
 
 
@@ -74,24 +117,147 @@ class SignaturePayload(BaseModel):
     targets: list[TargetSignatures]
 
 
-class SignatureCallbackPayload(BaseModel):
-    """Outer POST envelope. Pure ``{signatures}`` when unchunked, plus chunk fields when split."""
+class SignatureOutputStructure(BaseModel):
+    """Structured output to be serialized as a str in the callback payload yet data has to follow model."""
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    expectation_signature: SignaturePayload
-    phase: str | None = None
-    chunk_index: int | None = None
-    total_chunks: int | None = None
+    signatures: SignaturePayload
+
+    def normalize_signature_payload(self) -> None:
+        """
+        Regroup signature_values by expectation_type within each target.
+        """
+        normalized_targets: list[TargetSignatures] = []
+
+        for target in self.signatures.targets:
+            if not target.signature_values:
+                normalized_targets.append(target)
+                continue
+
+            grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+            order: list[str] = []
+
+            for entry in target.signature_values:
+                if entry.expectation_type not in order:
+                    order.append(entry.expectation_type)
+                grouped[entry.expectation_type].extend(entry.values)
+
+            normalized_target = TargetSignatures(
+                signature_target=target.signature_target,
+                signature_values=[
+                    ExpectationSignatureGroup(
+                        expectation_type=expectation_type,
+                        values=grouped[expectation_type],
+                    )
+                    for expectation_type in order
+                ],
+            )
+
+            normalized_targets.append(normalized_target)
+
+        self.signatures.targets = normalized_targets
 
 
-class PreExecutionSignature(BaseModel):
-    """Pre-execution data dump. Field set varies by category: network, cloud, external."""
+class ExecutionDetails(BaseModel):
+    """Helper to wrap the execution-related details for the callback payload"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    start_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    end_time: datetime | None = None
+
+    execution_status: str = "unknown"
+    execution_action: InjectExecutionActions | None = None
+
+    @computed_field
+    @property
+    def execution_message(self) -> str:
+        action = self.execution_action.value if self.execution_action else "unknown"
+        return f"Current action: {action} - Current status: {self.execution_status}"
+
+    @computed_field
+    @property
+    def execution_duration(self) -> float:
+        try:
+            return (self.end_time - self.start_time).total_seconds()
+        except:
+            return 0.0
+
+    def post_execution_update(self, tool_output: ToolOutput, now: datetime) -> None:
+        """
+        Update execution-related metadata according to tool output and now timestamp
+        """
+        self.end_time = now
+
+        if tool_output.error_info and tool_output.error_info.exit_code != 0:
+            self.execution_status = "failed"
+            if tool_output.error_info.crash_timestamp:
+                self.end_time = datetime.strptime(
+                    tool_output.error_info.crash_timestamp, "%Y-%m-%dT%H:%M:%SZ"
+                )
+        elif tool_output.timeout_info:
+            self.execution_status = "timeout"
+        elif tool_output.status == "partial":
+            self.execution_status = "partial"
+        else:
+            self.execution_status = "success"
+
+        self.execution_action = InjectExecutionActions("complete")
+
+
+class SignatureCallbackPayload(BaseModel):
+    """Outer POST envelope validated by ``SignatureApiManager`` before wire transmission."""
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    execution_message: str
+    execution_output_structured: str | None = None
+    execution_status: str
+    execution_duration: int | None = None
+    execution_action: InjectExecutionActions | None = None
+
+    @field_validator("execution_output_structured", mode="after")
+    @classmethod
+    def is_proper_signature_output_structure(cls, value: str) -> str | None:
+        if value is None:
+            return None
+        TypeAdapter(SignatureOutputStructure).validate_json(value)
+        return value
+
+    @classmethod
+    def build_from_models(
+        cls, signatures: SignatureOutputStructure, execution_details: ExecutionDetails
+    ):
+        """Producing a SignatureCallbackPayload from the data of a SignatureOutputStructure and of a ExecutionDetails."""
+        return cls(
+            execution_message=execution_details.execution_message,
+            execution_output_structured=signatures.model_dump_json(exclude_none=True),
+            execution_status=execution_details.execution_status,
+            execution_duration=(
+                math.ceil(execution_details.execution_duration)
+                if execution_details.execution_duration is not None
+                else None
+            ),
+            execution_action=execution_details.execution_action,
+        )
+
+
+class ExecutionSignature(BaseModel):
+    """
+    Execution signature data. Field set varies by category: network, cloud. Plus outcome, end_time, and any partial results.
+    """
 
     model_config = ConfigDict(extra="allow")
 
     # Timing always emitted at call time.
-    start_time: str | None = None
+    start_time: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+    )
+    end_time: str | None = None
+    partial_results: list[str] | None = None
 
     # Network identity
     source_ipv4: str | None = None
@@ -106,43 +272,15 @@ class PreExecutionSignature(BaseModel):
     cloud_region: str | None = None
     target_service: str | None = None
 
-    # External
-    query: str | None = None
+    def post_execution_update(self, tool_output: ToolOutput, now: datetime) -> None:
+        """ """
+        self.end_time = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+        if tool_output.error_info and tool_output.error_info.crash_timestamp:
+            self.end_time = tool_output.error_info.crash_timestamp
 
-class PostExecutionSignature(PreExecutionSignature):
-    """Post-execution view: pre-execution fields plus outcome, end_time, and any partial results."""
-
-    end_time: str | None = None
-    execution_status: str | None = None
-    partial_results: list[str] | None = None
-
-
-class ToolErrorInfo(BaseModel):
-    """Crash report. Non-zero exit code and a timestamp if the tool left one behind."""
-
-    model_config = ConfigDict(extra="allow")
-
-    exit_code: int = 0
-    crash_timestamp: str | None = None
-
-
-class ToolTimeoutInfo(BaseModel):
-    """Timeout report. Whatever partial loot was rescued before the kill signal."""
-
-    model_config = ConfigDict(extra="allow")
-
-    partial_results: list[str] = []
-
-
-class ToolOutput(BaseModel):
-    """Whatever the tool spat out: status, error info, timeout info, or injector extras."""
-
-    model_config = ConfigDict(extra="allow")
-
-    status: str | None = None
-    error_info: ToolErrorInfo | None = None
-    timeout_info: ToolTimeoutInfo | None = None
+        if tool_output.timeout_info and tool_output.timeout_info.partial_results:
+            self.partial_results = tool_output.timeout_info.partial_results
 
 
 class NetworkInjectorConfig(BaseModel):
@@ -159,7 +297,7 @@ class NetworkInjectorConfig(BaseModel):
     def check_one(cls, data):
         assert (
             sum(
-                value != None
+                value is not None
                 for key, value in data.items()
                 if key in ["target_ipv4", "target_ipv6", "target_hostname"]
             )
@@ -179,17 +317,7 @@ class CloudInjectorConfig(BaseModel):
     target_service: str | None = None
 
 
-class ExternalInjectorConfig(BaseModel):
-    """A single external scan target (e.g. Shodan): a query against an asset."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    query: str
-    target_ipv4: str | None = None
-    target_hostname: str | None = None
-
-
-InjectorConfig = NetworkInjectorConfig | CloudInjectorConfig | ExternalInjectorConfig
+InjectorConfig = NetworkInjectorConfig | CloudInjectorConfig
 
 
 # ---------------------------------------------------------------------------
@@ -245,17 +373,16 @@ def build_network_configs(
 __all__ = [
     "SignatureValue",
     "ExpectationSignatureGroup",
+    "SignatureTarget",
     "TargetSignatures",
     "SignaturePayload",
     "SignatureCallbackPayload",
-    "PreExecutionSignature",
-    "PostExecutionSignature",
+    "ExecutionSignature",
     "ToolErrorInfo",
     "ToolTimeoutInfo",
     "ToolOutput",
     "NetworkInjectorConfig",
     "CloudInjectorConfig",
-    "ExternalInjectorConfig",
     "InjectorConfig",
     "build_network_configs",
 ]

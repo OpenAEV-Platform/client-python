@@ -1,5 +1,6 @@
 import ipaddress
 import json
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import MagicMock, call
 
@@ -8,6 +9,7 @@ from pytest_bdd import given, parsers, scenario, then, when
 
 from pyoaev.apis.signature import SignatureApiManager
 from pyoaev.exceptions import OpenAEVUpdateError, SignatureTransmissionError
+from pyoaev.signatures.models import ExecutionDetails
 from pyoaev.signatures.signature_manager import SignatureManager
 
 
@@ -29,9 +31,9 @@ def test_send_signatures_posts_with_agreed_nested_schema():
 
 @scenario(
     "constraints/signature_manager_transmission_constraints.feature",
-    "Payload exceeding MAX_PAYLOAD_SIZE is auto-chunked with chunk metadata",
+    "Payload exceeding MAX_PAYLOAD_SIZE is split into multiple sequential envelopes",
 )
-def test_payload_exceeding_max_payload_size_is_split_into_sequential_chunks():
+def test_payload_exceeding_max_payload_size_is_split_into_sequential_envelopes():
     pass
 
 
@@ -85,6 +87,12 @@ _CANONICAL_SIGNATURE_TARGET = {
     "asset": "asset-host-a",
     "asset_group": "asset-group-internal",
 }
+
+
+def _extract_targets(body: dict) -> list[dict]:
+    """Parse targets from the SignatureCallbackPayload wire format."""
+    sig_data = json.loads(body["execution_output_structured"])
+    return sig_data["signatures"]["targets"]
 
 
 def _build_signature_payload(
@@ -164,7 +172,6 @@ def signature_manager(context, monkeypatch):
     context["status_plan"] = [200]
     context["error_body"] = ""
     context["inject_id"] = "inject-abc-001"
-    context["phase"] = "execution_complete"
     context["signatures"] = _build_signature_payload()
     context["signature_manager"] = SignatureManager(mock_client, logger=logger)
 
@@ -173,6 +180,16 @@ def signature_manager(context, monkeypatch):
 def compiled_post_execution_payload(context, inject_id):
     context["inject_id"] = inject_id
     context["signatures"] = _build_signature_payload()
+
+
+@given(parsers.parse("an updated post-execution execution details object"))
+def updated_post_execution_execution_details(context):
+    execution_details = ExecutionDetails(
+        execution_status="success",
+        execution_action="complete",
+    )
+    execution_details.end_time = execution_details.start_time + timedelta(0.1)
+    context["execution_details"] = execution_details
 
 
 @given(
@@ -233,7 +250,7 @@ def compiled_large_payload(context):
                             },
                             {
                                 "signature_type": "hostname",
-                                "signature_value": f"host-{index}." + ("a" * 140),
+                                "signature_value": f"host-{index}." + ("a" * 94),
                             },
                         ],
                     }
@@ -325,18 +342,25 @@ def compiled_payload_grouped_by_expectation(
                 "signature_values": [
                     {
                         "expectation_type": expectation_a,
-                        "signature_type": "public_ip",
-                        "signature_value": "203.0.113.5",
+                        "values": [
+                            {
+                                "signature_type": "public_ip",
+                                "signature_value": "203.0.113.5",
+                            },
+                            {
+                                "signature_type": "hostname",
+                                "signature_value": "host-a.internal",
+                            },
+                        ],
                     },
                     {
                         "expectation_type": expectation_b,
-                        "signature_type": "public_ip",
-                        "signature_value": "198.51.100.10",
-                    },
-                    {
-                        "expectation_type": expectation_a,
-                        "signature_type": "hostname",
-                        "signature_value": "host-a.internal",
+                        "values": [
+                            {
+                                "signature_type": "public_ip",
+                                "signature_value": "198.51.100.10",
+                            },
+                        ],
                     },
                 ],
             }
@@ -344,19 +368,14 @@ def compiled_payload_grouped_by_expectation(
     }
 
 
-@when(
-    parsers.parse(
-        'I call send_signatures for inject_id "{inject_id}" with phase "{phase}"'
-    )
-)
-def call_send_signatures(context, inject_id, phase):
+@when(parsers.parse('I call send_signatures for inject_id "{inject_id}"'))
+def call_send_signatures(context, inject_id):
     context["inject_id"] = inject_id
-    context["phase"] = phase
     context["send_exception"] = None
     try:
         context["signature_manager"].send_signatures(
             inject_id,
-            phase,
+            context["execution_details"],
             context["signatures"],
         )
     except Exception as exc:
@@ -379,18 +398,22 @@ def send_signatures_completes_without_exception(context):
 
 @then(
     parsers.parse(
-        "a POST request is sent to /injects/{inject_id}/callback",
+        "a POST request is sent to /injects/execution/callback/{inject_id}",
     )
 )
 def assert_post_request_sent_to_callback(context, inject_id):
     assert context["captured_calls"]
-    assert context["captured_calls"][-1]["path"] == f"/injects/{inject_id}/callback"
+    assert (
+        context["captured_calls"][-1]["path"]
+        == f"/injects/execution/callback/{inject_id}"
+    )
 
 
 @then("the POST request body contains signatures.targets as a list")
 def assert_targets_is_list(context):
     body = context["captured_calls"][-1]["post_data"]
-    assert isinstance(body["expectation_signature"]["targets"], list)
+    targets = _extract_targets(body)
+    assert isinstance(targets, list)
 
 
 @then(
@@ -400,9 +423,8 @@ def assert_targets_is_list(context):
 )
 def assert_expectation_type(context, expected_value):
     body = context["captured_calls"][-1]["post_data"]
-    assert body["expectation_signature"]["targets"][0]["signature_values"][0][
-        "expectation_type"
-    ] == (expected_value)
+    targets = _extract_targets(body)
+    assert targets[0]["signature_values"][0]["expectation_type"] == expected_value
 
 
 @then(
@@ -412,10 +434,9 @@ def assert_expectation_type(context, expected_value):
 )
 def assert_signature_type(context, expected_value):
     body = context["captured_calls"][-1]["post_data"]
+    targets = _extract_targets(body)
     assert (
-        body["expectation_signature"]["targets"][0]["signature_values"][0]["values"][0][
-            "signature_type"
-        ]
+        targets[0]["signature_values"][0]["values"][0]["signature_type"]
         == expected_value
     )
 
@@ -427,10 +448,9 @@ def assert_signature_type(context, expected_value):
 )
 def assert_signature_value(context, expected_value):
     body = context["captured_calls"][-1]["post_data"]
+    targets = _extract_targets(body)
     assert (
-        body["expectation_signature"]["targets"][0]["signature_values"][0]["values"][0][
-            "signature_value"
-        ]
+        targets[0]["signature_values"][0]["values"][0]["signature_value"]
         == expected_value
     )
 
@@ -438,54 +458,42 @@ def assert_signature_value(context, expected_value):
 @then("signatures.targets[0] contains a signature_target key")
 def assert_signature_target_key(context):
     body = context["captured_calls"][-1]["post_data"]
-    assert "signature_target" in body["expectation_signature"]["targets"][0]
+    targets = _extract_targets(body)
+    assert "signature_target" in targets[0]
 
 
 @then(
     parsers.parse(
-        "the payload is sent as multiple sequential POST requests to /injects/{inject_id}/callback",
+        "the payload is sent as multiple sequential POST requests to /injects/execution/callback/{inject_id}",
     )
 )
 def assert_payload_sent_as_multiple_chunks(context, inject_id):
     assert context["send_exception"] is None
     assert len(context["captured_calls"]) > 1
     assert all(
-        call_item["path"] == f"/injects/{inject_id}/callback"
+        call_item["path"] == f"/injects/execution/callback/{inject_id}"
         for call_item in context["captured_calls"]
     )
 
 
-@then("each POST request body contains chunk_index as a 0-based integer")
-def assert_chunk_index_present(context):
-    for index, call_item in enumerate(context["captured_calls"]):
-        post_data = call_item["post_data"]
-        assert isinstance(post_data["chunk_index"], int)
-        assert post_data["chunk_index"] == index
-
-
 @then(
-    "each POST request body contains total_chunks as a positive integer matching the total number of chunks sent"
+    "each POST request body is a valid self-contained envelope with the same structure as a single-send payload"
 )
-def assert_total_chunks_present(context):
-    total_chunks = len(context["captured_calls"])
+def assert_each_envelope_is_self_contained(context):
     for call_item in context["captured_calls"]:
         post_data = call_item["post_data"]
-        assert isinstance(post_data["total_chunks"], int)
-        assert post_data["total_chunks"] > 0
-        assert post_data["total_chunks"] == total_chunks
+        assert "execution_output_structured" in post_data
+        targets = _extract_targets(post_data)
+        assert isinstance(targets, list)
+        assert len(targets) > 0
 
 
-@then(
-    'each POST request body contains only "signatures", "chunk_index" and "total_chunks" at the top level'
-)
-def assert_chunked_envelope_is_strict(context):
-    expected_keys = {"expectation_signature", "chunk_index", "total_chunks", "phase"}
+@then("no POST request body contains chunk_index or total_chunks keys")
+def assert_no_chunk_metadata(context):
     for call_item in context["captured_calls"]:
         post_data = call_item["post_data"]
-        assert set(post_data.keys()) == expected_keys, (
-            f"Chunked envelope must contain exactly {expected_keys}, "
-            f"got {set(post_data.keys())}"
-        )
+        assert "chunk_index" not in post_data
+        assert "total_chunks" not in post_data
 
 
 @then("the union of targets across all POST requests equals the original target set")
@@ -494,17 +502,17 @@ def assert_targets_union_matches_original(context):
     sent_targets = [
         target
         for call_item in context["captured_calls"]
-        for target in call_item["post_data"]["expectation_signature"]["targets"]
+        for target in _extract_targets(call_item["post_data"])
     ]
     assert len(sent_targets) == len(original_targets), (
-        f"Expected {len(original_targets)} targets across all chunks, "
+        f"Expected {len(original_targets)} targets across all envelopes, "
         f"got {len(sent_targets)}"
     )
     for original, sent in zip(original_targets, sent_targets):
         assert sent["signature_target"] == original["signature_target"]
 
 
-@then("no individual POST request body exceeds MAX_PAYLOAD_SIZE bytes")
+@then("no individual POST request body exceeds MAX_PAYLOAD_SIZE bytes without warning")
 def assert_payload_size_per_chunk(context):
     max_payload_size = context["signature_manager"].max_payload_size
     for call_item in context["captured_calls"]:
@@ -515,13 +523,13 @@ def assert_payload_size_per_chunk(context):
 
 @then(
     parsers.parse(
-        "send_signatures sends a total of {total_requests:d} POST requests to /injects/{inject_id}/callback"
+        "send_signatures sends a total of {total_requests:d} POST requests to /injects/execution/callback/{inject_id}"
     )
 )
 def assert_total_post_requests(context, total_requests, inject_id):
     assert len(context["captured_calls"]) == total_requests
     assert all(
-        call_item["path"] == f"/injects/{inject_id}/callback"
+        call_item["path"] == f"/injects/execution/callback/{inject_id}"
         for call_item in context["captured_calls"]
     )
 
@@ -553,12 +561,15 @@ def assert_signature_transmission_error_after_retries(context):
 
 @then(
     parsers.parse(
-        "only {request_count:d} POST request is sent to /injects/{inject_id}/callback"
+        "only {request_count:d} POST request is sent to /injects/execution/callback/{inject_id}"
     )
 )
 def assert_single_post_request(context, request_count, inject_id):
     assert len(context["captured_calls"]) == request_count
-    assert context["captured_calls"][0]["path"] == f"/injects/{inject_id}/callback"
+    assert (
+        context["captured_calls"][0]["path"]
+        == f"/injects/execution/callback/{inject_id}"
+    )
 
 
 @then(
@@ -616,7 +627,8 @@ def assert_no_exception_from_resolve_container_ip(context):
 )
 def assert_signature_values_nested_by_expectation_type(context):
     body = context["captured_calls"][-1]["post_data"]
-    entries = body["expectation_signature"]["targets"][0]["signature_values"]
+    targets = _extract_targets(body)
+    entries = targets[0]["signature_values"]
     expectation_types = {entry["expectation_type"] for entry in entries}
     assert expectation_types == {"DETECTION", "PREVENTION"}
 
@@ -626,7 +638,8 @@ def assert_signature_values_nested_by_expectation_type(context):
 )
 def assert_detection_values_grouped_correctly(context):
     body = context["captured_calls"][-1]["post_data"]
-    entries = body["expectation_signature"]["targets"][0]["signature_values"]
+    targets = _extract_targets(body)
+    entries = targets[0]["signature_values"]
     detection_entry = next(
         entry for entry in entries if entry["expectation_type"] == "DETECTION"
     )
@@ -640,7 +653,8 @@ def assert_detection_values_grouped_correctly(context):
 )
 def assert_prevention_values_grouped_correctly(context):
     body = context["captured_calls"][-1]["post_data"]
-    entries = body["expectation_signature"]["targets"][0]["signature_values"]
+    targets = _extract_targets(body)
+    entries = targets[0]["signature_values"]
     prevention_entry = next(
         entry for entry in entries if entry["expectation_type"] == "PREVENTION"
     )
