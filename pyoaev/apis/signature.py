@@ -32,7 +32,7 @@ class SignatureApiManager(RESTManager):
     _path = "/injects"
     _obj_cls = Signature
 
-    DEFAULT_MAX_PAYLOAD_SIZE = 1_048_576  # 1 MiB
+    DEFAULT_MAX_PAYLOAD_SIZE = 5_242_880  # 5 MiB
     MAX_RETRIES = 3
     RETRY_DELAYS = (1, 2, 4)
 
