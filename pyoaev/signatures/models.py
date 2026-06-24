@@ -34,7 +34,7 @@ class ToolTimeoutInfo(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    partial_results: list[str] = []
+    partial_results: list[str] = Field(default_factory=list)
 
 
 class ToolOutput(BaseModel):
@@ -173,7 +173,8 @@ class ExecutionDetails(BaseModel):
     @computed_field
     @property
     def execution_message(self) -> str:
-        return f"Current action: {self.execution_action.value} - Current status: {self.execution_status}"
+        action = self.execution_action.value if self.execution_action else "unknown"
+        return f"Current action: {action} - Current status: {self.execution_status}"
 
     @computed_field
     @property
@@ -192,7 +193,9 @@ class ExecutionDetails(BaseModel):
         if tool_output.error_info and tool_output.error_info.exit_code != 0:
             self.execution_status = "failed"
             if tool_output.error_info.crash_timestamp:
-                self.end_time = tool_output.error_info.crash_timestamp
+                self.end_time = datetime.strptime(
+                    tool_output.error_info.crash_timestamp, "%Y-%m-%dT%H:%M:%SZ"
+                )
         elif tool_output.timeout_info:
             self.execution_status = "timeout"
         elif tool_output.status == "partial":
@@ -216,7 +219,9 @@ class SignatureCallbackPayload(BaseModel):
 
     @field_validator("execution_output_structured", mode="after")
     @classmethod
-    def is_proper_signature_output_structure(cls, value: str) -> str:
+    def is_proper_signature_output_structure(cls, value: str) -> str | None:
+        if value is None:
+            return None
         TypeAdapter(SignatureOutputStructure).validate_json(value)
         return value
 

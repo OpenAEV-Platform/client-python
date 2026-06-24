@@ -148,7 +148,7 @@ class SignatureManager:
     @staticmethod
     def build_payload(
         execution_signatures: ExecutionSignature | list[ExecutionSignature],
-        targets_meta: dict[str, str] | list[dict[str, str]],
+        targets_meta: Any | list[Any],
         expectation_types: list[str],
         extra_signatures: ExtraSignatureData = ExtraSignatureData(),
     ) -> dict[str, Any]:
@@ -235,7 +235,7 @@ class SignatureManager:
         """Sniff the container's primary IPv4. Env var, hostname, then ``hostname -i``.
 
         Returns:
-            The IPv4 string, or ``'unknown'`` with a single warning when all strategies fail.
+            The IPv4 string, or ``'unknown'`` with a warning when all strategies fail.
         """
         if self._cached_ipv4 and self._cached_ipv4 != "unknown":
             return self._cached_ipv4
