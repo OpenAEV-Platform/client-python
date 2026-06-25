@@ -1,19 +1,9 @@
-"""Backward-compatibility shim.
+"""Backward-compat shim — use 'from xtm_oaev_sdk import SignatureMatch' instead."""
 
-Prefer::
+from typing_extensions import deprecated
 
-    from xtm_oaev_sdk import SignatureMatch
-"""
+from xtm_oaev_sdk import SignatureMatch as _SignatureMatch
 
-import warnings
-
-warnings.warn(
-    "Importing from 'pyoaev.signatures.signature_match' is deprecated. "
-    "Use 'from xtm_oaev_sdk import SignatureMatch' instead.",
-    DeprecationWarning,
-    stacklevel=2,
-)
-
-from xtm_oaev_sdk import SignatureMatch
+SignatureMatch = deprecated("Use 'from xtm_oaev_sdk import SignatureMatch' instead.", category=DeprecationWarning)(_SignatureMatch)
 
 __all__ = ["SignatureMatch"]

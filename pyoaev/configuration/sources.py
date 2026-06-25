@@ -1,16 +1,14 @@
 """Backward-compat shim — use 'from xtm_oaev_sdk import ...' instead."""
 
-import warnings
+from typing_extensions import deprecated
 
-warnings.warn(
-    "Importing from 'pyoaev.configuration.sources' is deprecated. "
-    "Use 'from xtm_oaev_sdk import ...' instead. "
-    "This module will be removed in a future release.",
-    DeprecationWarning,
-    stacklevel=2,
+from xtm_oaev_sdk import (
+    DictionarySource as _DictionarySource,
+    EnvironmentSource as _EnvironmentSource,
 )
 
-from xtm_oaev_sdk import DictionarySource, EnvironmentSource
+DictionarySource = deprecated("Use 'from xtm_oaev_sdk import DictionarySource' instead.", category=DeprecationWarning)(_DictionarySource)
+EnvironmentSource = deprecated("Use 'from xtm_oaev_sdk import EnvironmentSource' instead.", category=DeprecationWarning)(_EnvironmentSource)
 
 __all__ = [
     "DictionarySource",

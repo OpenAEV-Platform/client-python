@@ -17,14 +17,23 @@ from pyoaev.asset_types import (  # noqa: F401
 from pyoaev.client import OpenAEV  # noqa: F401
 from pyoaev.exceptions import *  # noqa: F401,F403,F405
 from pyoaev.signatures import *  # noqa: F401,F403,F405
-from xtm_oaev_sdk import (  # noqa: F401
-    BaseConfigModel,
-    Configuration,
-    ConfigLoaderCollector,
-    ConfigLoaderOAEV,
-    ContractBuilder,
-    SettingsLoader,
+
+from typing_extensions import deprecated as _deprecated
+from xtm_oaev_sdk import (
+    BaseConfigModel as _BaseConfigModel,
+    Configuration as _Configuration,
+    ConfigLoaderCollector as _ConfigLoaderCollector,
+    ConfigLoaderOAEV as _ConfigLoaderOAEV,
+    ContractBuilder as _ContractBuilder,
+    SettingsLoader as _SettingsLoader,
 )
+
+BaseConfigModel = _deprecated("Use 'from xtm_oaev_sdk import BaseConfigModel' instead.", category=DeprecationWarning)(_BaseConfigModel)
+Configuration = _deprecated("Use 'from xtm_oaev_sdk import Configuration' instead.", category=DeprecationWarning)(_Configuration)
+ConfigLoaderCollector = _deprecated("Use 'from xtm_oaev_sdk import ConfigLoaderCollector' instead.", category=DeprecationWarning)(_ConfigLoaderCollector)
+ConfigLoaderOAEV = _deprecated("Use 'from xtm_oaev_sdk import ConfigLoaderOAEV' instead.", category=DeprecationWarning)(_ConfigLoaderOAEV)
+ContractBuilder = _deprecated("Use 'from xtm_oaev_sdk import ContractBuilder' instead.", category=DeprecationWarning)(_ContractBuilder)
+SettingsLoader = _deprecated("Use 'from xtm_oaev_sdk import SettingsLoader' instead.", category=DeprecationWarning)(_SettingsLoader)
 
 __all__ = [
     "__author__",

@@ -1,16 +1,13 @@
 """Backward-compat shim — use 'from xtm_oaev_sdk import ...' instead."""
 
-import warnings
+from typing_extensions import deprecated
 
-warnings.warn(
-    "Importing from 'pyoaev.contracts.variable_helper' is deprecated. "
-    "Use 'from xtm_oaev_sdk import ...' instead. "
-    "This module will be removed in a future release.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+from xtm_oaev_sdk import VariableHelper as _VariableHelper
 
-from xtm_oaev_sdk import VariableHelper
+VariableHelper = deprecated(
+    "Use 'from xtm_oaev_sdk import VariableHelper' instead.",
+    category=DeprecationWarning,
+)(_VariableHelper)
 
 __all__ = [
     "VariableHelper",

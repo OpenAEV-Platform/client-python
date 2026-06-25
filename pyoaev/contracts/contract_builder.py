@@ -1,16 +1,18 @@
 """Backward-compat shim — use 'from xtm_oaev_sdk import ...' instead."""
 
-import warnings
+from typing_extensions import deprecated
 
-warnings.warn(
-    "Importing from 'pyoaev.contracts.contract_builder' is deprecated. "
-    "Use 'from xtm_oaev_sdk import ...' instead. "
-    "This module will be removed in a future release.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+from xtm_oaev_sdk import ContractBuilder as _ContractBuilder
+from xtm_oaev_sdk import ContractBuilderProtocol as _ContractBuilderProtocol
 
-from xtm_oaev_sdk import ContractBuilder, ContractBuilderProtocol
+ContractBuilder = deprecated(
+    "Use 'from xtm_oaev_sdk import ContractBuilder' instead.",
+    category=DeprecationWarning,
+)(_ContractBuilder)
+ContractBuilderProtocol = deprecated(
+    "Use 'from xtm_oaev_sdk import ContractBuilderProtocol' instead.",
+    category=DeprecationWarning,
+)(_ContractBuilderProtocol)
 
 __all__ = [
     "ContractBuilder",
