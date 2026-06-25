@@ -1,14 +1,42 @@
+"""Utilities module with partial migration to xtm_oaev_sdk.
+
+The symbols below are re-exported from the SDK:
+copy_dict, EncodedId, remove_none_from_dict, EnhancedJSONEncoder, RequiredOptional.
+"""
+
 import dataclasses
 import datetime
 import email.message
 import json
 import logging
 import threading
-import urllib.parse
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 import requests
 from pythonjsonlogger.json import JsonFormatter
+from xtm_oaev_sdk import (
+    EncodedId,
+    EnhancedJSONEncoder,
+    RequiredOptional,
+    copy_dict,
+    remove_none_from_dict,
+)
+
+__all__ = [
+    "copy_dict",
+    "EncodedId",
+    "remove_none_from_dict",
+    "EnhancedJSONEncoder",
+    "RequiredOptional",
+    "get_content_type",
+    "response_content",
+    "CustomJsonFormatter",
+    "setup_logging_config",
+    "AppLogger",
+    "logger",
+    "PingAlive",
+    "_StdoutStream",
+]
 
 
 class _StdoutStream:
@@ -44,76 +72,6 @@ def response_content(
         if chunk:
             action(chunk)
     return None
-
-
-def copy_dict(
-    *,
-    src: Dict[str, Any],
-    dest: Dict[str, Any],
-) -> None:
-    for k, v in src.items():
-        if isinstance(v, dict):
-            for dict_k, dict_v in v.items():
-                dest[f"{k}[{dict_k}]"] = dict_v
-        else:
-            dest[k] = v
-
-
-class EncodedId(str):
-    def __new__(cls, value: Union[str, int, "EncodedId"]) -> "EncodedId":
-        if isinstance(value, EncodedId):
-            return value
-
-        if not isinstance(value, (int, str)):
-            raise TypeError(f"Unsupported type received: {type(value)}")
-        if isinstance(value, str):
-            value = urllib.parse.quote(value, safe="")
-        return super().__new__(cls, value)
-
-
-def remove_none_from_dict(data: Dict[str, Any]) -> Dict[str, Any]:
-    return {k: v for k, v in data.items() if v is not None}
-
-
-class EnhancedJSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if dataclasses.is_dataclass(o):
-            return dataclasses.asdict(o)
-        return super().default(o)
-
-
-@dataclasses.dataclass(frozen=True)
-class RequiredOptional:
-    required: Tuple[str, ...] = ()
-    optional: Tuple[str, ...] = ()
-    exclusive: Tuple[str, ...] = ()
-
-    def validate_attrs(
-        self,
-        *,
-        data: Dict[str, Any],
-        excludes: Optional[List[str]] = None,
-    ) -> None:
-        if excludes is None:
-            excludes = []
-
-        if self.required:
-            required = [k for k in self.required if k not in excludes]
-            missing = [attr for attr in required if attr not in data]
-            if missing:
-                raise AttributeError(f"Missing attributes: {', '.join(missing)}")
-
-        if self.exclusive:
-            exclusives = [attr for attr in data if attr in self.exclusive]
-            if len(exclusives) > 1:
-                raise AttributeError(
-                    f"Provide only one of these attributes: {', '.join(exclusives)}"
-                )
-            if not exclusives:
-                raise AttributeError(
-                    f"Must provide one of these attributes: "
-                    f"{', '.join(self.exclusive)}"
-                )
 
 
 class CustomJsonFormatter(JsonFormatter):

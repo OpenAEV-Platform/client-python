@@ -1,12 +1,19 @@
-from pyoaev.exceptions import OpenAEVError
-from pyoaev.signatures.types import MatchTypes
+"""Backward-compatibility shim.
 
+Prefer::
 
-class SignatureMatch:
-    def __init__(self, match_type: MatchTypes, match_score: int | None):
-        if match_score is None and match_type != MatchTypes.MATCH_TYPE_SIMPLE:
-            raise OpenAEVError(
-                f"Match type {match_type} requires score to be set, found score = {match_score}"
-            )
-        self.match_type = match_type
-        self.match_score = match_score
+    from xtm_oaev_sdk import SignatureMatch
+"""
+
+import warnings
+
+warnings.warn(
+    "Importing from 'pyoaev.signatures.signature_match' is deprecated. "
+    "Use 'from xtm_oaev_sdk import SignatureMatch' instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from xtm_oaev_sdk import SignatureMatch
+
+__all__ = ["SignatureMatch"]

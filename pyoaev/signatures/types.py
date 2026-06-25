@@ -1,43 +1,38 @@
-from enum import Enum
+"""Backward-compatibility shim.
 
+All symbols have moved to ``xtm_oaev_sdk``. This module re-exports them.
+Prefer direct imports::
 
-class ExpectationType(str, Enum):
-    DETECTION = "DETECTION"
-    PREVENTION = "PREVENTION"
-    VULNERABILITY = "VULNERABILITY"
+    from xtm_oaev_sdk import SignatureExpectationType, InjectExecutionActions, ...
 
+Note: ``ExpectationType`` was renamed to ``SignatureExpectationType`` in the SDK.
+The old name is preserved here as an alias for backward compatibility.
+"""
 
-class InjectExecutionActions(str, Enum):
-    PREREQUISITE_CHECK = "prerequisite_check"
-    PREREQUISITE_EXECUTION = "prerequisite_execution"
-    CLEANUP_EXECUTION = "cleanup_execution"
-    COMMAND_EXECUTION = "command_execution"
-    DNS_RESOLUTION = "dns_resolution"
-    FILE_EXECUTION = "file_execution"
-    FILE_DROP = "file_drop"
-    COMPLETE = "complete"
+import warnings
 
+warnings.warn(
+    "Importing from 'pyoaev.signatures.types' is deprecated. "
+    "Use 'from xtm_oaev_sdk import ...' instead. "
+    "Note: ExpectationType is now SignatureExpectationType.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-class MatchTypes(str, Enum):
-    MATCH_TYPE_FUZZY = "fuzzy"
-    MATCH_TYPE_SIMPLE = "simple"
+from xtm_oaev_sdk import (
+    InjectExecutionActions,
+    MatchTypes,
+    SignatureExpectationType,
+    SignatureTypes,
+)
 
+# Backward-compat alias for the renamed enum
+ExpectationType = SignatureExpectationType
 
-class SignatureTypes(str, Enum):
-    SIG_TYPE_PARENT_PROCESS_NAME = "parent_process_name"
-    SIG_TYPE_SOURCE_IPV4_ADDRESS = "source_ipv4_address"
-    SIG_TYPE_SOURCE_IPV6_ADDRESS = "source_ipv6_address"
-    SIG_TYPE_TARGET_IPV4_ADDRESS = "target_ipv4_address"
-    SIG_TYPE_TARGET_IPV6_ADDRESS = "target_ipv6_address"
-    SIG_TYPE_TARGET_HOSTNAME_ADDRESS = "target_hostname_address"
-    SIG_TYPE_START_DATE = "start_date"
-    SIG_TYPE_END_DATE = "end_date"
-    SIG_TYPE_CLOUD_PROVIDER = "cloud_provider"
-    SIG_TYPE_CLOUD_ACCOUNT_ID = "cloud_account_id"
-    SIG_TYPE_CLOUD_REGION = "cloud_region"
-    SIG_TYPE_TARGET_SERVICE = "target_service"
-    SIG_TYPE_QUERY = "query"
-    # AI adversarial validation: correlate AI defense (LLM firewall / guardrail) events back to a
-    # specific AI inject execution.
-    SIG_TYPE_AI_REQUEST_MARKER = "ai_request_marker"
-    SIG_TYPE_AI_TARGET_ENDPOINT = "ai_target_endpoint"
+__all__ = [
+    "ExpectationType",
+    "InjectExecutionActions",
+    "MatchTypes",
+    "SignatureExpectationType",
+    "SignatureTypes",
+]

@@ -40,6 +40,7 @@ dependencies = [
     "opentelemetry-api (>=1.35.0,<1.36.0)",
     "opentelemetry-sdk (>=1.35.0,<1.36.0)",
     # OpenAEV,
+    "xtm-oaev-sdk (>=0.1.0)",
     "requests-toolbelt (>=1.0.0,<1.1.0)",
     "dataclasses-json (>=0.6.4,<0.7.0)",
     "thefuzz (>=0.22,<0.23)",
