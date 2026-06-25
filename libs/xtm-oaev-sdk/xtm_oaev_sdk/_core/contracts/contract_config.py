@@ -15,9 +15,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from xtm_oaev_sdk.engine.contracts.contract_utils import ContractCardinality, ContractVariable
-from xtm_oaev_sdk.engine.contracts.variable_helper import VariableHelper
-from xtm_oaev_sdk.engine.utils import EnhancedJSONEncoder
+from xtm_oaev_sdk._core.contracts.contract_utils import ContractCardinality, ContractVariable
+from xtm_oaev_sdk._core.contracts.variable_helper import VariableHelper
+from xtm_oaev_sdk._core.utils import EnhancedJSONEncoder
 
 __all__ = [
     "Contract",

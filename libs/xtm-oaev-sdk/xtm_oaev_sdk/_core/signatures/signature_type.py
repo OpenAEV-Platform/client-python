@@ -6,8 +6,8 @@ matching policy and can generate helper structures for signature matching.
 
 from typing import Any
 
-from xtm_oaev_sdk.engine.signatures.signature_match import SignatureMatch
-from xtm_oaev_sdk.engine.signatures.types import MatchTypes, SignatureTypes
+from xtm_oaev_sdk._core.signatures.signature_match import SignatureMatch
+from xtm_oaev_sdk._core.signatures.types import MatchTypes, SignatureTypes
 
 __all__ = ["SignatureType"]
 

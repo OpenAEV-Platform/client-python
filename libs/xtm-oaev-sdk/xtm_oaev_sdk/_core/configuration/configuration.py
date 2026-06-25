@@ -26,10 +26,10 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic_settings import BaseSettings
 
-from xtm_oaev_sdk.engine.configuration.connector_config_schema_generator import (
+from xtm_oaev_sdk._core.configuration.connector_config_schema_generator import (
     ConnectorConfigSchemaGenerator,
 )
-from xtm_oaev_sdk.engine.configuration.sources import DictionarySource, EnvironmentSource
+from xtm_oaev_sdk._core.configuration.sources import DictionarySource, EnvironmentSource
 
 __all__ = [
     "CONFIGURATION_TYPES",

@@ -17,7 +17,7 @@ from pydantic import (
     model_validator,
 )
 
-from xtm_oaev_sdk.engine.signatures.types import (
+from xtm_oaev_sdk._core.signatures.types import (
     InjectExecutionActions,
     SignatureExpectationType,
 )

@@ -12,7 +12,7 @@ Example:
 
 from typing import Protocol, runtime_checkable
 
-from xtm_oaev_sdk.engine.contracts.contract_config import (
+from xtm_oaev_sdk._core.contracts.contract_config import (
     ContractElement,
     ContractOutputElement,
 )

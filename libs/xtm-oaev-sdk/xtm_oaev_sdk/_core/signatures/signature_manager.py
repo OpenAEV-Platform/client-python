@@ -9,8 +9,8 @@ from typing import Any, Protocol, runtime_checkable
 
 from pydantic import ValidationError
 
-from xtm_oaev_sdk.engine.errors import OpenAEVError
-from xtm_oaev_sdk.engine.signatures.models import (
+from xtm_oaev_sdk._core.errors import OpenAEVError
+from xtm_oaev_sdk._core.signatures.models import (
     CloudInjectorConfig,
     ExecutionDetails,
     ExecutionSignature,

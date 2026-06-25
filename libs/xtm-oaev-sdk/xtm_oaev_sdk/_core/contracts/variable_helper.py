@@ -4,7 +4,7 @@ Provides factory methods for standard template variables (user, exercise,
 team, URIs) that are injected into contract fields during simulation.
 """
 
-from xtm_oaev_sdk.engine.contracts.contract_utils import (
+from xtm_oaev_sdk._core.contracts.contract_utils import (
     ContractCardinality,
     ContractVariable,
     VariableType,
