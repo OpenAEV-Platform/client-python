@@ -1,44 +1,18 @@
-from typing import List
+"""Backward-compat shim — use 'from xtm_oaev_sdk import ...' instead."""
 
-from pyoaev.contracts.contract_config import ContractElement, ContractOutputElement
+import warnings
 
+warnings.warn(
+    "Importing from 'pyoaev.contracts.contract_builder' is deprecated. "
+    "Use 'from xtm_oaev_sdk import ...' instead. "
+    "This module will be removed in a future release.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-class ContractBuilder:
-    fields: List[ContractElement]
-    outputs: List[ContractOutputElement]
+from xtm_oaev_sdk import ContractBuilder, ContractBuilderProtocol
 
-    def __init__(self):
-        self.fields = []
-        self.outputs = []
-
-    def add_fields(self, fields: List[ContractElement]):
-        self.fields = self.fields + fields
-        return self
-
-    def add_outputs(self, outputs: List[ContractOutputElement]):
-        self.outputs = self.outputs + outputs
-        return self
-
-    def mandatory(self, element: ContractElement):
-        element.mandatory = True
-        self.fields.append(element)
-        return self
-
-    def optional(self, element: ContractElement):
-        element.mandatory = False
-        self.fields.append(element)
-        return self
-
-    def mandatory_group(self, elements: List[ContractElement]):
-        keys: List[str] = list(map(lambda iterable: iterable.key, elements))
-        for element in elements:
-            element.mandatory = True
-            element.mandatoryGroups = keys
-            self.fields.append(element)
-        return self
-
-    def build_fields(self) -> List[ContractElement]:
-        return self.fields
-
-    def build_outputs(self) -> List[ContractOutputElement]:
-        return self.outputs
+__all__ = [
+    "ContractBuilder",
+    "ContractBuilderProtocol",
+]

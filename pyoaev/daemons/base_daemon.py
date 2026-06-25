@@ -5,7 +5,7 @@ from types import FunctionType
 from uuid import UUID
 
 from pyoaev.client import OpenAEV
-from pyoaev.configuration import Configuration
+from xtm_oaev_sdk import Configuration
 from pyoaev.exceptions import OpenAEVError
 from pyoaev.utils import logger
 

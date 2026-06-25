@@ -47,6 +47,15 @@ from ._core.configuration import (
     ConfigurationProtocol,
 )
 from ._core.configuration.sources import DictionarySource, EnvironmentSource
+from ._core.configuration.settings_loader import (
+    HttpUrlToString,
+    LogLevelToLower,
+    SettingsLoader,
+    TimedeltaInSeconds,
+)
+from ._core.configuration.connector_config_schema_generator import (
+    ConnectorConfigSchemaGenerator,
+)
 
 # Contracts
 from ._core.contracts import (
@@ -150,8 +159,13 @@ __all__ = [
     "Configuration",
     "ConfigurationHint",
     "ConfigurationProtocol",
+    "ConnectorConfigSchemaGenerator",
     "DictionarySource",
     "EnvironmentSource",
+    "HttpUrlToString",
+    "LogLevelToLower",
+    "SettingsLoader",
+    "TimedeltaInSeconds",
     # contracts
     "Contract",
     "ContractAsset",

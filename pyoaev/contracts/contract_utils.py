@@ -1,22 +1,19 @@
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import List
+"""Backward-compat shim — use 'from xtm_oaev_sdk import ...' instead."""
 
+import warnings
 
-class ContractCardinality(str, Enum):
-    One: str = "1"
-    Multiple: str = "n"
+warnings.warn(
+    "Importing from 'pyoaev.contracts.contract_utils' is deprecated. "
+    "Use 'from xtm_oaev_sdk import ...' instead. "
+    "This module will be removed in a future release.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
+from xtm_oaev_sdk import ContractCardinality, ContractVariable, VariableType
 
-class VariableType(str, Enum):
-    String: str = "String"
-    Object: str = "Object"
-
-
-@dataclass
-class ContractVariable:
-    key: str
-    label: str
-    type: VariableType
-    cardinality: ContractCardinality
-    children: List["ContractVariable"] = field(default_factory=list)
+__all__ = [
+    "ContractCardinality",
+    "ContractVariable",
+    "VariableType",
+]

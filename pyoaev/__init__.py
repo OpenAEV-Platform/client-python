@@ -15,10 +15,16 @@ from pyoaev.asset_types import (  # noqa: F401
     CloudProvider,
 )
 from pyoaev.client import OpenAEV  # noqa: F401
-from pyoaev.configuration import *  # noqa: F401,F403,F405
-from pyoaev.contracts import *  # noqa: F401,F403,F405
 from pyoaev.exceptions import *  # noqa: F401,F403,F405
 from pyoaev.signatures import *  # noqa: F401,F403,F405
+from xtm_oaev_sdk import (  # noqa: F401
+    BaseConfigModel,
+    Configuration,
+    ConfigLoaderCollector,
+    ConfigLoaderOAEV,
+    ContractBuilder,
+    SettingsLoader,
+)
 
 __all__ = [
     "__author__",
