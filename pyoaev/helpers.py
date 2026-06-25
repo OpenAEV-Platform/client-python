@@ -2,10 +2,8 @@ import base64
 import json
 import os
 import os.path
-import re
 import sched
 import ssl
-import tempfile
 import threading
 import time
 import traceback

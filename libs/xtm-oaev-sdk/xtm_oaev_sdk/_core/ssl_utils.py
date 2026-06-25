@@ -3,9 +3,7 @@
 Extracted from pyoaev.helpers (Phase C migration).
 """
 
-import base64
 import os
-import os.path
 import re
 import tempfile
 
