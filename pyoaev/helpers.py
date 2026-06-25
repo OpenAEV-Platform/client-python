@@ -9,13 +9,20 @@ import tempfile
 import threading
 import time
 import traceback
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List
 
 import pika
 from thefuzz import fuzz
 
+import warnings as _warnings
+
 from pyoaev import OpenAEV, utils
 from xtm_oaev_sdk import Configuration
+from xtm_oaev_sdk import data_to_temp_file as _sdk_data_to_temp_file
+from xtm_oaev_sdk import is_memory_certificate as _sdk_is_memory_certificate
+from xtm_oaev_sdk import ssl_cert_chain as _sdk_ssl_cert_chain
+from xtm_oaev_sdk import ssl_verify_locations as _sdk_ssl_verify_locations
+from xtm_oaev_sdk._core import _is_base64_encoded as _sdk_is_base64_encoded
 from pyoaev.daemons import CollectorDaemon
 from pyoaev.exceptions import ConfigurationError
 
@@ -23,58 +30,20 @@ TRUTHY: List[str] = ["yes", "true", "True"]
 FALSY: List[str] = ["no", "false", "False"]
 
 
-# As cert must be written in files to be loaded in ssl context
-# Creates a temporary file in the most secure manner possible
-def data_to_temp_file(data):
-    # The file is readable and writable only by the creating user ID.
-    # If the operating system uses permission bits to indicate whether a
-    # file is executable, the file is executable by no one. The file
-    # descriptor is not inherited by children of this process.
-    file_descriptor, file_path = tempfile.mkstemp()
-    with os.fdopen(file_descriptor, "w") as open_file:
-        open_file.write(data)
-        open_file.close()
-    return file_path
+_DEPRECATED_SSL_SHIMS: dict[str, tuple[str, Any]] = {
+    "data_to_temp_file": ("Use xtm_oaev_sdk.data_to_temp_file instead", _sdk_data_to_temp_file),
+    "is_memory_certificate": ("Use xtm_oaev_sdk.is_memory_certificate instead", _sdk_is_memory_certificate),
+    "ssl_cert_chain": ("Use xtm_oaev_sdk.ssl_cert_chain instead", _sdk_ssl_cert_chain),
+    "ssl_verify_locations": ("Use xtm_oaev_sdk.ssl_verify_locations instead", _sdk_ssl_verify_locations),
+}
 
 
-def is_memory_certificate(certificate):
-    return certificate.startswith("-----BEGIN")
-
-
-def ssl_cert_chain(ssl_context, cert_data, key_data, passphrase):
-    if cert_data is None:
-        return
-
-    cert_file_path = None
-    key_file_path = None
-
-    # Cert loading
-    if cert_data is not None and is_memory_certificate(cert_data):
-        cert_file_path = data_to_temp_file(cert_data)
-    cert = cert_file_path if cert_file_path is not None else cert_data
-
-    # Key loading
-    if key_data is not None and is_memory_certificate(key_data):
-        key_file_path = data_to_temp_file(key_data)
-    key = key_file_path if key_file_path is not None else key_data
-
-    # Load cert
-    ssl_context.load_cert_chain(cert, key, passphrase)
-    # Remove temp files
-    if cert_file_path is not None:
-        os.unlink(cert_file_path)
-    if key_file_path is not None:
-        os.unlink(key_file_path)
-
-
-def ssl_verify_locations(ssl_context, certdata):
-    if certdata is None:
-        return
-
-    if is_memory_certificate(certdata):
-        ssl_context.load_verify_locations(cadata=certdata)
-    else:
-        ssl_context.load_verify_locations(cafile=certdata)
+def __getattr__(name: str) -> Any:
+    if name in _DEPRECATED_SSL_SHIMS:
+        msg, impl = _DEPRECATED_SSL_SHIMS[name]
+        _warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        return impl
+    raise AttributeError(f"module 'pyoaev.helpers' has no attribute {name!r}")
 
 
 def create_mq_ssl_context(config) -> ssl.SSLContext:
@@ -115,10 +84,10 @@ def create_mq_ssl_context(config) -> ssl.SSLContext:
     if not use_ssl_reject_unauthorized:
         # noinspection PyUnresolvedReferences,PyProtectedMember
         ssl_context = ssl._create_unverified_context()
-    ssl_verify_locations(ssl_context, use_ssl_ca)
+    _sdk_ssl_verify_locations(ssl_context, use_ssl_ca)
     # Thanks to https://bugs.python.org/issue16487 is not possible today to easily use memory pem
     # in SSL context. We need to write it to a temporary file before
-    ssl_cert_chain(ssl_context, use_ssl_cert, use_ssl_key, use_ssl_passphrase)
+    _sdk_ssl_cert_chain(ssl_context, use_ssl_cert, use_ssl_key, use_ssl_passphrase)
     return ssl_context
 
 
@@ -454,9 +423,5 @@ class OpenAEVDetectionHelper:
             return signature_value
 
 
-def _is_base64_encoded(str_maybe_base64):
-    # Check if the length is a multiple of 4 and matches the Base64 character set
-    base64_pattern = re.compile(r"^[A-Za-z0-9+/]*={0,2}$")
-    return len(str_maybe_base64) % 4 == 0 and bool(
-        base64_pattern.match(str_maybe_base64)
-    )
+# Private helper — delegates to SDK._core
+_is_base64_encoded = _sdk_is_base64_encoded

@@ -127,7 +127,7 @@ def test_sdk_source_does_not_define_legacy_helper_artifacts(
 
 def test_dependency_direction_sdk_tree_has_no_runtime_imports_from_pyoaev() -> None:
     """Verifies dependency direction by scanning all Python files under libs/xtm-oaev-sdk."""
-    files = _given_sdk_tree_files()
+    files = _given_sdk_source_files()
     matches = _when_searching_for_pattern(files, r"^\s*(?:from|import)\s+pyoaev(?:\.|\b)")
     _then_no_matches_found(matches)
 

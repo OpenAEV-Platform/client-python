@@ -39,6 +39,14 @@ from ._core.security_domain import SecurityDomains
 # Client protocol
 from ._core.client_protocol import BaseClient
 
+# SSL utilities
+from ._core.ssl_utils import (
+    data_to_temp_file,
+    is_memory_certificate,
+    ssl_cert_chain,
+    ssl_verify_locations,
+)
+
 # Configuration
 from ._core.configuration import (
     BaseConfigModel,
@@ -156,6 +164,11 @@ __all__ = [
     "SecurityDomains",
     # client_protocol
     "BaseClient",
+    # ssl_utils
+    "data_to_temp_file",
+    "is_memory_certificate",
+    "ssl_cert_chain",
+    "ssl_verify_locations",
     # configuration
     "BaseConfigModel",
     "CONFIGURATION_TYPES",
