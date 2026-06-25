@@ -36,6 +36,9 @@ from ._core.utils import (
 # Security domain
 from ._core.security_domain import SecurityDomains
 
+# Client protocol
+from ._core.client_protocol import BaseClient
+
 # Configuration
 from ._core.configuration import (
     BaseConfigModel,
@@ -151,6 +154,8 @@ __all__ = [
     "setup_logging_config",
     # security_domain
     "SecurityDomains",
+    # client_protocol
+    "BaseClient",
     # configuration
     "BaseConfigModel",
     "CONFIGURATION_TYPES",

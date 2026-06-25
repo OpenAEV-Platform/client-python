@@ -7,9 +7,10 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Type, Union
 
 from pyoaev.exceptions import OpenAEVParsingError
+from xtm_oaev_sdk import BaseClient
 
 from . import utils
-from .client import OpenAEV, OpenAEVList
+from .client import OpenAEVList
 
 __all__ = [
     "RESTObject",
@@ -286,9 +287,11 @@ class RESTManager:
     _computed_path: Optional[str]
     _parent: Optional[RESTObject]
     _parent_attrs: Dict[str, Any]
-    openaev: OpenAEV
+    openaev: BaseClient
 
-    def __init__(self, openaev: OpenAEV, parent: Optional[RESTObject] = None) -> None:
+    def __init__(
+        self, openaev: BaseClient, parent: Optional[RESTObject] = None
+    ) -> None:
         self.openaev = openaev
         self._parent = parent  # for nested managers
         self._computed_path = self._compute_path()

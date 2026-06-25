@@ -13,10 +13,10 @@ from typing import (
 
 import requests
 
-import pyoaev
 from pyoaev import base
 from pyoaev import exceptions as exc
 from pyoaev import utils
+from xtm_oaev_sdk import BaseClient
 
 __all__ = [
     "GetMixin",
@@ -55,7 +55,7 @@ class GetMixin(HeadMixin, _RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openaev: pyoaev.OpenAEV
+    openaev: BaseClient
 
     @exc.on_http_error(exc.OpenAEVGetError)
     def get(self, id: Union[str, int], **kwargs: Any) -> base.RESTObject:
@@ -78,7 +78,7 @@ class GetWithoutIdMixin(HeadMixin, _RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openaev: pyoaev.OpenAEV
+    openaev: BaseClient
 
     @exc.on_http_error(exc.OpenAEVGetError)
     def get(self, **kwargs: Any) -> base.RESTObject:
@@ -99,7 +99,7 @@ class ListMixin(HeadMixin, _RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openaev: pyoaev.OpenAEV
+    openaev: BaseClient
 
     @exc.on_http_error(exc.OpenAEVListError)
     def list(self, **kwargs: Any) -> Union[base.RESTObjectList, List[base.RESTObject]]:
@@ -140,7 +140,7 @@ class UpdateMixin(_RestManagerBase):
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
     _update_method: UpdateMethod = UpdateMethod.PUT
-    openaev: pyoaev.OpenAEV
+    openaev: BaseClient
 
     def _get_update_method(
         self,
@@ -191,7 +191,7 @@ class CreateMixin(_RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openaev: pyoaev.OpenAEV
+    openaev: BaseClient
 
     @exc.on_http_error(exc.OpenAEVCreateError)
     def create(
@@ -225,7 +225,7 @@ class DeleteMixin(_RestManagerBase):
     _parent: Optional[base.RESTObject]
     _parent_attrs: Dict[str, Any]
     _path: Optional[str]
-    openaev: pyoaev.OpenAEV
+    openaev: BaseClient
 
     @exc.on_http_error(exc.OpenAEVDeleteError)
     def delete(
