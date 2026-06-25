@@ -1,3 +1,37 @@
-"""Configuration management: loading, hints, and schema generation."""
+"""Configuration management: loading, hints, and schema generation.
 
-__all__: list[str] = []
+Re-exports the public configuration surface for internal engine use.
+Public consumers import from xtm_oaev_sdk directly.
+"""
+
+from .configuration import (
+    CONFIGURATION_TYPES,
+    Configuration,
+    ConfigurationHint,
+    ConfigurationProtocol,
+)
+from .connector_config_schema_generator import ConnectorConfigSchemaGenerator
+from .settings_loader import (
+    BaseConfigModel,
+    ConfigLoaderCollector,
+    ConfigLoaderOAEV,
+    HttpUrlToString,
+    LogLevelToLower,
+    SettingsLoader,
+    TimedeltaInSeconds,
+)
+
+__all__ = [
+    "BaseConfigModel",
+    "CONFIGURATION_TYPES",
+    "ConfigLoaderCollector",
+    "ConfigLoaderOAEV",
+    "Configuration",
+    "ConfigurationHint",
+    "ConfigurationProtocol",
+    "ConnectorConfigSchemaGenerator",
+    "HttpUrlToString",
+    "LogLevelToLower",
+    "SettingsLoader",
+    "TimedeltaInSeconds",
+]
