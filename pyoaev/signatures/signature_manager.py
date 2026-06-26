@@ -221,7 +221,9 @@ class SignatureManager:
         Raises:
             SignatureTransmissionError: Validation failed, 4xx hit, or retries exhausted.
         """
-        sig_output = SignatureOutputStructure(expectation_signatures=SignaturePayload(**signatures))
+        sig_output = SignatureOutputStructure(
+            expectation_signatures=SignaturePayload(**signatures)
+        )
 
         self.client.signature.send_signatures(
             inject_id,
