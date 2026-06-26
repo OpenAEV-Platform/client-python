@@ -191,19 +191,19 @@ class ExecutionDetails(BaseModel):
         self.end_time = now
 
         if tool_output.error_info and tool_output.error_info.exit_code != 0:
-            self.execution_status = "failed"
+            self.execution_status = "ERROR"
             if tool_output.error_info.crash_timestamp:
                 self.end_time = datetime.strptime(
                     tool_output.error_info.crash_timestamp, "%Y-%m-%dT%H:%M:%SZ"
                 )
         elif tool_output.timeout_info:
-            self.execution_status = "timeout"
+            self.execution_status = "TIMEOUT"
         elif tool_output.status == "partial":
-            self.execution_status = "partial"
+            self.execution_status = "ERROR"
         else:
-            self.execution_status = "success"
+            self.execution_status = "EXECUTED"
 
-        self.execution_action = InjectExecutionActions("complete")
+        self.execution_action = InjectExecutionActions("command_execution")
 
 
 class SignatureCallbackPayload(BaseModel):

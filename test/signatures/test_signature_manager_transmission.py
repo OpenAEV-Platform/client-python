@@ -185,7 +185,7 @@ def compiled_post_execution_payload(context, inject_id):
 @given(parsers.parse("an updated post-execution execution details object"))
 def updated_post_execution_execution_details(context):
     execution_details = ExecutionDetails(
-        execution_status="success",
+        execution_status="SUCCESS",
         execution_action="complete",
     )
     execution_details.end_time = execution_details.start_time + timedelta(0.1)

@@ -85,7 +85,7 @@ def execution_details():
     target_fixture="tool_output",
 )
 def successful_tool_output():
-    return {"status": "success"}
+    return {"status": "EXECUTED"}
 
 
 @given(
