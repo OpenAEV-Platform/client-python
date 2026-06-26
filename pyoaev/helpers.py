@@ -410,7 +410,7 @@ class OpenAEVDetectionHelper:
         return False
 
     def _decode_value(self, signature_value):
-        if _is_base64_encoded(signature_value):
+        if _sdk_is_base64_encoded(signature_value):
             try:
                 decoded_bytes = base64.b64decode(signature_value)
                 decoded_str = decoded_bytes.decode("utf-8")
@@ -419,7 +419,3 @@ class OpenAEVDetectionHelper:
                 self.logger.error(str(e))
         else:
             return signature_value
-
-
-# Private helper — delegates to SDK._core
-_is_base64_encoded = _sdk_is_base64_encoded
