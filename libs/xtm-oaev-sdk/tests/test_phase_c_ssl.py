@@ -33,7 +33,7 @@ def _given_sdk_ssl_functions() -> tuple[Any, Any, Any, Any]:
 
 
 def _given_private_is_base64_encoded() -> Any:
-    from xtm_oaev_sdk._core import _is_base64_encoded
+    from pyoaev.helpers import _is_base64_encoded
 
     return _is_base64_encoded
 
@@ -149,18 +149,11 @@ def test_helpers_legacy_ssl_function_bodies_are_removed() -> None:
             assert marker not in function_source
 
 
-def test_private_is_base64_encoded_is_available_from_sdk_core_only() -> None:
-    """It imports private _is_base64_encoded from SDK private core."""
-    private_helper = _given_private_is_base64_encoded()
-    assert callable(private_helper)
-    assert "_is_base64_encoded" not in _given_sdk_module().__all__
-
-
-def test_helpers_no_longer_define_private_is_base64_encoded() -> None:
-    """It removes _is_base64_encoded implementation from pyoaev.helpers."""
+def test_private_is_base64_encoded_stays_in_helpers() -> None:
+    """_is_base64_encoded remains in pyoaev.helpers (not extracted to SDK)."""
     source = _given_helpers_source()
-    assert "def _is_base64_encoded" not in source
-    assert re.search(r"from\s+xtm_oaev_sdk\._core\s+import\s+.*_is_base64_encoded", source)
+    assert "def _is_base64_encoded" in source
+    assert "_is_base64_encoded" not in _given_sdk_module().__all__
 
 
 @pytest.mark.parametrize(

@@ -20,7 +20,6 @@ from xtm_oaev_sdk import data_to_temp_file as _sdk_data_to_temp_file
 from xtm_oaev_sdk import is_memory_certificate as _sdk_is_memory_certificate
 from xtm_oaev_sdk import ssl_cert_chain as _sdk_ssl_cert_chain
 from xtm_oaev_sdk import ssl_verify_locations as _sdk_ssl_verify_locations
-from xtm_oaev_sdk._core import _is_base64_encoded as _sdk_is_base64_encoded
 from pyoaev.daemons import CollectorDaemon
 from pyoaev.exceptions import ConfigurationError
 
@@ -410,7 +409,7 @@ class OpenAEVDetectionHelper:
         return False
 
     def _decode_value(self, signature_value):
-        if _sdk_is_base64_encoded(signature_value):
+        if _is_base64_encoded(signature_value):
             try:
                 decoded_bytes = base64.b64decode(signature_value)
                 decoded_str = decoded_bytes.decode("utf-8")
@@ -419,3 +418,13 @@ class OpenAEVDetectionHelper:
                 self.logger.error(str(e))
         else:
             return signature_value
+
+
+def _is_base64_encoded(str_maybe_base64: str) -> bool:
+    """Check if a string appears to be valid base64-encoded data."""
+    import re
+
+    base64_pattern = re.compile(r"^[A-Za-z0-9+/]*={0,2}$")
+    return len(str_maybe_base64) % 4 == 0 and bool(
+        base64_pattern.match(str_maybe_base64)
+    )

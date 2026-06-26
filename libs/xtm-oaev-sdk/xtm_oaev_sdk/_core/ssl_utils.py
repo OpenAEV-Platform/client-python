@@ -4,7 +4,6 @@ Extracted from pyoaev.helpers (Phase C migration).
 """
 
 import os
-import re
 import ssl
 import tempfile
 
@@ -64,11 +63,3 @@ def ssl_verify_locations(ssl_context: ssl.SSLContext, certdata: str | None) -> N
         ssl_context.load_verify_locations(cadata=certdata)
     else:
         ssl_context.load_verify_locations(cafile=certdata)
-
-
-def _is_base64_encoded(str_maybe_base64: str) -> bool:
-    """Check if a string appears to be valid base64-encoded data."""
-    base64_pattern = re.compile(r"^[A-Za-z0-9+/]*={0,2}$")
-    return len(str_maybe_base64) % 4 == 0 and bool(
-        base64_pattern.match(str_maybe_base64)
-    )
