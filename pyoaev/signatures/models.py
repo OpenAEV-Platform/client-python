@@ -122,7 +122,7 @@ class SignatureOutputStructure(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    signatures: SignaturePayload
+    expectation_signatures: SignaturePayload
 
     def normalize_signature_payload(self) -> None:
         """
@@ -130,7 +130,7 @@ class SignatureOutputStructure(BaseModel):
         """
         normalized_targets: list[TargetSignatures] = []
 
-        for target in self.signatures.targets:
+        for target in self.expectation_signatures.targets:
             if not target.signature_values:
                 normalized_targets.append(target)
                 continue
@@ -156,7 +156,7 @@ class SignatureOutputStructure(BaseModel):
 
             normalized_targets.append(normalized_target)
 
-        self.signatures.targets = normalized_targets
+        self.expectation_signatures.targets = normalized_targets
 
 
 class ExecutionDetails(BaseModel):
