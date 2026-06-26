@@ -37,3 +37,7 @@ class SignatureTypes(str, Enum):
     SIG_TYPE_CLOUD_REGION = "cloud_region"
     SIG_TYPE_TARGET_SERVICE = "target_service"
     SIG_TYPE_QUERY = "query"
+    # AI adversarial validation: correlate AI defense (LLM firewall / guardrail) events back to a
+    # specific AI inject execution.
+    SIG_TYPE_AI_REQUEST_MARKER = "ai_request_marker"
+    SIG_TYPE_AI_TARGET_ENDPOINT = "ai_target_endpoint"

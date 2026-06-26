@@ -74,6 +74,7 @@ class OpenAEV:
         self.inject_expectation = apis.InjectExpectationManager(self)
         self.payload = apis.PayloadManager(self)
         self.security_platform = apis.SecurityPlatformManager(self)
+        self.ai_target = apis.AiTargetManager(self)
         self.inject_expectation_trace = apis.InjectExpectationTraceManager(self)
         self.signature = apis.SignatureApiManager(self)
         self.tag = apis.TagManager(self)

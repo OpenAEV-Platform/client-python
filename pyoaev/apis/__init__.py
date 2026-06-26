@@ -1,3 +1,4 @@
+from .ai_target import *  # noqa: F401,F403
 from .attack_pattern import *  # noqa: F401,F403
 from .collector import *  # noqa: F401,F403
 from .cve import *  # noqa: F401,F403
