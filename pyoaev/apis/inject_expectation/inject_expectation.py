@@ -49,11 +49,19 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
 
         :param source_id: the identifier of the collector requesting expectations
         :type source_id: str
+        :raises OpenAEVParsingError: if the server does not return a JSON list
         :return: a list of agentless detection/prevention expectation dicts
         :rtype: list[dict]
         """
         path = f"{self.path}/ai/{source_id}"
         result = self.openaev.http_get(path, **kwargs)
+        if not isinstance(result, list):
+            raise exc.OpenAEVParsingError(
+                error_message=(
+                    f"Expected a list of AI expectations from {path}, "
+                    f"got {type(result).__name__}"
+                )
+            )
         return result
 
     def expectations_models_for_source(self, source_id: str, **kwargs: Any):
