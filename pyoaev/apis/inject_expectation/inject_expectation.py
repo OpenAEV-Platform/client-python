@@ -52,7 +52,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         :return: a list of agentless detection/prevention expectation dicts
         :rtype: list[dict]
         """
-        path = f"{self.path}/ai/" + source_id
+        path = f"{self.path}/ai/{source_id}"
         result = self.openaev.http_get(path, **kwargs)
         return result
 
