@@ -16,7 +16,7 @@ class EndpointManager(RESTManager):
     # asset_name is the only required attribute. Everything else - including endpoint_hostname,
     # endpoint_platform and endpoint_arch - is optional: agents and collectors typically provide
     # the endpoint fields, while category-driven assets (web app, cloud, network, ...) may omit
-    # them and the platform defaults endpoint_platform / endpoint_arch to "Unknown" server-side.
+    # them and the backend defaults endpoint_platform / endpoint_arch to "Unknown".
     _create_attrs = RequiredOptional(
         required=("asset_name",),
         optional=(
