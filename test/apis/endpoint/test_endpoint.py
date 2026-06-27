@@ -67,10 +67,14 @@ class TestEndpointCategorization(TestCase):
 
         api_client.endpoint.upsert(data)
 
+        mock_request.assert_called_once()
         _, kwargs = mock_request.call_args
         self.assertEqual(kwargs["method"], "post")
         self.assertEqual(kwargs["url"], "url/api/endpoints/agentless/upsert")
         self.assertEqual(kwargs["json"]["asset_category"], "WEB_APPLICATION")
+        # A category-driven asset can be upserted without platform / arch.
+        self.assertNotIn("endpoint_platform", kwargs["json"])
+        self.assertNotIn("endpoint_arch", kwargs["json"])
 
     @mock.patch("requests.Session.request", side_effect=mock_response)
     def test_upsert_cloud_resource(self, mock_request):
@@ -86,6 +90,7 @@ class TestEndpointCategorization(TestCase):
 
         api_client.endpoint.upsert(data)
 
+        mock_request.assert_called_once()
         _, kwargs = mock_request.call_args
         self.assertEqual(kwargs["url"], "url/api/endpoints/agentless/upsert")
         self.assertEqual(kwargs["json"]["asset_cloud_provider"], "AWS")
