@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from pyoaev import exceptions as exc
 from pyoaev.apis.inject_expectation.model import (
@@ -43,13 +43,14 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
     @exc.on_http_error(exc.OpenAEVUpdateError)
     def ai_expectations_for_source(
         self, source_id: str, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> List[Dict[str, Any]]:
         """Returns agentless DETECTION/PREVENTION expectations (AI adversarial injects) not yet
         filled for the given source. Used by AI defense collectors (LLM firewall / guardrail).
 
         :param source_id: the identifier of the collector requesting expectations
         :type source_id: str
         :return: a list of agentless detection/prevention expectation dicts
+        :rtype: list[dict]
         """
         path = f"{self.path}/ai/" + source_id
         result = self.openaev.http_get(path, **kwargs)
