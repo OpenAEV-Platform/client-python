@@ -13,4 +13,8 @@ class SecurityDomains(Enum):
     URL_FILTERING = {"domain_name": "URL Filtering", "domain_color": "#66CCFF"}
     CLOUD = {"domain_name": "Cloud", "domain_color": "#9999CC"}
     TABLE_TOP = {"domain_name": "Tabletop", "domain_color": "#FFCC33"}
+    ARTIFICIAL_INTELLIGENCE = {
+        "domain_name": "Artificial Intelligence",
+        "domain_color": "#7C4DFF",
+    }
     TOCLASSIFY = {"domain_name": "To classify", "domain_color": "#FFFFFF"}
