@@ -49,8 +49,11 @@ class TestAiExpectationsForSource(TestCase):
         mock_request.return_value = make_json_response(["not", "a", "dict"])
         api_client = OpenAEV("url", "token")
 
-        with self.assertRaises(OpenAEVParsingError):
+        with self.assertRaises(OpenAEVParsingError) as ctx:
             api_client.inject_expectation.ai_expectations_for_source("collector-1")
+
+        # The message should call out the offending element type, not just "list".
+        self.assertIn("str", str(ctx.exception))
 
     def test_http_error_is_mapped_to_list_error(self):
         api_client = OpenAEV("url", "token")

@@ -58,13 +58,21 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         # validation below stays meaningful to type checkers, then build the result list
         # explicitly to satisfy the declared return type.
         raw: Any = self.openaev.http_get(path, **kwargs)
-        if not isinstance(raw, list) or not all(isinstance(item, dict) for item in raw):
+        if not isinstance(raw, list):
             raise exc.OpenAEVParsingError(
                 error_message=(
-                    f"Expected a list of AI expectation objects from {path}, "
+                    f"Expected a list of AI expectations from {path}, "
                     f"got {type(raw).__name__}"
                 )
             )
+        for item in raw:
+            if not isinstance(item, dict):
+                raise exc.OpenAEVParsingError(
+                    error_message=(
+                        f"Expected AI expectation objects (dicts) from {path}, "
+                        f"got a list element of type {type(item).__name__}"
+                    )
+                )
         return [item for item in raw]
 
     def expectations_models_for_source(self, source_id: str, **kwargs: Any):
