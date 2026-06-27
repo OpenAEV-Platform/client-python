@@ -54,15 +54,18 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         :rtype: list[dict]
         """
         path = f"{self.path}/ai/{source_id}"
-        result = self.openaev.http_get(path, **kwargs)
-        if not isinstance(result, list):
+        # http_get is annotated Union[Dict, requests.Response]; widen to Any so the list
+        # validation below stays meaningful to type checkers, then build the result list
+        # explicitly to satisfy the declared return type.
+        raw: Any = self.openaev.http_get(path, **kwargs)
+        if not isinstance(raw, list):
             raise exc.OpenAEVParsingError(
                 error_message=(
                     f"Expected a list of AI expectations from {path}, "
-                    f"got {type(result).__name__}"
+                    f"got {type(raw).__name__}"
                 )
             )
-        return result
+        return [item for item in raw]
 
     def expectations_models_for_source(self, source_id: str, **kwargs: Any):
         """Returns all expectations from OpenAEV that have had no result yet

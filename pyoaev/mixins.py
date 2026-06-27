@@ -227,7 +227,7 @@ class DeleteMixin(_RestManagerBase):
     _path: Optional[str]
     openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenAEVCreateError)
+    @exc.on_http_error(exc.OpenAEVDeleteError)
     def delete(
         self, id: Optional[Union[str, int]] = None, **kwargs: Any
     ) -> requests.Response:

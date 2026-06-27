@@ -72,6 +72,18 @@ class TestAiTargetManager(TestCase):
         self.assertEqual(kwargs["method"], "delete")
         self.assertEqual(kwargs["url"], "url/api/ai_targets/asset-123")
 
+    def test_delete_http_error_is_mapped_to_delete_error(self):
+        from pyoaev import OpenAEV
+        from pyoaev.exceptions import OpenAEVDeleteError, OpenAEVHttpError
+
+        api_client = OpenAEV("url", "token")
+
+        with mock.patch.object(
+            OpenAEV, "http_delete", side_effect=OpenAEVHttpError("boom")
+        ):
+            with self.assertRaises(OpenAEVDeleteError):
+                api_client.ai_target.delete("asset-123")
+
 
 if __name__ == "__main__":
     main()
