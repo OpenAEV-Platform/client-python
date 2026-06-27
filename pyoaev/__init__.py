@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = "2.260622.0"
+__version__ = "2.260627.0"
 
 from pyoaev._version import (  # noqa: F401
     __author__,
@@ -7,6 +7,12 @@ from pyoaev._version import (  # noqa: F401
     __email__,
     __license__,
     __title__,
+)
+from pyoaev.asset_types import (  # noqa: F401
+    AssetCategory,
+    AssetCriticality,
+    AssetSubCategory,
+    CloudProvider,
 )
 from pyoaev.client import OpenAEV  # noqa: F401
 from pyoaev.configuration import *  # noqa: F401,F403,F405
@@ -22,5 +28,9 @@ __all__ = [
     "__title__",
     "__version__",
     "OpenAEV",
+    "AssetCategory",
+    "AssetSubCategory",
+    "CloudProvider",
+    "AssetCriticality",
 ]
 __all__.extend(exceptions.__all__)  # noqa: F405

@@ -1,7 +1,7 @@
 from unittest import TestCase, main, mock
 from unittest.mock import ANY
 
-from pyoaev import OpenAEV
+from pyoaev import AssetCategory, AssetSubCategory, CloudProvider, OpenAEV
 from pyoaev.apis.inputs.search import Filter, FilterGroup, SearchPaginationInput
 
 
@@ -51,6 +51,50 @@ class TestInjectorContract(TestCase):
             headers=ANY,
             auth=ANY,
         )
+
+
+class TestEndpointCategorization(TestCase):
+    @mock.patch("requests.Session.request", side_effect=mock_response)
+    def test_upsert_web_application_without_platform(self, mock_request):
+        api_client = OpenAEV("url", "token")
+        data = {
+            "asset_name": "Filigran website",
+            "asset_category": AssetCategory.WEB_APPLICATION,
+            "asset_subcategory": AssetSubCategory.WEBSITE,
+            "endpoint_url": "https://filigran.io",
+            "asset_internet_facing": True,
+        }
+
+        api_client.endpoint.upsert(data)
+
+        mock_request.assert_called_once()
+        _, kwargs = mock_request.call_args
+        self.assertEqual(kwargs["method"], "post")
+        self.assertEqual(kwargs["url"], "url/api/endpoints/agentless/upsert")
+        self.assertEqual(kwargs["json"]["asset_category"], "WEB_APPLICATION")
+        # A category-driven asset can be upserted without platform / arch.
+        self.assertNotIn("endpoint_platform", kwargs["json"])
+        self.assertNotIn("endpoint_arch", kwargs["json"])
+
+    @mock.patch("requests.Session.request", side_effect=mock_response)
+    def test_upsert_cloud_resource(self, mock_request):
+        api_client = OpenAEV("url", "token")
+        data = {
+            "asset_name": "prod-bucket",
+            "asset_category": AssetCategory.CLOUD_RESOURCE,
+            "asset_subcategory": AssetSubCategory.STORAGE,
+            "asset_cloud_provider": CloudProvider.AWS,
+            "asset_cloud_native_type": "s3_bucket",
+            "asset_cloud_region": "eu-west-1",
+        }
+
+        api_client.endpoint.upsert(data)
+
+        mock_request.assert_called_once()
+        _, kwargs = mock_request.call_args
+        self.assertEqual(kwargs["url"], "url/api/endpoints/agentless/upsert")
+        self.assertEqual(kwargs["json"]["asset_cloud_provider"], "AWS")
+        self.assertEqual(kwargs["json"]["asset_cloud_native_type"], "s3_bucket")
 
 
 if __name__ == "__main__":
