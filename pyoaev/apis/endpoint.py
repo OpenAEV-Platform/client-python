@@ -13,16 +13,29 @@ class Endpoint(RESTObject):
 class EndpointManager(RESTManager):
     _path = "/endpoints"
     _obj_cls = Endpoint
+    # endpoint_platform / endpoint_arch are optional: agents and collectors always provide
+    # them, while category-driven assets (web app, cloud, network, ...) may omit them - the
+    # platform defaults them to "Unknown" server-side.
     _create_attrs = RequiredOptional(
-        required=(
+        required=("asset_name",),
+        optional=(
             "endpoint_hostname",
             "endpoint_platform",
             "endpoint_arch",
-        ),
-        optional=(
-            "endpoint_mac_addresses",
             "endpoint_ips",
+            "endpoint_mac_addresses",
+            "endpoint_url",
+            "asset_description",
             "asset_external_reference",
+            "asset_tags",
+            "asset_category",
+            "asset_subcategory",
+            "asset_criticality",
+            "asset_internet_facing",
+            "asset_cloud_provider",
+            "asset_cloud_native_type",
+            "asset_cloud_region",
+            "asset_metadata",
         ),
     )
 
