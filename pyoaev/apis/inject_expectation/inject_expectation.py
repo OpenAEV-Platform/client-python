@@ -40,7 +40,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         )
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @exc.on_http_error(exc.OpenAEVListError)
     def ai_expectations_for_source(
         self, source_id: str, **kwargs: Any
     ) -> List[Dict[str, Any]]:
@@ -49,7 +49,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
 
         :param source_id: the identifier of the collector requesting expectations
         :type source_id: str
-        :raises OpenAEVParsingError: if the server does not return a JSON list
+        :raises OpenAEVParsingError: if the server does not return a JSON list of dicts
         :return: a list of agentless detection/prevention expectation dicts
         :rtype: list[dict]
         """
@@ -58,10 +58,10 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         # validation below stays meaningful to type checkers, then build the result list
         # explicitly to satisfy the declared return type.
         raw: Any = self.openaev.http_get(path, **kwargs)
-        if not isinstance(raw, list):
+        if not isinstance(raw, list) or not all(isinstance(item, dict) for item in raw):
             raise exc.OpenAEVParsingError(
                 error_message=(
-                    f"Expected a list of AI expectations from {path}, "
+                    f"Expected a list of AI expectation objects from {path}, "
                     f"got {type(raw).__name__}"
                 )
             )

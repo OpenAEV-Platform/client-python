@@ -1,7 +1,7 @@
 from unittest import TestCase, main, mock
 
 from pyoaev import OpenAEV
-from pyoaev.exceptions import OpenAEVParsingError
+from pyoaev.exceptions import OpenAEVHttpError, OpenAEVListError, OpenAEVParsingError
 
 
 def make_json_response(payload):
@@ -43,6 +43,23 @@ class TestAiExpectationsForSource(TestCase):
 
         with self.assertRaises(OpenAEVParsingError):
             api_client.inject_expectation.ai_expectations_for_source("collector-1")
+
+    @mock.patch("requests.Session.request")
+    def test_raises_parsing_error_when_elements_not_dicts(self, mock_request):
+        mock_request.return_value = make_json_response(["not", "a", "dict"])
+        api_client = OpenAEV("url", "token")
+
+        with self.assertRaises(OpenAEVParsingError):
+            api_client.inject_expectation.ai_expectations_for_source("collector-1")
+
+    def test_http_error_is_mapped_to_list_error(self):
+        api_client = OpenAEV("url", "token")
+
+        with mock.patch.object(
+            OpenAEV, "http_get", side_effect=OpenAEVHttpError("boom")
+        ):
+            with self.assertRaises(OpenAEVListError):
+                api_client.inject_expectation.ai_expectations_for_source("collector-1")
 
 
 if __name__ == "__main__":
