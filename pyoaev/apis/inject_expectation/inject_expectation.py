@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from pyoaev import exceptions as exc
 from pyoaev.apis.inject_expectation.model import (
@@ -39,6 +39,41 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
             **kwargs,
         )
         return result
+
+    @exc.on_http_error(exc.OpenAEVListError)
+    def ai_expectations_for_source(
+        self, source_id: str, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
+        """Returns agentless DETECTION/PREVENTION expectations (AI adversarial injects) not yet
+        filled for the given source. Used by AI defense collectors (LLM firewall / guardrail).
+
+        :param source_id: the identifier of the collector requesting expectations
+        :type source_id: str
+        :raises OpenAEVParsingError: if the server does not return a JSON list of dicts
+        :return: a list of agentless detection/prevention expectation dicts
+        :rtype: list[dict]
+        """
+        path = f"{self.path}/ai/{source_id}"
+        # http_get is annotated Union[Dict, requests.Response]; widen to Any so the list
+        # validation below stays meaningful to type checkers, then build the result list
+        # explicitly to satisfy the declared return type.
+        raw: Any = self.openaev.http_get(path, **kwargs)
+        if not isinstance(raw, list):
+            raise exc.OpenAEVParsingError(
+                error_message=(
+                    f"Expected a list of AI expectations from {path}, "
+                    f"got {type(raw).__name__}"
+                )
+            )
+        for item in raw:
+            if not isinstance(item, dict):
+                raise exc.OpenAEVParsingError(
+                    error_message=(
+                        f"Expected AI expectation objects (dicts) from {path}, "
+                        f"got a list element of type {type(item).__name__}"
+                    )
+                )
+        return [item for item in raw]
 
     def expectations_models_for_source(self, source_id: str, **kwargs: Any):
         """Returns all expectations from OpenAEV that have had no result yet
