@@ -19,6 +19,7 @@ class TestTokenAuth(unittest.TestCase):
             f"Bearer {token}",
         )
 
+
 class TestRequestsReponse(unittest.TestCase):
     def test_init_and_properties(self):
         response = MagicMock()
@@ -30,6 +31,7 @@ class TestRequestsReponse(unittest.TestCase):
         self.assertEqual(response.headers, rr.headers)
         self.assertEqual(response.content, rr.content)
         self.assertEqual(response.reason, rr.reason)
+
 
 class TestRequestsBackend(unittest.TestCase):
     def test_no_cookie_allowed(self):

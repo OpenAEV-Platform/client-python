@@ -3,8 +3,11 @@ import unittest
 from unittest.mock import patch
 
 from pydantic_settings import BaseSettings
+
 from pyoaev.configuration import Configuration
-from pyoaev.configuration.connector_config_schema_generator import ConnectorConfigSchemaGenerator
+from pyoaev.configuration.connector_config_schema_generator import (
+    ConnectorConfigSchemaGenerator,
+)
 
 TEST_CONFIG_HINTS = {
     "string_config_direct": {"data": "this is string_config_direct"},
@@ -265,8 +268,10 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(
             _schema,
             BaseSettings.model_json_schema(
-                by_alias=False, schema_generator=ConnectorConfigSchemaGenerator, mode="validation"
-            )
+                by_alias=False,
+                schema_generator=ConnectorConfigSchemaGenerator,
+                mode="validation",
+            ),
         )
 
 

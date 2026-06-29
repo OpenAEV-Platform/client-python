@@ -40,7 +40,6 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: pyoaev
           fail_ci_if_error: false
           verbose: true
 
