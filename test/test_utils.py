@@ -67,6 +67,16 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(TypeError):
             module.EncodedId(cast(Any, ["bad"]))
 
+    def test_enhanced_json_encoder_serializes_not_dataclasses(self):
+        data = {"test": "this is a test", "other": 3}
+        classic_json_dump = json.dumps(data)
+        enhanced_json_dump = json.dumps(data, cls=module.EnhancedJSONEncoder)
+        self.assertFalse(module.dataclasses.is_dataclass(data))
+        self.assertEqual(
+            classic_json_dump,
+            enhanced_json_dump,
+        )
+
     def test_enhanced_json_encoder_serializes_dataclasses(self):
         self.assertEqual(
             json.dumps(_SampleData(value=3), cls=module.EnhancedJSONEncoder),
