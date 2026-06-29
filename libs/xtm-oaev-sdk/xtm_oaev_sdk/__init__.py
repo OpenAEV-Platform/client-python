@@ -7,6 +7,7 @@ from ._core.errors import (
     ConfigurationError,
     OpenAEVAuthenticationError,
     OpenAEVCreateError,
+    OpenAEVDeleteError,
     OpenAEVError,
     OpenAEVGetError,
     OpenAEVHeadError,
@@ -136,12 +137,21 @@ from ._core.signatures import (
     build_network_configs,
 )
 
+# Asset types
+from ._core.asset_types import (
+    AssetCategory,
+    AssetCriticality,
+    AssetSubCategory,
+    CloudProvider,
+)
+
 __all__ = [
     "__version__",
     # errors
     "ConfigurationError",
     "OpenAEVAuthenticationError",
     "OpenAEVCreateError",
+    "OpenAEVDeleteError",
     "OpenAEVError",
     "OpenAEVGetError",
     "OpenAEVHeadError",
@@ -248,4 +258,9 @@ __all__ = [
     "ToolOutput",
     "ToolTimeoutInfo",
     "build_network_configs",
+    # asset_types
+    "AssetCategory",
+    "AssetCriticality",
+    "AssetSubCategory",
+    "CloudProvider",
 ]

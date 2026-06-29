@@ -236,6 +236,12 @@ class OpenAEVCreateError(OpenAEVError):
     pass
 
 
+class OpenAEVDeleteError(OpenAEVError):
+    """DELETE request failure."""
+
+    pass
+
+
 class SignatureTransmissionError(OpenAEVError):
     """Signature delivery failure.
 
