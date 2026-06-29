@@ -11,6 +11,7 @@ from pyoaev.apis.signature import SignatureApiManager
 from pyoaev.exceptions import OpenAEVUpdateError, SignatureTransmissionError
 from pyoaev.signatures.models import ExecutionDetails
 from pyoaev.signatures.signature_manager import SignatureManager
+from pyoaev.signatures.types import ExecutionStatus
 
 
 @scenario(
@@ -185,7 +186,7 @@ def compiled_post_execution_payload(context, inject_id):
 @given(parsers.parse("an updated post-execution execution details object"))
 def updated_post_execution_execution_details(context):
     execution_details = ExecutionDetails(
-        execution_status="SUCCESS",
+        execution_status=ExecutionStatus.EXECUTED,
         execution_action="complete",
     )
     execution_details.end_time = execution_details.start_time + timedelta(0.1)
