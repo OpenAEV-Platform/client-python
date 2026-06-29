@@ -97,8 +97,7 @@ debug_hint = log_hint.model_copy(update={"data": "debug"})
 ### Resolving configuration values
 
 ```python
-from xtm_oaev_sdk._core.configuration.configuration import Configuration  # concrete class
-from xtm_oaev_sdk import ConfigurationProtocol
+from xtm_oaev_sdk import Configuration, ConfigurationProtocol
 
 config = Configuration(
     {
@@ -151,20 +150,18 @@ assert isinstance(StubConfig({}), ConfigurationProtocol)
 ### Building a contract with `ContractBuilder`
 
 ```python
-from xtm_oaev_sdk._core.contracts.contract_builder import ContractBuilder
-from xtm_oaev_sdk._core.contracts.contract_config import (
+from xtm_oaev_sdk import ContractBuilder, ContractBuilderProtocol, ContractExpectationType
+from xtm_oaev_sdk import (
     ContractText,
     ContractCheckbox,
     ContractSelect,
     ContractAsset,
     ContractExpectations,
-    ContractExpectationType,
     Expectation,
     SupportedLanguage,
     ContractConfig,
     Contract,
 )
-from xtm_oaev_sdk import ContractBuilderProtocol, ContractExpectationType
 
 builder = ContractBuilder()
 

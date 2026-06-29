@@ -80,7 +80,10 @@ manager.send_signatures("inject-uuid", details, payload)
 | `errors` | Full exception hierarchy rooted at `OpenAEVError`; `on_http_error` decorator for wrapping HTTP failures |
 | `utils` | `AppLoggerProtocol`, `EnhancedJSONEncoder`, `RequiredOptional`, `EncodedId`, dict helpers |
 | `security_domain` | `SecurityDomains` enum: 9 named domains with display name and hex color |
-| `configuration` | `ConfigurationHint` (frozen Pydantic model), `ConfigurationProtocol`, `Configuration` resolver |
+| `client_protocol` | `BaseClient` — `@runtime_checkable` protocol defining the OpenAEV client interface |
+| `daemon_protocol` | `DaemonProtocol` — `@runtime_checkable` protocol for daemon runtimes (`start`, `set_callback`, `get_id`) |
+| `ssl_utils` | `ssl_cert_chain`, `ssl_verify_locations`, `is_memory_certificate`, `data_to_temp_file` — TLS helpers |
+| `configuration` | `ConfigurationHint`, `ConfigurationProtocol`, `Configuration`, loaders, sources, schema generator |
 | `contracts` | `ContractBuilderProtocol`, `ContractExpectationType` (8-member enum), fluent builder for contract field sets |
 | `signatures` | `SignatureManager`, protocols, 10 frozen Pydantic models, enums, `build_network_configs` helper |
 
@@ -99,7 +102,7 @@ Never import from private submodules:
 from xtm_oaev_sdk._core.signatures.signature_manager import SignatureManager
 ```
 
-The 51 symbols listed in `__all__` are the stable public API. Everything under `_core` is an implementation detail.
+The 102 symbols listed in `__all__` are the stable public API. Everything under `_core` is an implementation detail.
 
 ## Documentation
 

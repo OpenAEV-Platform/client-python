@@ -234,7 +234,10 @@ class OpenAEVConfigHelper:
         return self.__config_obj
 
 
-### DEPRECATED
+@_deprecated(
+    "OpenAEVCollectorHelper is deprecated. "
+    "Use 'from pyoaev.daemons import CollectorDaemon' instead."
+)
 class OpenAEVCollectorHelper:
     def __init__(
         self,

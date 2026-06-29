@@ -1,6 +1,6 @@
 # API Overview
 
-`xtm-oaev-sdk` organises its implementation under `xtm_oaev_sdk/_core/` (private). The root `xtm_oaev_sdk/__init__.py` re-exports exactly 51 stable symbols and is the only surface consumers should target.
+`xtm-oaev-sdk` organises its implementation under `xtm_oaev_sdk/_core/` (private). The root `xtm_oaev_sdk/__init__.py` re-exports exactly 102 stable symbols and is the only surface consumers should target.
 
 ```
 xtm_oaev_sdk/
@@ -8,6 +8,9 @@ xtm_oaev_sdk/
   _core/
     errors.py
     utils.py
+    client_protocol.py
+    daemon_protocol.py
+    ssl_utils.py
     security_domain/
     configuration/
     contracts/
@@ -109,9 +112,48 @@ SecurityDomains.NETWORK.value["domain_color"]  # "#009933"
 
 ---
 
+## client_protocol
+
+Protocol defining the OpenAEV API client interface for dependency injection and testing.
+
+### Protocols
+
+| Symbol | Description |
+|---|---|
+| `BaseClient` | `@runtime_checkable` protocol. Defines the public surface an OpenAEV client must expose. Used by extension SDKs for type-hinting without coupling to the concrete `pyoaev.OpenAEV` class. |
+
+---
+
+## daemon_protocol
+
+Behavioral contract for daemon runtimes (injectors and collectors). See [Daemon Protocol](daemon-protocol.md) for full documentation.
+
+### Protocols
+
+| Symbol | Description |
+|---|---|
+| `DaemonProtocol` | `@runtime_checkable` protocol. Methods: `start()`, `set_callback(callback)`, `get_id() -> str | None`. Both `CollectorDaemon` and `InjectorDaemon` satisfy this structurally via `BaseDaemon` inheritance. |
+
+---
+
+## ssl_utils
+
+TLS/SSL helper functions for certificate chain handling and verification.
+
+### Utility functions
+
+| Symbol | Description |
+|---|---|
+| `ssl_cert_chain(url)` | Fetches the full certificate chain from a remote server. Returns list of PEM-encoded certificates. |
+| `ssl_verify_locations(config)` | Returns appropriate CA bundle path or verification settings from configuration. |
+| `is_memory_certificate(cert_data)` | Determines whether certificate data is an in-memory PEM string vs a file path. |
+| `data_to_temp_file(data, suffix)` | Writes in-memory data to a named temporary file. Useful for passing PEM strings to libraries that expect file paths. |
+
+---
+
 ## configuration
 
-Hint-based configuration resolution with multi-source lookup (environment variables, YAML files, explicit overrides). Also exposes a protocol for testing and dependency injection.
+Hint-based configuration resolution with multi-source lookup (environment variables, YAML files, explicit overrides). Also exposes a protocol for testing and dependency injection, plus pre-built loaders for common OpenAEV connector patterns.
 
 ### Protocols
 
@@ -124,13 +166,36 @@ Hint-based configuration resolution with multi-source lookup (environment variab
 | Symbol | Kind | Description |
 |---|---|---|
 | `ConfigurationHint` | Pydantic model (frozen) | Describes where a single config value can be found. Fields: `data` (override), `env` (env var name), `file_path` (YAML path list), `is_number` (coerce to int), `default`. Use `model_copy(update=...)` to derive modified hints. |
+| `Configuration` | Class | Accepts a `dict[str, dict | str]` of hints and resolves values with priority: set() > env > YAML > default. |
+| `BaseConfigModel` | Pydantic model | Base for typed config models with schema generation support. |
+| `ConfigLoaderCollector` | Class | Pre-built loader for collector configuration keys (collector_id, collector_name, etc.). |
+| `ConfigLoaderOAEV` | Class | Pre-built loader for OpenAEV platform connection keys (url, token, tenant_id). |
+| `SettingsLoader` | Class | Generic settings loader supporting config files and environment variables. |
+| `ConnectorConfigSchemaGenerator` | Class | Generates JSON Schema from typed config models for documentation and validation. |
 
-The concrete `Configuration` class (not re-exported from the root) accepts a `dict[str, dict | str]` of hints and resolves values in this priority order:
+### Sources
 
-1. Explicit `set()` override
-2. Environment variable (`env` hint)
-3. YAML file value (`file_path` hint)
-4. Default value (`default` hint)
+| Symbol | Kind | Description |
+|---|---|---|
+| `DictionarySource` | Class | Configuration source that reads from an in-memory dict. |
+| `EnvironmentSource` | Class | Configuration source that reads from environment variables. |
+
+### Validators
+
+| Symbol | Kind | Description |
+|---|---|---|
+| `HttpUrlToString` | Annotated type | Pydantic validator that coerces `HttpUrl` to plain `str`. |
+| `LogLevelToLower` | Annotated type | Pydantic validator that normalises log level strings to lowercase. |
+| `TimedeltaInSeconds` | Annotated type | Pydantic validator that coerces `timedelta` to integer seconds. |
+
+### Logging
+
+| Symbol | Kind | Description |
+|---|---|---|
+| `AppLogger` | Class | Structured logger with JSON formatting support. |
+| `CustomJsonFormatter` | Class | JSON log formatter for structured logging pipelines. |
+| `setup_logging_config` | Function | Configures Python logging with appropriate handlers and formatters. |
+| `logger` | Function | Factory function returning an `AppLogger` instance for a given level. |
 
 ---
 
