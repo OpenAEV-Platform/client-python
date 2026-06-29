@@ -39,6 +39,9 @@ from ._core.security_domain import SecurityDomains
 # Client protocol
 from ._core.client_protocol import BaseClient
 
+# Daemon protocol
+from ._core.daemon_protocol import DaemonProtocol
+
 # SSL utilities
 from ._core.ssl_utils import (
     data_to_temp_file,
@@ -164,6 +167,8 @@ __all__ = [
     "SecurityDomains",
     # client_protocol
     "BaseClient",
+    # daemon_protocol
+    "DaemonProtocol",
     # ssl_utils
     "data_to_temp_file",
     "is_memory_certificate",

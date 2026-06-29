@@ -167,7 +167,10 @@ def test_base_daemon_structurally_satisfies_daemon_protocol() -> None:
 
     config = MagicMock()
     config.get = MagicMock(return_value=None)
-    daemon = _ConcreteDaemon(configuration=config, callback=lambda: None)
+    api_client = MagicMock()
+    daemon = _ConcreteDaemon(
+        configuration=config, callback=lambda: None, api_client=api_client
+    )
     result = _when_checking_isinstance(daemon, DaemonProtocol)
     _then_isinstance_is_true(result)
 
