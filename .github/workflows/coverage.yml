@@ -27,10 +27,10 @@ jobs:
           uv venv && uv pip install -e '.[dev]' coverage
 
       - name: Run tests with coverage
-        run: uv run coverage run -m pytest
+        run: uv run coverage run -m pytest --junitxml="junit.xml"
 
       - name: Print coverage summary
-        run: uv run coverage report -m --fail-under=70
+        run: uv run coverage report -m --fail-under=80
 
       - name: Generate coverage XML
         run: uv run coverage xml -o coverage.xml
@@ -40,6 +40,12 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: connectors
           fail_ci_if_error: false
           verbose: true
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results

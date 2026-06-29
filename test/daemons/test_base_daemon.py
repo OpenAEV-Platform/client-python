@@ -51,17 +51,21 @@ def create_mock_daemon(callback: callable = None):
     )
 
 
+@unittest.mock.patch("argparse.ArgumentParser")
 class TestBaseDaemon(unittest.TestCase):
-    def test_when_no_callback_when_complete_config_ctor_ok(self):
+    def test_when_no_callback_when_complete_config_ctor_ok(self, _):
         daemon = DaemonForTest(configuration=TEST_DAEMON_CONFIGURATION)
 
         self.assertIsInstance(daemon, BaseDaemon)
 
-    def test_when_no_callback_when_lacking_config_key_ctor_throws(self):
+    def test_when_no_callback_when_lacking_config_key_ctor_throws(self, _):
         with self.assertRaises(Exception):
             DaemonForTest(configuration=Configuration(config_hints={}))
 
-    def test_when_no_callback_daemon_cant_start(self):
+    def test_when_no_callback_daemon_cant_start(self, m_argparser):
+        m_argparser.return_value.parse_args.return_value = unittest.mock.MagicMock(
+            dump_config_schema=False
+        )
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon()
 
         with self.assertRaises(OpenAEVError):
@@ -70,7 +74,10 @@ class TestBaseDaemon(unittest.TestCase):
         mock_setup.assert_not_called()
         mock_start_loop.assert_not_called()
 
-    def test_when_callback_daemon_can_start(self):
+    def test_when_callback_daemon_can_start(self, m_argparser):
+        m_argparser.return_value.parse_args.return_value = unittest.mock.MagicMock(
+            dump_config_schema=False
+        )
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon(lambda: None)
 
         daemon.start()
@@ -78,7 +85,7 @@ class TestBaseDaemon(unittest.TestCase):
         mock_setup.assert_called_once()
         mock_start_loop.assert_called_once()
 
-    def test_when_callback_is_bound_method_daemon_can_call(self):
+    def test_when_callback_is_bound_method_daemon_can_call(self, _):
         daemon, mock_setup, mock_start_loop, inner_mock_func = create_mock_daemon()
         daemon.set_callback(daemon.bound_method)
 
@@ -86,7 +93,7 @@ class TestBaseDaemon(unittest.TestCase):
 
         inner_mock_func.assert_called_once()
 
-    def test_when_callback_is_func_with_collector_parameter_daemon_can_call(self):
+    def test_when_callback_is_func_with_collector_parameter_daemon_can_call(self, _):
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon()
         inner_mock_func = unittest.mock.MagicMock()
         daemon.set_callback(lambda collector: inner_mock_func())
@@ -95,7 +102,7 @@ class TestBaseDaemon(unittest.TestCase):
 
         inner_mock_func.assert_called_once()
 
-    def test_when_callback_is_func_with_other_parameter_daemon_cant_call(self):
+    def test_when_callback_is_func_with_other_parameter_daemon_cant_call(self, _):
         daemon, mock_setup, mock_start_loop, _ = create_mock_daemon()
         inner_mock_func = unittest.mock.MagicMock()
         daemon.set_callback(lambda other_parameter: inner_mock_func())
