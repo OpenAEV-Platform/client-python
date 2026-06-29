@@ -34,20 +34,24 @@ class InjectorDaemon(BaseDaemon):
 
     def _setup(self):
         self.config = {
-            "injector_id": self._configuration.get("injector_id"),
-            "injector_name": self._configuration.get("injector_name"),
-            "injector_type": self._configuration.get("injector_type"),
-            "injector_contracts": self._configuration.get("injector_contracts"),
-            "injector_custom_contracts": self._configuration.get(
-                "injector_custom_contracts"
-            ),
-            "injector_category": self._configuration.get("injector_category"),
-            "injector_executor_commands": self._configuration.get(
-                "injector_executor_commands"
-            ),
-            "injector_executor_clear_commands": self._configuration.get(
-                "injector_executor_clear_commands"
-            ),
+            k: v
+            for k, v in {
+                "injector_id": self._configuration.get("injector_id"),
+                "injector_name": self._configuration.get("injector_name"),
+                "injector_type": self._configuration.get("injector_type"),
+                "injector_contracts": self._configuration.get("injector_contracts"),
+                "injector_custom_contracts": self._configuration.get(
+                    "injector_custom_contracts"
+                ),
+                "injector_category": self._configuration.get("injector_category"),
+                "injector_executor_commands": self._configuration.get(
+                    "injector_executor_commands"
+                ),
+                "injector_executor_clear_commands": self._configuration.get(
+                    "injector_executor_clear_commands"
+                ),
+            }.items()
+            if v is not None
         }
 
         icon_name = self._configuration.get("injector_type") + ".png"
