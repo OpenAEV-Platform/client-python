@@ -1,6 +1,6 @@
 # API Overview
 
-`xtm-oaev-sdk` organises its implementation under `xtm_oaev_sdk/_core/` (private). The root `xtm_oaev_sdk/__init__.py` re-exports exactly 102 stable symbols and is the only surface consumers should target.
+`xtm-oaev-sdk` organises its implementation under `xtm_oaev_sdk/_core/` (private). The root `xtm_oaev_sdk/__init__.py` re-exports exactly 107 stable symbols and is the only surface consumers should target.
 
 ```
 xtm_oaev_sdk/
@@ -38,6 +38,7 @@ OpenAEVError (base)
 ├── OpenAEVUpdateError           — PUT/PATCH failures
 ├── OpenAEVListError             — list/pagination failures
 ├── OpenAEVCreateError           — POST creation failures
+├── OpenAEVDeleteError           — DELETE request failures
 ├── SignatureTransmissionError   — signature delivery failures
 └── ConfigurationError           — configuration loading/validation failures
 ```
@@ -58,6 +59,7 @@ OpenAEVError (base)
 | `OpenAEVUpdateError` | Exception | PUT/PATCH failure. |
 | `OpenAEVListError` | Exception | List/pagination failure. |
 | `OpenAEVCreateError` | Exception | POST creation failure. |
+| `OpenAEVDeleteError` | Exception | DELETE request failure. |
 | `SignatureTransmissionError` | Exception | Signature delivery failure. |
 | `ConfigurationError` | Exception | Config loading/validation failure. |
 | `on_http_error(error)` | Decorator | Wraps `OpenAEVHttpError` into a caller-specified type. |
@@ -260,13 +262,28 @@ The signature lifecycle subsystem: typed injector configs, frozen Pydantic model
 | `SignatureExpectationType` | Enum (3 members) | `DETECTION`, `PREVENTION`, `VULNERABILITY` |
 | `InjectExecutionActions` | Enum (8 members) | `PREREQUISITE_CHECK`, `PREREQUISITE_EXECUTION`, `CLEANUP_EXECUTION`, `COMMAND_EXECUTION`, `DNS_RESOLUTION`, `FILE_EXECUTION`, `FILE_DROP`, `COMPLETE` |
 | `MatchTypes` | Enum (2 members) | `MATCH_TYPE_FUZZY`, `MATCH_TYPE_SIMPLE` |
-| `SignatureTypes` | Enum (13 members) | Field identifiers: `SIG_TYPE_SOURCE_IPV4_ADDRESS`, `SIG_TYPE_TARGET_HOSTNAME_ADDRESS`, `SIG_TYPE_CLOUD_PROVIDER`, etc. |
+| `SignatureTypes` | Enum (15 members) | Field identifiers: `SIG_TYPE_SOURCE_IPV4_ADDRESS`, `SIG_TYPE_TARGET_HOSTNAME_ADDRESS`, `SIG_TYPE_CLOUD_PROVIDER`, `SIG_TYPE_AI_REQUEST_MARKER`, `SIG_TYPE_AI_TARGET_ENDPOINT`, etc. |
 
 ### Utility functions
 
 | Symbol | Description |
 |---|---|
 | `build_network_configs(targets)` | Converts a heterogeneous list of `str`, `dict`, or `NetworkInjectorConfig` items into a typed `list[NetworkInjectorConfig]`. Strings are auto-classified as IPv4, IPv6, or hostname. |
+
+---
+
+## asset_types
+
+Canonical asset taxonomy enums mirroring the OpenAEV backend. Typed `str` enums that drop straight into API dict payloads.
+
+### Enums
+
+| Symbol | Kind | Members |
+|---|---|---|
+| `AssetCategory` | Enum (12 members) | `HOST`, `CONTAINER_WORKLOAD`, `CLOUD_RESOURCE`, `WEB_APPLICATION`, `NETWORK_DEVICE`, `MOBILE_DEVICE`, `IOT_OT_DEVICE`, `IDENTITY`, `SAAS_APPLICATION`, `AI_TARGET`, `SECURITY_PLATFORM`, `GENERIC_ASSET` |
+| `AssetSubCategory` | Enum (55 members) | Per-category subtypes: `SERVER`, `CONTAINER`, `COMPUTE`, `WEBSITE`, `ROUTER`, `LLM_MODEL`, `AI_AGENT`, etc. |
+| `CloudProvider` | Enum (7 members) | `AWS`, `AZURE`, `GCP`, `OCI`, `ALIBABA`, `KUBERNETES`, `OTHER` |
+| `AssetCriticality` | Enum (5 members) | `VERY_HIGH`, `HIGH`, `MEDIUM`, `LOW`, `UNKNOWN` |
 
 ---
 

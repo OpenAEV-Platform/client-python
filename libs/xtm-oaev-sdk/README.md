@@ -86,6 +86,7 @@ manager.send_signatures("inject-uuid", details, payload)
 | `configuration` | `ConfigurationHint`, `ConfigurationProtocol`, `Configuration`, loaders, sources, schema generator |
 | `contracts` | `ContractBuilderProtocol`, `ContractExpectationType` (8-member enum), fluent builder for contract field sets |
 | `signatures` | `SignatureManager`, protocols, 10 frozen Pydantic models, enums, `build_network_configs` helper |
+| `asset_types` | `AssetCategory`, `AssetSubCategory`, `CloudProvider`, `AssetCriticality` — typed taxonomy enums |
 
 ## Import Convention
 
@@ -102,7 +103,7 @@ Never import from private submodules:
 from xtm_oaev_sdk._core.signatures.signature_manager import SignatureManager
 ```
 
-The 102 symbols listed in `__all__` are the stable public API. Everything under `_core` is an implementation detail.
+The 107 symbols listed in `__all__` are the stable public API. Everything under `_core` is an implementation detail.
 
 ## Documentation
 
