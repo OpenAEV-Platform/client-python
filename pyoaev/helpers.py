@@ -2,7 +2,6 @@ import base64
 import json
 import os
 import os.path
-import sched
 import ssl
 import threading
 import time
@@ -14,14 +13,16 @@ from thefuzz import fuzz
 
 import warnings as _warnings
 
-from pyoaev import OpenAEV, utils
+from pyoaev import utils
 from xtm_oaev_sdk import Configuration
 from xtm_oaev_sdk import data_to_temp_file as _sdk_data_to_temp_file
 from xtm_oaev_sdk import is_memory_certificate as _sdk_is_memory_certificate
 from xtm_oaev_sdk import ssl_cert_chain as _sdk_ssl_cert_chain
 from xtm_oaev_sdk import ssl_verify_locations as _sdk_ssl_verify_locations
 from pyoaev.daemons import CollectorDaemon
+from pyoaev.daemons import InjectorDaemon
 from pyoaev.exceptions import ConfigurationError
+from typing_extensions import deprecated as _deprecated
 
 TRUTHY: List[str] = ["yes", "true", "True"]
 FALSY: List[str] = ["no", "false", "False"]
@@ -283,55 +284,43 @@ class OpenAEVCollectorHelper:
         self.__daemon.start()
 
 
+@_deprecated(
+    "OpenAEVInjectorHelper is deprecated. "
+    "Use 'from pyoaev.daemons import InjectorDaemon' instead."
+)
 class OpenAEVInjectorHelper:
+    """Deprecated thin wrapper around InjectorDaemon.
+
+    Legacy callers continue to work unchanged::
+
+        helper = OpenAEVInjectorHelper(config, icon)
+        helper.listen(message_callback=my_callback)
+
+    New code should use InjectorDaemon directly.
+    """
+
     def __init__(self, config: OpenAEVConfigHelper, icon) -> None:
-        self.api = OpenAEV(
-            url=config.get_conf("openaev_url"),
-            token=config.get_conf("openaev_token"),
-            tenant_id=config.get_conf("openaev_tenant_id"),
-        )
-        # Get the mq configuration from api
-        self.config = {
-            "injector_id": config.get_conf("injector_id"),
-            "injector_name": config.get_conf("injector_name"),
-            "injector_type": config.get_conf("injector_type"),
-            "injector_contracts": config.get_conf("injector_contracts"),
-            "injector_custom_contracts": config.get_conf(
-                "injector_custom_contracts", default=False
-            ),
-            "injector_category": config.get_conf("injector_category", default=None),
-            "injector_executor_commands": config.get_conf(
-                "injector_executor_commands", default=None
-            ),
-            "injector_executor_clear_commands": config.get_conf(
-                "injector_executor_clear_commands", default=None
-            ),
-        }
+        config_obj = config.to_configuration()
 
-        self.logger_class = utils.logger(
-            config.get_conf("injector_log_level", default="error").upper(),
-            config.get_conf("injector_json_logging", default=True),
+        self.__daemon = InjectorDaemon(
+            configuration=config_obj,
+            callback=None,
+            icon=icon,
         )
-        self.injector_logger = self.logger_class(config.get_conf("injector_name"))
+        # Eagerly run _setup() so injector_config, ping, config, api
+        # are available immediately after construction (legacy contract).
+        self.__daemon._setup()
 
-        icon_name = config.get_conf("injector_type") + ".png"
-        injector_icon = (icon_name, icon, "image/png")
-        self.injector_config = self.api.injector.create(self.config, injector_icon)
-        self.connect_run_and_terminate = False
-        self.scheduler = sched.scheduler(time.time, time.sleep)
-        # Start ping thread
-        if not self.connect_run_and_terminate:
-            self.ping = PingAlive(
-                self.api, self.config, self.injector_logger, "injector"
-            )
-            self.ping.start()
-        self.listen_queue = None
+        # Legacy attribute aliases
+        self.api = self.__daemon.api
+        self.injector_logger = self.__daemon.logger
+        self.config = self.__daemon.config
+        self.injector_config = self.__daemon.injector_config
+        self.ping = self.__daemon.ping
 
     def listen(self, message_callback: Callable[[Dict], None]) -> None:
-        self.listen_queue = ListenQueue(
-            self.config, self.injector_config, self.injector_logger, message_callback
-        )
-        self.listen_queue.start()
+        self.__daemon.set_callback(message_callback)
+        self.__daemon._start_loop()
 
 
 class OpenAEVDetectionHelper:

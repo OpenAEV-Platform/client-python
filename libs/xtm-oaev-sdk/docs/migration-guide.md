@@ -271,10 +271,32 @@ The following symbols were never in `pyoaev` — they are new extractions from o
 |---|---|
 | `CollectorDaemon` | Platform runtime — constructs OpenAEV API client, spawns PingAlive thread, manages scheduler loop |
 | `BaseDaemon` | Abstract base for all daemon types — tightly coupled to `OpenAEV` client constructor |
-| `OpenAEVCollectorHelper` | Legacy helper wrapping `CollectorDaemon` directly |
-| `OpenAEVInjectorHelper` | Legacy helper wrapping injector daemon lifecycle |
+| `InjectorDaemon` | Platform runtime — constructs OpenAEV API client, spawns PingAlive thread, manages ListenQueue |
+| `OpenAEVCollectorHelper` | **Deprecated** — thin wrapper delegating to `CollectorDaemon` |
+| `OpenAEVInjectorHelper` | **Deprecated** — thin wrapper delegating to `InjectorDaemon` |
 
-These remain at `from pyoaev.daemons import CollectorDaemon` / `BaseDaemon`. All 17+ concrete collectors still import from this path unchanged.
+These remain at `from pyoaev.daemons import CollectorDaemon` / `BaseDaemon` / `InjectorDaemon`. All 17+ concrete collectors and 10+ concrete injectors still import from this path unchanged.
+
+#### Migration: OpenAEVInjectorHelper → InjectorDaemon
+
+```python
+# Before (deprecated)
+from pyoaev.helpers import OpenAEVConfigHelper, OpenAEVInjectorHelper
+
+config = OpenAEVConfigHelper.from_configuration_object(config_obj)
+helper = OpenAEVInjectorHelper(config, open("icon.png", "rb"))
+helper.listen(message_callback=my_callback)
+
+# After
+from pyoaev.daemons import InjectorDaemon
+
+daemon = InjectorDaemon(
+    configuration=config_obj,
+    callback=my_callback,
+    icon=open("icon.png", "rb"),
+)
+daemon.start()
+```
 
 ---
 
