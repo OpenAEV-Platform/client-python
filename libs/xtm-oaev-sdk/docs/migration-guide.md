@@ -230,4 +230,52 @@ Any `DeprecationWarning` pointing at `pyoaev.exceptions`, `pyoaev.signatures`, `
 
 ---
 
+## New Protocols (no shim needed)
+
+These are new abstractions added during the SDK split. They have no legacy import path — no shim is required.
+
+### DaemonProtocol
+
+`DaemonProtocol` captures the behavioral contract shared by `CollectorDaemon` and injector daemon runtimes. It exposes 3 public methods: `start()`, `set_callback()`, `get_id()`.
+
+```python
+from xtm_oaev_sdk import DaemonProtocol
+# or from either extension SDK:
+from injectors_sdk import DaemonProtocol
+from collectors_sdk import DaemonProtocol
+```
+
+pyoaev's `BaseDaemon` satisfies this Protocol structurally with zero changes. See [daemon-protocol.md](daemon-protocol.md) for details.
+
+### BaseClient
+
+`BaseClient` captures the HTTP client behavioral contract. See [api-overview.md](api-overview.md).
+
+---
+
+## Extension SDKs (no shim needed)
+
+The following symbols were never in `pyoaev` — they are new extractions from other sources. No legacy import path exists, no deprecation shim is needed.
+
+| Symbol | Package | Source |
+|---|---|---|
+| `BaseInjector` | `injectors-sdk` | New Protocol (injector lifecycle contract) |
+| `BaseCollector` | `collectors-sdk` | Extracted from `collectors_template/template/` |
+| `BasicCollectorEngine` | `collectors-sdk` | Extracted from `collectors_template/template/` |
+| All collector Protocols, models, errors | `collectors-sdk` | Extracted from `collectors_template/template/` |
+| CLI Engine (`CliEngine`, `CommandSpec`, etc.) | `injectors-sdk` | New (from PoC) |
+
+### What stays in pyoaev (not extracted)
+
+| Symbol | Why |
+|---|---|
+| `CollectorDaemon` | Platform runtime — constructs OpenAEV API client, spawns PingAlive thread, manages scheduler loop |
+| `BaseDaemon` | Abstract base for all daemon types — tightly coupled to `OpenAEV` client constructor |
+| `OpenAEVCollectorHelper` | Legacy helper wrapping `CollectorDaemon` directly |
+| `OpenAEVInjectorHelper` | Legacy helper wrapping injector daemon lifecycle |
+
+These remain at `from pyoaev.daemons import CollectorDaemon` / `BaseDaemon`. All 17+ concrete collectors still import from this path unchanged.
+
+---
+
 *Back to [README](../README.md) | [API Overview](api-overview.md) | [Usage Examples](usage-examples.md)*
