@@ -208,7 +208,7 @@ class ExecutionDetails(BaseModel):
         else:
             self.execution_status = ExecutionStatus.EXECUTED
 
-        self.execution_action = InjectExecutionActions("command_execution")
+        self.execution_action = InjectExecutionActions("data")
 
 
 class SignatureCallbackPayload(BaseModel):
