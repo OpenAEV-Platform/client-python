@@ -24,5 +24,5 @@ Feature: SignatureManager post-execution execution elements update
         And the execution details model contain every previous parameter pair unchanged
         And the end_time parameter in the execution details model is a datetime object
         And this end_time is chronologically greater than or equal to start_time "2024-06-26T06:00:00Z"
-        And the execution_status parameter in the execution details model is equal to "success"
-        And the execution_action parameter in the execution details model is equal to "complete"
+        And the execution_status parameter in the execution details model is equal to "EXECUTED"
+        And the execution_action parameter in the execution details model is equal to "command_execution"

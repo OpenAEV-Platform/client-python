@@ -6,6 +6,7 @@ from pytest_bdd import given, parsers, scenario, then, when
 
 from pyoaev.signatures.models import ExecutionDetails, ExecutionSignature
 from pyoaev.signatures.signature_manager import SignatureManager
+from pyoaev.signatures.types import ExecutionStatus
 
 
 @scenario(
@@ -75,7 +76,7 @@ def execution_signatures():
 )
 def execution_details():
     return ExecutionDetails(
-        execution_status="",
+        execution_status=ExecutionStatus.INFO,
         start_time=datetime.strptime("2024-06-26T06:00:00Z", "%Y-%m-%dT%H:%M:%SZ"),
     )
 
@@ -85,7 +86,7 @@ def execution_details():
     target_fixture="tool_output",
 )
 def successful_tool_output():
-    return {"status": "success"}
+    return {"status": "EXECUTED"}
 
 
 @given(
@@ -203,7 +204,9 @@ def result_contains_datetime_end_time(context):
 )
 @then(parsers.parse('execution_status equals "{status}"'))
 def execution_status_equals(context, status):
-    assert context["execution_details_result"].execution_status == status
+    assert context["execution_details_result"].execution_status == ExecutionStatus(
+        status
+    )
 
 
 @then(

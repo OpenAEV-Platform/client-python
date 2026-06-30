@@ -18,7 +18,7 @@ Feature: SignatureManager post-execution constraints
     Scenario: Tool crash sets execution_status to failed and uses crash timestamp as end_time
         Given a tool_output containing error_info with exit_code=1 and crash_timestamp="2024-06-26T06:05:00Z"
         When I call post_execution_updates with the execution_details, execution_signatures and tool_output
-        Then execution_status equals "failed"
+        Then execution_status equals "ERROR"
         And end_time equals "2024-06-26T06:05:00Z"
         And the execution signature model contains every previous parameter unchanged
         And the execution details model contain every previous parameter pair unchanged
@@ -26,7 +26,7 @@ Feature: SignatureManager post-execution constraints
     Scenario: Timeout sets execution_status to timeout and includes available partial results
         Given a tool_output containing timeout_info with partial_results=["result-A", "result-B"]
         When I call post_execution_updates with the execution_details, execution_signatures and tool_output
-        Then execution_status equals "timeout"
+        Then execution_status equals "TIMEOUT"
         And the returned dict contains the partial results ["result-A", "result-B"] from timeout_info
         And the execution signature model contains every previous parameter unchanged
         And the execution details model contain every previous parameter pair unchanged
@@ -34,6 +34,6 @@ Feature: SignatureManager post-execution constraints
     Scenario: Timeout with no partial results still sets execution_status to timeout
         Given a tool_output containing timeout_info with no partial results available
         When I call post_execution_updates with the execution_details, execution_signatures and tool_output
-        Then execution_status equals "timeout"
+        Then execution_status equals "TIMEOUT"
         And the execution signature model contains every previous parameter unchanged
         And the execution details model contain every previous parameter pair unchanged

@@ -11,6 +11,7 @@ from pyoaev.apis.signature import SignatureApiManager
 from pyoaev.exceptions import OpenAEVUpdateError, SignatureTransmissionError
 from pyoaev.signatures.models import ExecutionDetails
 from pyoaev.signatures.signature_manager import SignatureManager
+from pyoaev.signatures.types import ExecutionStatus
 
 
 @scenario(
@@ -92,7 +93,7 @@ _CANONICAL_SIGNATURE_TARGET = {
 def _extract_targets(body: dict) -> list[dict]:
     """Parse targets from the SignatureCallbackPayload wire format."""
     sig_data = json.loads(body["execution_output_structured"])
-    return sig_data["signatures"]["targets"]
+    return sig_data["expectation_signatures"]["targets"]
 
 
 def _build_signature_payload(
@@ -172,20 +173,20 @@ def signature_manager(context, monkeypatch):
     context["status_plan"] = [200]
     context["error_body"] = ""
     context["inject_id"] = "inject-abc-001"
-    context["signatures"] = _build_signature_payload()
+    context["expectation_signatures"] = _build_signature_payload()
     context["signature_manager"] = SignatureManager(mock_client, logger=logger)
 
 
 @given(parsers.parse('a compiled post-execution payload for inject_id "{inject_id}"'))
 def compiled_post_execution_payload(context, inject_id):
     context["inject_id"] = inject_id
-    context["signatures"] = _build_signature_payload()
+    context["expectation_signatures"] = _build_signature_payload()
 
 
 @given(parsers.parse("an updated post-execution execution details object"))
 def updated_post_execution_execution_details(context):
     execution_details = ExecutionDetails(
-        execution_status="success",
+        execution_status=ExecutionStatus.EXECUTED,
         execution_action="complete",
     )
     execution_details.end_time = execution_details.start_time + timedelta(0.1)
@@ -203,7 +204,7 @@ def compiled_payload_single_target(
     signature_type,
     signature_value,
 ):
-    context["signatures"] = {
+    context["expectation_signatures"] = {
         "targets": [
             {
                 "signature_target": dict(_CANONICAL_SIGNATURE_TARGET),
@@ -230,9 +231,9 @@ def compiled_large_payload(context):
     context["signature_manager"] = SignatureManager(
         context["mock_client"],
         logger=context["logger"],
-        max_payload_size=700,
+        max_payload_size=800,
     )
-    context["signatures"] = {
+    context["expectation_signatures"] = {
         "targets": [
             {
                 "signature_target": {
@@ -335,7 +336,7 @@ def compiled_payload_grouped_by_expectation(
     expectation_a,
     expectation_b,
 ):
-    context["signatures"] = {
+    context["expectation_signatures"] = {
         "targets": [
             {
                 "signature_target": dict(_CANONICAL_SIGNATURE_TARGET),
@@ -376,7 +377,7 @@ def call_send_signatures(context, inject_id):
         context["signature_manager"].send_signatures(
             inject_id,
             context["execution_details"],
-            context["signatures"],
+            context["expectation_signatures"],
         )
     except Exception as exc:
         context["send_exception"] = exc
@@ -498,7 +499,7 @@ def assert_no_chunk_metadata(context):
 
 @then("the union of targets across all POST requests equals the original target set")
 def assert_targets_union_matches_original(context):
-    original_targets = context["signatures"]["targets"]
+    original_targets = context["expectation_signatures"]["targets"]
     sent_targets = [
         target
         for call_item in context["captured_calls"]

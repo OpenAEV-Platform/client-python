@@ -17,7 +17,11 @@ from pydantic import (
     model_validator,
 )
 
-from pyoaev.signatures.types import ExpectationType, InjectExecutionActions
+from pyoaev.signatures.types import (
+    ExecutionStatus,
+    ExpectationType,
+    InjectExecutionActions,
+)
 
 
 class ToolErrorInfo(BaseModel):
@@ -122,7 +126,7 @@ class SignatureOutputStructure(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    signatures: SignaturePayload
+    expectation_signatures: SignaturePayload
 
     def normalize_signature_payload(self) -> None:
         """
@@ -130,7 +134,7 @@ class SignatureOutputStructure(BaseModel):
         """
         normalized_targets: list[TargetSignatures] = []
 
-        for target in self.signatures.targets:
+        for target in self.expectation_signatures.targets:
             if not target.signature_values:
                 normalized_targets.append(target)
                 continue
@@ -156,7 +160,7 @@ class SignatureOutputStructure(BaseModel):
 
             normalized_targets.append(normalized_target)
 
-        self.signatures.targets = normalized_targets
+        self.expectation_signatures.targets = normalized_targets
 
 
 class ExecutionDetails(BaseModel):
@@ -167,14 +171,15 @@ class ExecutionDetails(BaseModel):
     start_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     end_time: datetime | None = None
 
-    execution_status: str = "unknown"
+    execution_status: ExecutionStatus | None = None
     execution_action: InjectExecutionActions | None = None
 
     @computed_field
     @property
     def execution_message(self) -> str:
         action = self.execution_action.value if self.execution_action else "unknown"
-        return f"Current action: {action} - Current status: {self.execution_status}"
+        status = self.execution_action.value if self.execution_action else "unknown"
+        return f"Current action: {action} - Current status: {status}"
 
     @computed_field
     @property
@@ -191,19 +196,19 @@ class ExecutionDetails(BaseModel):
         self.end_time = now
 
         if tool_output.error_info and tool_output.error_info.exit_code != 0:
-            self.execution_status = "failed"
+            self.execution_status = ExecutionStatus.ERROR
             if tool_output.error_info.crash_timestamp:
                 self.end_time = datetime.strptime(
                     tool_output.error_info.crash_timestamp, "%Y-%m-%dT%H:%M:%SZ"
                 )
         elif tool_output.timeout_info:
-            self.execution_status = "timeout"
+            self.execution_status = ExecutionStatus.TIMEOUT
         elif tool_output.status == "partial":
-            self.execution_status = "partial"
+            self.execution_status = ExecutionStatus.ERROR
         else:
-            self.execution_status = "success"
+            self.execution_status = ExecutionStatus.EXECUTED
 
-        self.execution_action = InjectExecutionActions("complete")
+        self.execution_action = InjectExecutionActions("command_execution")
 
 
 class SignatureCallbackPayload(BaseModel):

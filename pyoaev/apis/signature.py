@@ -107,7 +107,7 @@ class SignatureApiManager(RESTManager):
             return
 
         sig_data = json.loads(payload["execution_output_structured"])
-        targets = sig_data["signatures"]["targets"]
+        targets = sig_data["expectation_signatures"]["targets"]
         envelopes = self._split_into_envelopes(
             payload,
             sig_data,
@@ -199,8 +199,8 @@ class SignatureApiManager(RESTManager):
         targets_subset: list[dict[str, Any]],
     ) -> dict[str, Any]:
         subset_sig = dict(sig_data)
-        subset_sig["signatures"] = dict(sig_data["signatures"])
-        subset_sig["signatures"]["targets"] = targets_subset
+        subset_sig["expectation_signatures"] = dict(sig_data["expectation_signatures"])
+        subset_sig["expectation_signatures"]["targets"] = targets_subset
 
         envelope = dict(base_payload)
         envelope["execution_output_structured"] = json.dumps(subset_sig)
