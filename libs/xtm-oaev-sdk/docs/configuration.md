@@ -9,7 +9,7 @@ The configuration subsystem resolves values from multiple sources with a declare
 Configuration is driven by `ConfigurationHint` instances. Each hint describes *where* a single value can be found and what to do when it is absent.
 
 ```python
-from xtm_second_oaev_sdk import ConfigurationHint
+from xtm_oaev_sdk import ConfigurationHint
 
 # From environment variable, fall back to "info"
 log_hint = ConfigurationHint(env="LOG_LEVEL", default="info")
@@ -55,7 +55,7 @@ set() call → data override → env var → YAML file path → default
 `Configuration` accepts a mapping of hint definitions and resolves values on demand.
 
 ```python
-from xtm_second_oaev_sdk import Configuration, ConfigurationProtocol
+from xtm_oaev_sdk import Configuration, ConfigurationProtocol
 
 config = Configuration(
     {
@@ -97,7 +97,7 @@ Implement this for testing without loading real environment variables or YAML fi
 
 ```python
 from typing import Any
-from xtm_second_oaev_sdk import ConfigurationProtocol
+from xtm_oaev_sdk import ConfigurationProtocol
 
 class StubConfig:
     def __init__(self, values: dict[str, Any]) -> None:
@@ -122,7 +122,7 @@ assert isinstance(StubConfig({}), ConfigurationProtocol)  # True
 `SettingsLoader` is a generic pydantic-settings–based loader that supports config files and environment variables. It is the underlying engine behind `ConfigLoaderCollector` and `ConfigLoaderOAEV`.
 
 ```python
-from xtm_second_oaev_sdk import SettingsLoader
+from xtm_oaev_sdk import SettingsLoader
 
 class MySettings(SettingsLoader):
     api_url: str = "http://localhost:8080"
@@ -148,7 +148,7 @@ Two ready-made loaders cover the two configuration shapes found in every OpenAEV
 Loads the platform connection settings:
 
 ```python
-from xtm_second_oaev_sdk import ConfigLoaderOAEV
+from xtm_oaev_sdk import ConfigLoaderOAEV
 
 oaev_config = ConfigLoaderOAEV()
 # Reads: OAEV_URL, OAEV_TOKEN, OAEV_TENANT_ID (or YAML equivalents)
@@ -161,7 +161,7 @@ print(oaev_config.token)
 Loads the collector registration settings:
 
 ```python
-from xtm_second_oaev_sdk import ConfigLoaderCollector
+from xtm_oaev_sdk import ConfigLoaderCollector
 
 collector_config = ConfigLoaderCollector()
 # Reads: COLLECTOR_ID, COLLECTOR_NAME, LOG_LEVEL, etc.
@@ -187,7 +187,7 @@ print(collector_config.collector_name)
 `BaseConfigModel` is the base for typed configuration models with schema generation support. Extend it to declare your connector's configuration shape as a Pydantic model:
 
 ```python
-from xtm_second_oaev_sdk import BaseConfigModel, HttpUrlToString, LogLevelToLower, TimedeltaInSeconds
+from xtm_oaev_sdk import BaseConfigModel, HttpUrlToString, LogLevelToLower, TimedeltaInSeconds
 from datetime import timedelta
 from typing import Annotated
 
@@ -216,7 +216,7 @@ Three annotated type aliases normalise incoming values before they reach your mo
 `ConnectorConfigSchemaGenerator` generates a JSON Schema document from a `BaseConfigModel` subclass. Use this to produce documentation or validation artefacts for your connector's configuration:
 
 ```python
-from xtm_second_oaev_sdk import ConnectorConfigSchemaGenerator, BaseConfigModel
+from xtm_oaev_sdk import ConnectorConfigSchemaGenerator, BaseConfigModel
 
 class MyConfig(BaseConfigModel):
     api_url: str

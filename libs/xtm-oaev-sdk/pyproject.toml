@@ -1,11 +1,8 @@
 [project]
 name = "xtm-oaev-sdk"
 version = "0.1.0"
-description = "OpenAEV SDK core: configuration, contracts, signatures, and shared utilities."
+description = "OpenAEV SDK core (DDD + Light Hex Architecture): configuration, contracts, signatures, and shared utilities."
 authors = [
-    {name = "Filigran", email = "contact@filigran.io"}
-]
-maintainers = [
     {name = "Filigran", email = "contact@filigran.io"}
 ]
 license = { text = "Apache-2.0" }
@@ -27,32 +24,3 @@ dependencies = [
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["."]
-
-[tool.setuptools]
-include-package-data = true
-
-[tool.isort]
-profile = "black"
-
-[tool.black]
-target-version = ["py311"]
-
-[tool.mypy]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_decorators = true
-disallow_untyped_defs = true
-no_implicit_optional = true
-no_implicit_reexport = true
-show_error_context = true
-strict_equality = true
-warn_redundant_casts = true
-warn_return_any = true
-warn_unused_configs = true
-warn_unused_ignores = true

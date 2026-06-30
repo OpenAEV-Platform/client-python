@@ -1,9 +1,9 @@
-"""Public API surface for xtm-second-oaev-sdk. 107 symbols."""
+"""Public API surface for xtm-oaev-sdk. 107 symbols."""
 
 __version__ = "0.1.0"
 
 # --- Common (shared) ---
-from xtm_second_oaev_sdk.contracts.common import (
+from xtm_oaev_sdk.contracts.common import (
     AppLoggerProtocol,
     AssetCategory,
     AssetCriticality,
@@ -28,7 +28,7 @@ from xtm_second_oaev_sdk.contracts.common import (
     SecurityDomains,
     SignatureTransmissionError,
 )
-from xtm_second_oaev_sdk._core.common import (
+from xtm_oaev_sdk._core.common import (
     AppLogger,
     CustomJsonFormatter,
     EnhancedJSONEncoder,
@@ -44,7 +44,7 @@ from xtm_second_oaev_sdk._core.common import (
 )
 
 # --- Configuration ---
-from xtm_second_oaev_sdk.contracts.configuration import (
+from xtm_oaev_sdk.contracts.configuration import (
     BaseConfigModel,
     CONFIGURATION_TYPES,
     ConfigurationHint,
@@ -53,7 +53,7 @@ from xtm_second_oaev_sdk.contracts.configuration import (
     LogLevelToLower,
     TimedeltaInSeconds,
 )
-from xtm_second_oaev_sdk._core.configuration import (
+from xtm_oaev_sdk._core.configuration import (
     ConfigLoaderCollector,
     ConfigLoaderOAEV,
     Configuration,
@@ -64,7 +64,7 @@ from xtm_second_oaev_sdk._core.configuration import (
 )
 
 # --- Contracts (scenarios) ---
-from xtm_second_oaev_sdk.contracts.contracts import (
+from xtm_oaev_sdk.contracts.contracts import (
     Contract,
     ContractAsset,
     ContractAssetGroup,
@@ -94,14 +94,14 @@ from xtm_second_oaev_sdk.contracts.contracts import (
     SupportedLanguage,
     VariableType,
 )
-from xtm_second_oaev_sdk._core.contracts import (
+from xtm_oaev_sdk._core.contracts import (
     ContractBuilder,
     VariableHelper,
     prepare_contracts,
 )
 
 # --- Signatures ---
-from xtm_second_oaev_sdk.contracts.signatures import (
+from xtm_oaev_sdk.contracts.signatures import (
     CloudInjectorConfig,
     ExecutionDetails,
     ExecutionSignature,
@@ -125,7 +125,7 @@ from xtm_second_oaev_sdk.contracts.signatures import (
     ToolOutput,
     ToolTimeoutInfo,
 )
-from xtm_second_oaev_sdk._core.signatures import (
+from xtm_oaev_sdk._core.signatures import (
     SignatureManager,
     SignatureMatch,
     SignatureType,

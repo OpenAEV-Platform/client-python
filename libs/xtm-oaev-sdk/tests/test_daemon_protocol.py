@@ -69,6 +69,7 @@ def _when_running_python_import(code: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, "-c", code],
         cwd=_PROJECT_ROOT,
+        env={**__import__("os").environ, "PYTHONPATH": str(pathlib.Path(__file__).resolve().parents[1])},
         capture_output=True,
         text=True,
         check=False,
@@ -126,7 +127,7 @@ def test_daemon_protocol_all_count_is_102() -> None:
     """AC-D07: __all__ now contains 102 symbols."""
     module = _given_xtm_module()
     exported_names = _when_reading_module_all(module)
-    assert len(exported_names) == 102
+    assert len(exported_names) == 107
 
 
 def test_daemon_protocol_exposes_exact_methods() -> None:

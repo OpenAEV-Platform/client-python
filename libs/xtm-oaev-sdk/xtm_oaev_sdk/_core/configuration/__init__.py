@@ -20,6 +20,7 @@ from .settings_loader import (
     SettingsLoader,
     TimedeltaInSeconds,
 )
+from .sources import DictionarySource, EnvironmentSource
 
 __all__ = [
     "BaseConfigModel",
@@ -30,6 +31,8 @@ __all__ = [
     "ConfigurationHint",
     "ConfigurationProtocol",
     "ConnectorConfigSchemaGenerator",
+    "DictionarySource",
+    "EnvironmentSource",
     "HttpUrlToString",
     "LogLevelToLower",
     "SettingsLoader",
