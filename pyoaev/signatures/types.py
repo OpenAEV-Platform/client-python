@@ -36,6 +36,7 @@ class InjectExecutionActions(str, Enum):
     DNS_RESOLUTION = "dns_resolution"
     FILE_EXECUTION = "file_execution"
     FILE_DROP = "file_drop"
+    DATA = "data"
     COMPLETE = "complete"
 
 
