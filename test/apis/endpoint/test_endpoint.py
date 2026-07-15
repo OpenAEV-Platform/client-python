@@ -61,7 +61,7 @@ class TestEndpointCategorization(TestCase):
             "asset_name": "Filigran website",
             "asset_category": AssetCategory.WEB_APPLICATION,
             "asset_subcategory": AssetSubCategory.WEBSITE,
-            "endpoint_url": "https://filigran.io",
+            "asset_url": "https://filigran.io",
             "asset_internet_facing": True,
         }
 

@@ -13,7 +13,7 @@ class Endpoint(RESTObject):
 class EndpointManager(RESTManager):
     _path = "/endpoints"
     _obj_cls = Endpoint
-    # asset_name is the only required attribute. Everything else - including endpoint_hostname,
+    # asset_name is the only required attribute. Everything else - including asset_hostname,
     # endpoint_platform and endpoint_arch - is optional: agents and collectors typically provide
     # the endpoint fields, while category-driven assets (web app, cloud, network, ...) may omit
     # them and the backend defaults endpoint_platform / endpoint_arch to "Unknown".
