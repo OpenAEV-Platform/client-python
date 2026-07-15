@@ -283,6 +283,7 @@ class ContractAttachment(ContractCardinalityElement):
 class ContractExpectations(ContractCardinalityElement):
     cardinality = ContractCardinality.Multiple
     predefinedExpectations: List[Expectation] = field(default_factory=list)
+    availableExpectations: List[Expectation] = field(default_factory=list)
 
     @property
     def get_type(self) -> str:
