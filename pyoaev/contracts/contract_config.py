@@ -29,6 +29,7 @@ class ContractFieldType(str, Enum):
     Expectation: str = "expectation"
     Asset: str = "asset"
     AssetGroup: str = "asset-group"
+    AiTarget: str = "ai-target"
     Payload: str = "payload"
 
 
@@ -314,6 +315,21 @@ class ContractAssetGroup(ContractCardinalityElement):
     @property
     def get_type(self) -> str:
         return ContractFieldType.AssetGroup.value
+
+
+@dataclass
+class ContractAiTarget(ContractCardinalityElement):
+    """Selector for a pre-configured AiTarget asset (LLM endpoint / AI agent under test).
+
+    Renders in the UI as an entity autocomplete (backed by the platform ``/ai_targets``
+    options endpoint), analogous to the asset / asset group pickers. The selected value is
+    the AiTarget id, resolved by the executing injector at run time. Unlike ``ContractAsset``
+    the key is free-form so a contract can name the field as it wishes.
+    """
+
+    @property
+    def get_type(self) -> str:
+        return ContractFieldType.AiTarget.value
 
 
 @dataclass
