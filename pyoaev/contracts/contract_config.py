@@ -323,8 +323,9 @@ class ContractAiTarget(ContractCardinalityElement):
 
     Renders in the UI as an entity autocomplete (backed by the platform ``/ai_targets``
     options endpoint), analogous to the asset / asset group pickers. The selected value is
-    the AiTarget id, resolved by the executing injector at run time. Unlike ``ContractAsset``
-    the key is free-form so a contract can name the field as it wishes.
+    the AI target's ``asset_id`` (AI targets are AI_TARGET-category assets, see
+    ``AiTarget._id_attr``), resolved by the executing injector at run time. Unlike
+    ``ContractAsset`` the key is free-form so a contract can name the field as it wishes.
     """
 
     @property
