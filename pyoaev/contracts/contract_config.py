@@ -80,6 +80,8 @@ class Expectation:
     expectation_description: str
     expectation_score: int
     expectation_expectation_group: bool
+    expectation_is_predefined: bool = False
+    expectation_is_multi_selectable: bool = False
 
 
 @dataclass
