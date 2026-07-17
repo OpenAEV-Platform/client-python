@@ -284,7 +284,6 @@ class ContractAttachment(ContractCardinalityElement):
 @dataclass
 class ContractExpectations(ContractCardinalityElement):
     cardinality: str = ContractCardinality.Multiple
-    predefinedExpectations: List[Expectation] = field(default_factory=list)
     availableExpectations: List[Expectation] = field(default_factory=list)
 
     @property
