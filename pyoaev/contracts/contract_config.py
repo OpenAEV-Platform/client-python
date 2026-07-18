@@ -285,7 +285,25 @@ class ContractAttachment(ContractCardinalityElement):
 @dataclass
 class ContractExpectations(ContractCardinalityElement):
     cardinality: str = ContractCardinality.Multiple
+    # Full set the user may choose from in the "add expectation" picker.
     availableExpectations: List[Expectation] = field(default_factory=list)
+    # Subset pre-filled by default when the inject / atomic testing is created.
+    # The OpenAEV platform reads this field-level array (not the per-expectation
+    # flag) to pre-populate expectations, so it must be emitted in the contract.
+    predefinedExpectations: List[Expectation] = field(default_factory=list)
+
+    def __post_init__(self):
+        super().__post_init__()
+        # When the caller did not pass an explicit predefined list, derive it from
+        # the expectations flagged predefined in the available set. This keeps the
+        # ergonomic single-list API (flag each Expectation with
+        # expectation_is_predefined=True) working end-to-end on the platform.
+        if not self.predefinedExpectations and self.availableExpectations:
+            self.predefinedExpectations = [
+                expectation
+                for expectation in self.availableExpectations
+                if getattr(expectation, "expectation_is_predefined", False)
+            ]
 
     @property
     def get_type(self) -> str:
