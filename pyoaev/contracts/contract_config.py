@@ -81,6 +81,8 @@ class Expectation:
     expectation_description: str
     expectation_score: int
     expectation_expectation_group: bool
+    expectation_is_predefined: bool = False
+    expectation_is_multi_selectable: bool = False
 
 
 @dataclass
@@ -282,8 +284,8 @@ class ContractAttachment(ContractCardinalityElement):
 
 @dataclass
 class ContractExpectations(ContractCardinalityElement):
-    cardinality = ContractCardinality.Multiple
-    predefinedExpectations: List[Expectation] = field(default_factory=list)
+    cardinality: str = ContractCardinality.Multiple
+    availableExpectations: List[Expectation] = field(default_factory=list)
 
     @property
     def get_type(self) -> str:
