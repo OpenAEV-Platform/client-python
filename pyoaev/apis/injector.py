@@ -22,5 +22,9 @@ class InjectorManager(GetMixin, ListMixin, CreateMixin, UpdateMixin, RESTManager
             "injector_category",
             "injector_executor_commands",
             "injector_executor_clear_commands",
+            # Publisher/author of the injector's contracts, declared in the
+            # connector source code (not user config). The platform attributes
+            # every contract of this injector to an organization of this name.
+            "injector_author",
         ),
     )
