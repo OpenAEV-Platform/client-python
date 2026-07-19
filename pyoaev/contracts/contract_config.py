@@ -2,7 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pyoaev import utils
 from pyoaev.contracts.contract_utils import ContractCardinality, ContractVariable
@@ -285,7 +285,28 @@ class ContractAttachment(ContractCardinalityElement):
 @dataclass
 class ContractExpectations(ContractCardinalityElement):
     cardinality: str = ContractCardinality.Multiple
+    # Full set the user may choose from in the "add expectation" picker.
     availableExpectations: List[Expectation] = field(default_factory=list)
+    # Subset pre-filled by default when the inject / atomic testing is created.
+    # The OpenAEV platform reads this field-level array (not the per-expectation
+    # flag) to pre-populate expectations, so it must be emitted in the contract.
+    # None means "not provided": the list is then derived from the expectations
+    # flagged expectation_is_predefined=True. Pass an explicit list (possibly
+    # empty) to override the derivation.
+    predefinedExpectations: Optional[List[Expectation]] = None
+
+    def __post_init__(self):
+        super().__post_init__()
+        # When the caller did not pass an explicit predefined list, derive it from
+        # the expectations flagged predefined in the available set. This keeps the
+        # ergonomic single-list API (flag each Expectation with
+        # expectation_is_predefined=True) working end-to-end on the platform.
+        if self.predefinedExpectations is None:
+            self.predefinedExpectations = [
+                expectation
+                for expectation in self.availableExpectations
+                if expectation.expectation_is_predefined
+            ]
 
     @property
     def get_type(self) -> str:
