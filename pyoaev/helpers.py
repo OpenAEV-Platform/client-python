@@ -340,6 +340,8 @@ class OpenAEVInjectorHelper:
             "injector_executor_clear_commands": config.get_conf(
                 "injector_executor_clear_commands", default=None
             ),
+            # Publisher/author of the injector's contracts (source-declared).
+            "injector_author": config.get_conf("injector_author", default=None),
         }
 
         self.logger_class = utils.logger(
