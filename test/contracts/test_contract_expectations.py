@@ -72,6 +72,25 @@ class TestContractExpectations(unittest.TestCase):
             [e["expectation_type"] for e in data["predefinedExpectations"]],
         )
 
+    def test_explicit_empty_list_overrides_flags(self):
+        """
+        An explicit empty ``predefinedExpectations`` list must suppress the
+        derivation even when some available expectations carry the predefined
+        flag, while still serializing as an (empty) array.
+        """
+        field = ContractExpectations(
+            key="expectations",
+            label="Expectations",
+            availableExpectations=[
+                _expectation(ExpectationType.detection, "Detection", True),
+            ],
+            predefinedExpectations=[],
+        )
+
+        data = _serialize(field)
+
+        self.assertEqual([], data["predefinedExpectations"])
+
     def test_no_flag_yields_no_predefined(self):
         field = ContractExpectations(
             key="expectations",
