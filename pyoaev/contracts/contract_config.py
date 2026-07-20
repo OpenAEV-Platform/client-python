@@ -78,8 +78,9 @@ class SecurityPlatformType(str, Enum):
     """Categories of security platform expected to fulfil a technical expectation.
 
     When an expectation declares one or more of these, the platform focuses the
-    detection/prevention result on collectors of those types only (instead of every
-    connected security platform). An empty list means "any security platform".
+    technical (DETECTION / PREVENTION / VULNERABILITY) result on collectors of
+    those types only (instead of every connected security platform). An empty
+    list means "any security platform".
     """
 
     EDR: str = "EDR"
@@ -102,8 +103,8 @@ class Expectation:
     expectation_is_predefined: bool = False
     expectation_is_multi_selectable: bool = False
     # Security platform types expected to fulfil this expectation. Empty = any
-    # platform (unchanged behaviour). Typically set for DETECTION / PREVENTION,
-    # left empty for MANUAL expectations.
+    # platform (unchanged behaviour). Typically set for technical expectations
+    # (DETECTION / PREVENTION / VULNERABILITY), left empty for MANUAL ones.
     expectation_expected_security_platform_types: List[SecurityPlatformType] = field(
         default_factory=list
     )
