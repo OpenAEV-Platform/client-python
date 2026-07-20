@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import List
+from typing import Any, List
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from thefuzz import fuzz
 
 from pyoaev.signatures.signature_type import SignatureType
@@ -41,10 +41,20 @@ class Expectation(BaseModel):
     """
 
     inject_expectation_id: UUID
-    inject_expectation_signatures: List[ExpectationSignature]
+    inject_expectation_signatures: List[ExpectationSignature] = Field(
+        default_factory=list
+    )
 
     success_label: str = "Success"
     failure_label: str = "Failure"
+
+    @field_validator("inject_expectation_signatures", mode="before")
+    @classmethod
+    def _coerce_none_signatures_to_empty(cls, value: Any) -> Any:
+        # The platform serializes this field as null when an expectation has no
+        # signatures yet. Without this, a single such expectation raises a
+        # ValidationError that aborts the whole batch fetch (collectors#490).
+        return [] if value is None else value
 
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
