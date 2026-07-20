@@ -7,10 +7,11 @@ from pyoaev.contracts.contract_config import (
     ContractExpectations,
     Expectation,
     ExpectationType,
+    SecurityPlatformType,
 )
 
 
-def _expectation(expectation_type, name, is_predefined):
+def _expectation(expectation_type, name, is_predefined, expected_platforms=None):
     return Expectation(
         expectation_type=expectation_type,
         expectation_name=name,
@@ -18,6 +19,7 @@ def _expectation(expectation_type, name, is_predefined):
         expectation_score=100,
         expectation_expectation_group=False,
         expectation_is_predefined=is_predefined,
+        expectation_expected_security_platform_types=expected_platforms or [],
     )
 
 
@@ -103,6 +105,59 @@ class TestContractExpectations(unittest.TestCase):
         data = _serialize(field)
 
         self.assertEqual([], data["predefinedExpectations"])
+
+    def test_expected_security_platform_types_default_empty(self):
+        """An expectation without declared platforms serializes an empty list."""
+        field = ContractExpectations(
+            key="expectations",
+            label="Expectations",
+            availableExpectations=[
+                _expectation(ExpectationType.detection, "Detection", True),
+            ],
+        )
+
+        data = _serialize(field)
+
+        self.assertEqual(
+            [],
+            data["availableExpectations"][0][
+                "expectation_expected_security_platform_types"
+            ],
+        )
+
+    def test_expected_security_platform_types_serialize(self):
+        """Declared platform types serialize as their string values on both
+        the available and predefined arrays."""
+        field = ContractExpectations(
+            key="expectations",
+            label="Expectations",
+            availableExpectations=[
+                _expectation(
+                    ExpectationType.detection,
+                    "Detection",
+                    True,
+                    expected_platforms=[
+                        SecurityPlatformType.EDR,
+                        SecurityPlatformType.XDR,
+                    ],
+                ),
+            ],
+        )
+
+        data = _serialize(field)
+
+        self.assertEqual(
+            ["EDR", "XDR"],
+            data["availableExpectations"][0][
+                "expectation_expected_security_platform_types"
+            ],
+        )
+        self.assertEqual(
+            ["EDR", "XDR"],
+            data["predefinedExpectations"][0][
+                "expectation_expected_security_platform_types"
+            ],
+        )
 
 
 if __name__ == "__main__":
