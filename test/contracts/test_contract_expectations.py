@@ -12,6 +12,11 @@ from pyoaev.contracts.contract_config import (
 
 
 def _expectation(expectation_type, name, is_predefined, expected_platforms=None):
+    # Only pass the field when declared so the default (None) path exercises
+    # the dataclass default_factory instead of an explicit empty list.
+    kwargs = {}
+    if expected_platforms is not None:
+        kwargs["expectation_expected_security_platform_types"] = expected_platforms
     return Expectation(
         expectation_type=expectation_type,
         expectation_name=name,
@@ -19,7 +24,7 @@ def _expectation(expectation_type, name, is_predefined, expected_platforms=None)
         expectation_score=100,
         expectation_expectation_group=False,
         expectation_is_predefined=is_predefined,
-        expectation_expected_security_platform_types=expected_platforms or [],
+        **kwargs,
     )
 
 
