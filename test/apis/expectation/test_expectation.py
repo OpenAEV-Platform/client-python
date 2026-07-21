@@ -333,6 +333,43 @@ class TestExpectation(unittest.TestCase):
 
         self.assertFalse(matched)
 
+    def test_when_signatures_is_none_it_is_coerced_to_empty_list(self):
+        # The platform may serialize inject_expectation_signatures as null; parsing
+        # must not raise, otherwise a single such expectation aborts the whole
+        # batch fetch (collectors#490).
+        for model_cls in (DetectionExpectation, PreventionExpectation):
+            model = model_cls(
+                **{
+                    "inject_expectation_id": uuid4(),
+                    "inject_expectation_signatures": None,
+                },
+                api_client=create_mock_api_client(),
+            )
+            self.assertEqual(model.inject_expectation_signatures, [])
+
+    def test_when_signatures_is_missing_it_defaults_to_empty_list(self):
+        model = DetectionExpectation(
+            **{"inject_expectation_id": uuid4()},
+            api_client=create_mock_api_client(),
+        )
+        self.assertEqual(model.inject_expectation_signatures, [])
+
+    def test_when_signatures_provided_they_are_preserved(self):
+        model = DetectionExpectation(
+            **{
+                "inject_expectation_id": uuid4(),
+                "inject_expectation_signatures": [
+                    {
+                        "type": SignatureTypes.SIG_TYPE_PARENT_PROCESS_NAME,
+                        "value": "parent.exe",
+                    },
+                ],
+            },
+            api_client=create_mock_api_client(),
+        )
+        self.assertEqual(len(model.inject_expectation_signatures), 1)
+        self.assertEqual(model.inject_expectation_signatures[0].value, "parent.exe")
+
 
 if __name__ == "__main__":
     unittest.main()
