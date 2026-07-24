@@ -129,3 +129,8 @@ class ConfigLoaderCollector(BaseConfigModel):
     icon_filepath: str | None = Field(
         description="Path to the icon file of the collector.",
     )
+    author: str | None = Field(
+        default=None,
+        description="Optional author override for the connector's payloads and contracts. "
+        "When absent, the platform attributes them to the connector's name.",
+    )
