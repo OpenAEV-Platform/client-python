@@ -19,7 +19,13 @@ class CollectorManager(GetMixin, ListMixin, CreateMixin, UpdateMixin, RESTManage
             "collector_name",
             "collector_type",
             "collector_period",
-        )
+        ),
+        optional=(
+            "collector_security_platform",
+            # Source-declared author override for the collector's payloads and
+            # contracts. When absent, the platform uses the collector name.
+            "collector_author",
+        ),
     )
 
     @exc.on_http_error(exc.OpenAEVUpdateError)

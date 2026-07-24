@@ -16,6 +16,9 @@ class CollectorDaemon(BaseDaemon):
     `collector_period`: time to wait in seconds between each loop execution; note
     that this time is added to the time the loop takes to run, so the actual total
     time between each loop start is time_of_loop+period.
+    `collector_author` (optional): source-declared author override for the
+    collector's payloads and contracts; when absent, the platform attributes
+    them to the collector's name.
     """
 
     def __init__(
@@ -62,6 +65,9 @@ class CollectorDaemon(BaseDaemon):
                 "collector_type": self.collector_type,
                 "collector_period": self._configuration.get("collector_period"),
                 "collector_security_platform": security_platform_id,
+                # Optional author override; None lets the platform fall back to
+                # the collector name.
+                "collector_author": self._configuration.get("collector_author"),
             }
         with open(icon_path, "rb") as icon_file_handle:
             collector_icon = (icon_name, icon_file_handle, "image/png")
