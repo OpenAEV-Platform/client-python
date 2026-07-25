@@ -7,6 +7,10 @@ from pyoaev.utils import PingAlive
 
 DEFAULT_PERIOD_SECONDS = 60
 
+# Neutral grey used for tags auto-created alongside the security platform,
+# consistent with the tag colors already used across collectors.
+DEFAULT_PLATFORM_TAG_COLOR = "#6b7280"
+
 
 class CollectorDaemon(BaseDaemon):
     """Implementation of a daemon of Collector type. Note that it requires
@@ -19,6 +23,11 @@ class CollectorDaemon(BaseDaemon):
     `collector_author` (optional): source-declared author override for the
     collector's payloads and contracts; when absent, the platform attributes
     them to the collector's name.
+    `collector_platform_description` (optional): description applied to the
+    security platform auto-created when `collector_platform` is set, so the
+    read-only card is not empty in the UI.
+    `collector_platform_tags` (optional): list of tag names (or a
+    comma-separated string) applied to the auto-created security platform.
     """
 
     def __init__(
@@ -43,18 +52,25 @@ class CollectorDaemon(BaseDaemon):
             collector_icon = (icon_name, icon_file_handle, "image/png")
             document = self.api.document.upsert(document={}, file=collector_icon)
             if self._configuration.get("collector_platform") is not None:
+                security_platform_input = {
+                    "asset_name": self._configuration.get("collector_name"),
+                    "asset_external_reference": self._configuration.get("collector_id"),
+                    "security_platform_type": self._configuration.get(
+                        "collector_platform"
+                    ),
+                    "security_platform_logo_light": document.get("document_id"),
+                    "security_platform_logo_dark": document.get("document_id"),
+                }
+                description = self._configuration.get("collector_platform_description")
+                if description:
+                    security_platform_input["asset_description"] = description
+                tag_ids = self.__upsert_platform_tags(
+                    self._configuration.get("collector_platform_tags")
+                )
+                if tag_ids:
+                    security_platform_input["asset_tags"] = tag_ids
                 security_platform = self.api.security_platform.upsert(
-                    {
-                        "asset_name": self._configuration.get("collector_name"),
-                        "asset_external_reference": self._configuration.get(
-                            "collector_id"
-                        ),
-                        "security_platform_type": self._configuration.get(
-                            "collector_platform"
-                        ),
-                        "security_platform_logo_light": document.get("document_id"),
-                        "security_platform_logo_dark": document.get("document_id"),
-                    }
+                    security_platform_input
                 )
             else:
                 security_platform = {}
@@ -74,6 +90,34 @@ class CollectorDaemon(BaseDaemon):
             self.api.collector.create(config, collector_icon)
 
         PingAlive(self.api, config, self.logger, "collector").start()
+
+    def __upsert_platform_tags(self, tag_names) -> list:
+        """Upserts the configured security platform tags and returns their ids.
+
+        Accepts either a list of tag names or a comma-separated string; tag
+        upsert failures are logged and skipped so the collector setup never
+        fails because of a tag.
+        """
+        if not tag_names:
+            return []
+        if isinstance(tag_names, str):
+            tag_names = [name.strip() for name in tag_names.split(",")]
+        tag_ids = []
+        for tag_name in tag_names:
+            if not tag_name:
+                continue
+            try:
+                tag = self.api.tag.upsert(
+                    {"tag_name": tag_name, "tag_color": DEFAULT_PLATFORM_TAG_COLOR}
+                )
+                tag_id = tag.get("tag_id")
+                if tag_id:
+                    tag_ids.append(tag_id)
+            except Exception as err:  # noqa: BLE001
+                self.logger.warning(
+                    f"Could not upsert security platform tag {tag_name}: {err}"
+                )
+        return tag_ids
 
     def _start_loop(self):
         scheduler = sched.scheduler(time.time, time.sleep)

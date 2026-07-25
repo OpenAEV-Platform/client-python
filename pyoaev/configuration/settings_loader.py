@@ -134,3 +134,13 @@ class ConfigLoaderCollector(BaseConfigModel):
         description="Optional author override for the connector's payloads and contracts. "
         "When absent, the platform attributes them to the connector's name.",
     )
+    platform_description: str | None = Field(
+        default=None,
+        description="Description applied to the security platform auto-created by the "
+        "collector, so its read-only card is not empty in the platform UI.",
+    )
+    platform_tags: list[str] | None = Field(
+        default=None,
+        description="Tag names applied to the security platform auto-created by the "
+        "collector.",
+    )
