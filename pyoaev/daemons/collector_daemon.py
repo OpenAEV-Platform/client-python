@@ -101,9 +101,12 @@ class CollectorDaemon(BaseDaemon):
         if not tag_names:
             return []
         if isinstance(tag_names, str):
-            tag_names = [name.strip() for name in tag_names.split(",")]
+            tag_names = tag_names.split(",")
         tag_ids = []
-        for tag_name in tag_names:
+        for raw_name in tag_names:
+            # Strip whitespace for both string and list inputs (YAML list values
+            # can carry stray spaces too).
+            tag_name = raw_name.strip() if isinstance(raw_name, str) else raw_name
             if not tag_name:
                 continue
             try:

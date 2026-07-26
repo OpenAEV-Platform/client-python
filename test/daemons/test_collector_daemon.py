@@ -3,7 +3,10 @@ from unittest.mock import mock_open, patch
 
 from pyoaev.configuration import Configuration
 from pyoaev.daemons import CollectorDaemon
-from pyoaev.daemons.collector_daemon import DEFAULT_PERIOD_SECONDS
+from pyoaev.daemons.collector_daemon import (
+    DEFAULT_PERIOD_SECONDS,
+    DEFAULT_PLATFORM_TAG_COLOR,
+)
 
 
 class TestCollectorDaemon(unittest.TestCase):
@@ -62,7 +65,8 @@ class TestCollectorDaemon(unittest.TestCase):
                 "collector_name": {"data": "Fake EDR"},
                 "collector_platform": {"data": "EDR"},
                 "collector_platform_description": {"data": "A fake EDR platform."},
-                "collector_platform_tags": {"data": ["edr", "fake-vendor"]},
+                # Padded name: list values must be stripped like string ones.
+                "collector_platform_tags": {"data": ["edr", " fake-vendor "]},
             }
         )
         collector = CollectorDaemon(configuration=config, collector_type="test")
@@ -74,6 +78,13 @@ class TestCollectorDaemon(unittest.TestCase):
         self.assertEqual(payload["asset_tags"], ["tag-1", "tag-2"])
         self.assertEqual(mock_tag_upsert.call_count, 2)
         self.assertEqual(mock_tag_upsert.call_args_list[0].args[0]["tag_name"], "edr")
+        self.assertEqual(
+            mock_tag_upsert.call_args_list[1].args[0]["tag_name"], "fake-vendor"
+        )
+        self.assertEqual(
+            mock_tag_upsert.call_args_list[0].args[0]["tag_color"],
+            DEFAULT_PLATFORM_TAG_COLOR,
+        )
 
     @patch("pyoaev.apis.SecurityPlatformManager.upsert")
     @patch("pyoaev.apis.TagManager.upsert")
