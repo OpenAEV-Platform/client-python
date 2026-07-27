@@ -1,14 +1,8 @@
 import abc
-import sys
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Protocol, Union
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder  # type: ignore
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
 
 
 class BackendResponse(Protocol):
