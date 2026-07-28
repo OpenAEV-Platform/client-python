@@ -33,7 +33,7 @@ jobs:
       - checkout
       - run:
           name: install dependencies
-          command: pip3 install --user .
+          command: pip3 install --user '.[dev]'
       - run:
           name: run tests
           command: python -m pytest
