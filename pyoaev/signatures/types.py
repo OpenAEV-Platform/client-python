@@ -63,6 +63,7 @@ class SignatureTypes(str, Enum):
     SIG_TYPE_FILE_HASH = "file_hash"
     SIG_TYPE_SOURCE_EMAIL = "source_email"
     SIG_TYPE_TARGET_EMAIL = "target_email"
+    SIG_TYPE_EMAIL_CUSTOM_HEADER = "email_custom_header"
     # AI adversarial validation: correlate AI defense (LLM firewall / guardrail) events back to a
     # specific AI inject execution.
     SIG_TYPE_AI_REQUEST_MARKER = "ai_request_marker"
