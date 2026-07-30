@@ -50,6 +50,7 @@ class ContractOutputType(str, Enum):
     Credentials: str = "credentials"
     Username: str = "username"
     Share: str = "share"
+    File: str = "file"
     AdminUsername: str = "admin_username"
     Group: str = "group"
     Computer: str = "computer"
