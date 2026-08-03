@@ -65,6 +65,53 @@ class ContractOutputType(str, Enum):
     KerberoastableAccount: str = "kerberoastable_account"
 
 
+class PrimitiveType(str, Enum):
+    """The semantic type of a contract argument's value, independent of how the
+    field renders in the UI (see ``ContractFieldType``) and independent of
+    chaining specifically — an argument can carry a ``PrimitiveType`` and be
+    filled by hand, exactly as it can be auto-linked from a prior step's
+    matching output. Mirrors ``io.openaev.database.model.PrimitiveType``
+    (the openaev platform's own enum) label-for-label; every value here must
+    stay in sync with it.
+    """
+
+    AccountWithPasswordNotRequired: str = "account_with_password_not_required"
+    ActionOutput: str = "action_output"
+    AdminUsername: str = "admin_username"
+    AsreproastableAccount: str = "asreproastable_account"
+    AssetGroupId: str = "asset_group_id"
+    AssetId: str = "asset_id"
+    ComputerName: str = "computer_name"
+    CVE: str = "cve"
+    DelegationAccount: str = "delegation_account"
+    Document: str = "document"
+    Domain: str = "domain"
+    FileName: str = "file_name"
+    FilePath: str = "file_path"
+    GroupName: str = "group_name"
+    Hash: str = "hash"
+    Host: str = "host"
+    IPv4: str = "ipv4"
+    IPv6: str = "ipv6"
+    IpSubnet: str = "ip_subnet"
+    KerberoastableAccount: str = "kerberoastable_account"
+    Key: str = "key"
+    Number: str = "number"
+    Password: str = "password"
+    Permissions: str = "permissions"
+    Port: str = "port"
+    Service: str = "service"
+    Severity: str = "severity"
+    ShareName: str = "share_name"
+    SID: str = "sid"
+    TargetedAsset: str = "targeted-asset"
+    Text: str = "text"
+    Username: str = "username"
+    Value: str = "value"
+    VulnerabilityName: str = "vulnerability_name"
+    VulnerabilityStatus: str = "vulnerability_status"
+
+
 class ExpectationType(str, Enum):
     text: str = "TEXT"
     document: str = "DOCUMENT"
@@ -131,6 +178,15 @@ class ContractElement(ABC):
     linkedFields: List[str] = field(default_factory=list)
     mandatory: bool = False
     readOnly: bool = False
+    # The argument's chaining/semantic type (``PrimitiveType``), e.g. "username"
+    # or "host" — matches the platform's own ``argumentType`` field
+    # (``io.openaev.database.model.ContractElement``) label-for-label so a
+    # contract pushed from here needs no translation on the other end. Left
+    # unset (``None``) for fields with no established type: the platform
+    # normalizes a missing/null/empty value to ``PrimitiveType.Text`` on its
+    # own, so omitting this is always safe and never a breaking change for
+    # existing contracts.
+    argumentType: Optional[PrimitiveType] = None
 
     @property
     @abstractmethod
