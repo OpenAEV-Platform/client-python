@@ -40,6 +40,7 @@ class ContractFieldKey(str, Enum):
 
 class ContractOutputType(str, Enum):
     Text: str = "text"
+    ActionOutput: str = "action_output"
     Number: str = "number"
     Port: str = "port"
     PortsScan: str = "portscan"
