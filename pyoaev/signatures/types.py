@@ -46,11 +46,16 @@ class MatchTypes(str, Enum):
 
 
 class SignatureTypes(str, Enum):
+    SIG_TYPE_PROCESS_NAME = "process_name"
     SIG_TYPE_PARENT_PROCESS_NAME = "parent_process_name"
+    SIG_TYPE_COMMAND_LINE = "command_line"
+    SIG_TYPE_IPV4_ADDRESS = "ipv4_address"
+    SIG_TYPE_IPV6_ADDRESS = "ipv6_address"
     SIG_TYPE_SOURCE_IPV4_ADDRESS = "source_ipv4_address"
     SIG_TYPE_SOURCE_IPV6_ADDRESS = "source_ipv6_address"
     SIG_TYPE_TARGET_IPV4_ADDRESS = "target_ipv4_address"
     SIG_TYPE_TARGET_IPV6_ADDRESS = "target_ipv6_address"
+    SIG_TYPE_HOSTNAME = "hostname"
     SIG_TYPE_TARGET_HOSTNAME_ADDRESS = "target_hostname_address"
     SIG_TYPE_START_DATE = "start_date"
     SIG_TYPE_END_DATE = "end_date"
@@ -60,6 +65,7 @@ class SignatureTypes(str, Enum):
     SIG_TYPE_TARGET_SERVICE = "target_service"
     SIG_TYPE_QUERY = "query"
     SIG_TYPE_URL_HASH = "url_hash"
+    SIG_TYPE_FILE_NAME = "file_name"
     SIG_TYPE_FILE_HASH = "file_hash"
     SIG_TYPE_SOURCE_EMAIL = "source_email"
     SIG_TYPE_TARGET_EMAIL = "target_email"
