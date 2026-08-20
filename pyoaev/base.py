@@ -4,7 +4,16 @@ import json
 import pprint
 import textwrap
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Optional,
+    Type,
+    Union,
+    get_type_hints,
+)
 
 from pyoaev.exceptions import OpenAEVParsingError
 
@@ -157,7 +166,8 @@ class RESTObject:
         # NOTE(jlvillal): We are creating our managers by looking at the class
         # annotations. If an attribute is annotated as being a *Manager type
         # then we create the manager and assign it to the attribute.
-        for attr, annotation in sorted(self.__annotations__.items()):
+        annotations = get_type_hints(type(self))
+        for attr, annotation in sorted(annotations.items()):
             # We ignore creating a manager for the 'manager' attribute as that
             # is done in the self.__init__() method
             if attr in ("manager",):
