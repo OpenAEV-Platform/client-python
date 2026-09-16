@@ -1,5 +1,6 @@
 import unittest
 
+from pyoaev.credential import CredentialType as PublicCredentialType
 from pyoaev.credential.types import CredentialType
 
 
@@ -18,6 +19,9 @@ class CredentialTypeTest(unittest.TestCase):
         self.assertEqual(CredentialType.IDENTITY.value, "IDENTITY")
         self.assertEqual(CredentialType.IDENTITY, "IDENTITY")
 
+    def test_package_re_exports_credential_type(self):
+        self.assertIs(PublicCredentialType, CredentialType)
+
     def test_aws_wire_label(self):
         self.assertEqual(CredentialType.CLOUD_AWS.value, "CLOUD_AWS")
         self.assertEqual(CredentialType.CLOUD_AWS, "CLOUD_AWS")
@@ -25,5 +29,6 @@ class CredentialTypeTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
 
