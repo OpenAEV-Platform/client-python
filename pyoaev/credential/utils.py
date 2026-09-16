@@ -28,7 +28,8 @@ def _resolve_credential_type(provider_name: str) -> Optional[CredentialType]:
 def build_single_referenced_credential_element(
     provider_name: str,
 ) -> ContractReferencedCredential:
-    """Build a credential-reference field for a provider-specific contract.
+    """Build a credential-reference field for a provider-specific contract
+    with multiple value at False.
 
     This is the centralized entry point injectors should use when they need the
     OpenAEV inject form to ask for one referenced credential. The helper keeps
