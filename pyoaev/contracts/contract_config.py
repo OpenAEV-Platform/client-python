@@ -7,6 +7,7 @@ from typing import Dict, List, Optional
 from pyoaev import utils
 from pyoaev.contracts.contract_utils import ContractCardinality, ContractVariable
 from pyoaev.contracts.variable_helper import VariableHelper
+from pyoaev.credential.types import CredentialType
 
 
 class SupportedLanguage(str, Enum):
@@ -31,11 +32,13 @@ class ContractFieldType(str, Enum):
     AssetGroup: str = "asset-group"
     AiTarget: str = "ai-target"
     Payload: str = "payload"
+    CredentialReference: str = "credential-reference"
 
 
 class ContractFieldKey(str, Enum):
     Asset: str = "assets"
     AssetGroup: str = "asset_groups"
+    CredentialReference: str = "credential_reference"
 
 
 class ContractOutputType(str, Enum):
@@ -363,6 +366,19 @@ class ContractAttachment(ContractCardinalityElement):
     @property
     def get_type(self) -> str:
         return ContractFieldType.Attachment.value
+
+
+@dataclass
+class ContractReferencedCredential(ContractElement):
+    key: str = field(default=ContractFieldKey.CredentialReference.value, init=False)
+    label: str = "Select a credential reference"
+    mandatory: bool = True
+    credential_reference_type: Optional[CredentialType] = None
+    multiple: bool = True
+
+    @property
+    def get_type(self) -> str:
+        return ContractFieldType.CredentialReference.value
 
 
 @dataclass
