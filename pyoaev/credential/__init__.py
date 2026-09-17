@@ -8,9 +8,8 @@ def build_single_referenced_credential_element(provider_name: str):
 
     return _build_single_referenced_credential_element(provider_name)
 
+
 __all__ = [
     "CredentialType",
     "build_single_referenced_credential_element",
 ]
-
-
