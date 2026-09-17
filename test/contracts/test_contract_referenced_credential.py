@@ -38,9 +38,7 @@ class ContractReferencedCredentialTest(unittest.TestCase):
         )
 
         self.assertEqual(field.credential_reference_type, CredentialType.CLOUD_AZURE)
-        self.assertEqual(
-            _serialize(field)["credential_reference_type"], "CLOUD_AZURE"
-        )
+        self.assertEqual(_serialize(field)["credential_reference_type"], "CLOUD_AZURE")
 
     def test_identity_credential_type_serializes_to_platform_label(self):
         field = ContractReferencedCredential(
@@ -53,5 +51,3 @@ class ContractReferencedCredentialTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

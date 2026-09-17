@@ -37,5 +37,5 @@ def build_single_referenced_credential_element(
 
     return ContractReferencedCredential(
         credential_reference_type=_resolve_credential_type(provider_name),
-        multiple=False
+        multiple=False,
     )
