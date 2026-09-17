@@ -22,14 +22,14 @@ class ContractReferencedCredentialTest(unittest.TestCase):
         self.assertEqual(field.key, ContractFieldKey.CredentialReference.value)
         self.assertEqual(field.label, "Select a credential reference")
         self.assertTrue(field.mandatory)
-        self.assertFalse(field.multiple)
+        self.assertTrue(field.multiple)
         self.assertIsNone(field.credential_reference_type)
         self.assertEqual(field.type, ContractFieldType.CredentialReference.value)
         self.assertEqual(serialized["key"], "credential_reference")
         self.assertEqual(serialized["type"], "credential-reference")
         self.assertEqual(serialized["label"], "Select a credential reference")
         self.assertTrue(serialized["mandatory"])
-        self.assertFalse(serialized["multiple"])
+        self.assertTrue(serialized["multiple"])
         self.assertIsNone(serialized["credential_reference_type"])
 
     def test_explicit_credential_type_serializes_to_platform_label(self):

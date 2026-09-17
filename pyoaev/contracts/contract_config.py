@@ -374,7 +374,7 @@ class ContractReferencedCredential(ContractElement):
     label: str = "Select a credential reference"
     mandatory: bool = True
     credential_reference_type: Optional[CredentialType] = None
-    multiple: bool = False
+    multiple: bool = True
 
     @property
     def get_type(self) -> str:
