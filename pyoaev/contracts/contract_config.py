@@ -5,9 +5,9 @@ from enum import Enum
 from typing import Dict, List, Optional
 
 from pyoaev import utils
-from pyoaev.credential.types import CredentialType
 from pyoaev.contracts.contract_utils import ContractCardinality, ContractVariable
 from pyoaev.contracts.variable_helper import VariableHelper
+from pyoaev.credential.types import CredentialType
 
 
 class SupportedLanguage(str, Enum):

@@ -47,6 +47,7 @@ class CredentialUtilsTest(unittest.TestCase):
         self.assertIsInstance(field, ContractReferencedCredential)
         self.assertEqual(field.credential_reference_type, CredentialType.CLOUD_AZURE)
         self.assertEqual(_serialize(field)["credential_reference_type"], "CLOUD_AZURE")
+        self.assertFalse(field.multiple)
 
     def test_unknown_provider_leaves_credential_type_empty(self):
         field = build_single_referenced_credential_element("openstack")
