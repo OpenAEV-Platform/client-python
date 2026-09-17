@@ -11,7 +11,6 @@ from typing import Optional
 from pyoaev.contracts.contract_config import ContractReferencedCredential
 from pyoaev.credential.types import CredentialType
 
-
 _PROVIDER_TO_CREDENTIAL_TYPE = {
     "aws": CredentialType.CLOUD_AWS,
     "eks": CredentialType.CLOUD_AWS,
@@ -29,7 +28,7 @@ def build_single_referenced_credential_element(
     provider_name: str,
 ) -> ContractReferencedCredential:
     """Build a credential-reference field for a provider-specific contract
-    with multiple value at False.
+    with ``multiple`` value at ``False``.
 
     This is the centralized entry point injectors should use when they need the
     OpenAEV inject form to ask for one referenced credential. The helper keeps
