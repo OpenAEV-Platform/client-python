@@ -372,7 +372,7 @@ class ContractAttachment(ContractCardinalityElement):
 class ContractReferencedCredential(ContractElement):
     key: str = field(default=ContractFieldKey.CredentialReference.value, init=False)
     label: str = "Select a credential reference"
-    mandatory: bool = True
+    mandatory: bool = False
     credential_reference_type: Optional[CredentialType] = None
     multiple: bool = True
 
