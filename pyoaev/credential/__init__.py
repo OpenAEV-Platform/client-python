@@ -1,3 +1,8 @@
+from .attachment import (
+    CredentialAttachment,
+    get_credential_attachment,
+    resolve_inject_credential,
+)
 from .errors import (
     CredentialErrorCode,
     CredentialResolutionError,
@@ -35,6 +40,7 @@ __all__ = [
     "AwsSourceIdentityType",
     "AzureManagedIdentitySecret",
     "AzureServicePrincipalSecret",
+    "CredentialAttachment",
     "CredentialErrorCode",
     "CredentialResolutionError",
     "CredentialType",
@@ -50,5 +56,7 @@ __all__ = [
     "credential_error_code_from_http",
     "build_single_referenced_credential_element",
     "ensure_compatible",
+    "get_credential_attachment",
     "parse_resolved_secret",
+    "resolve_inject_credential",
 ]
