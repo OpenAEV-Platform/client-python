@@ -1,7 +1,8 @@
 """Errors raised when an injector resolves a credential reference.
 
 The platform resolution endpoint answers with a closed set of error codes.
-Each code carries a fixed, human-readable message meant to be reported as is
+``CREDENTIAL_INCOMPATIBLE`` is detected by the injector itself, when the
+resolved credential does not satisfy the contract field. Each code carries a fixed, human-readable message meant to be reported as is
 in the inject execution trace. Messages only ever mention the credential
 reference id, never a secret value, and the raw HTTP request and response
 bodies are deliberately never kept on the error.
@@ -17,6 +18,14 @@ class CredentialErrorCode(str, Enum):
     CREDENTIAL_NOT_FOUND = "CREDENTIAL_NOT_FOUND"
     CREDENTIAL_INACTIVE = "CREDENTIAL_INACTIVE"
     CREDENTIAL_ACCESS_DENIED = "CREDENTIAL_ACCESS_DENIED"
+    CREDENTIAL_INCOMPATIBLE = "CREDENTIAL_INCOMPATIBLE"
+
+
+_PLATFORM_CREDENTIAL_ERROR_CODES = {
+    CredentialErrorCode.CREDENTIAL_NOT_FOUND,
+    CredentialErrorCode.CREDENTIAL_INACTIVE,
+    CredentialErrorCode.CREDENTIAL_ACCESS_DENIED,
+}
 
 
 _CREDENTIAL_ERROR_MESSAGES = {
@@ -33,6 +42,10 @@ _CREDENTIAL_ERROR_MESSAGES = {
         "This execution is not entitled to use the credential configured on this "
         "inject. Contact your Cloud platform administrator"
     ),
+    CredentialErrorCode.CREDENTIAL_INCOMPATIBLE: (
+        "The credential {reference} is not compatible with this inject. Select a "
+        "credential of the type expected by the inject, then run it again."
+    ),
 }
 
 
@@ -48,9 +61,11 @@ def credential_error_code_from_http(
     """
     if error_message:
         try:
-            return CredentialErrorCode(error_message.strip())
+            code = CredentialErrorCode(error_message.strip())
         except ValueError:
-            pass
+            code = None
+        if code in _PLATFORM_CREDENTIAL_ERROR_CODES:
+            return code
     if response_code == 404:
         return CredentialErrorCode.CREDENTIAL_NOT_FOUND
     return CredentialErrorCode.CREDENTIAL_ACCESS_DENIED
@@ -86,8 +101,31 @@ class CredentialResolutionError(OpenAEVError):
         return f"{self.code.value}: {self.error_message}"
 
 
+class UnsupportedSecretTypeError(CredentialResolutionError):
+    """The platform resolved a secret type this client does not know."""
+
+    def __init__(
+        self, secret_type: Optional[str] = None, reference: Optional[str] = None
+    ) -> None:
+        self.secret_type = secret_type
+        super().__init__(CredentialErrorCode.CREDENTIAL_INCOMPATIBLE, reference)
+
+
+class InvalidResolvedSecretError(CredentialResolutionError):
+    """The resolved secret payload does not match its declared type.
+
+    Reported as ``CREDENTIAL_ACCESS_DENIED``, like any unexpected failure, so
+    that nothing about the payload leaks in the trace.
+    """
+
+    def __init__(self, reference: Optional[str] = None) -> None:
+        super().__init__(CredentialErrorCode.CREDENTIAL_ACCESS_DENIED, reference)
+
+
 __all__ = [
     "CredentialErrorCode",
     "CredentialResolutionError",
+    "InvalidResolvedSecretError",
+    "UnsupportedSecretTypeError",
     "credential_error_code_from_http",
 ]

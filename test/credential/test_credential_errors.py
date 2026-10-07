@@ -9,14 +9,21 @@ from pyoaev.exceptions import OpenAEVError
 
 
 class CredentialErrorCodeTest(unittest.TestCase):
-    def test_codes_are_the_closed_platform_set(self):
+    def test_codes_are_a_closed_set(self):
         self.assertEqual(
             {code.value for code in CredentialErrorCode},
             {
                 "CREDENTIAL_NOT_FOUND",
                 "CREDENTIAL_INACTIVE",
                 "CREDENTIAL_ACCESS_DENIED",
+                "CREDENTIAL_INCOMPATIBLE",
             },
+        )
+
+    def test_injector_side_code_is_never_taken_from_the_platform(self):
+        self.assertEqual(
+            credential_error_code_from_http(400, "CREDENTIAL_INCOMPATIBLE"),
+            CredentialErrorCode.CREDENTIAL_ACCESS_DENIED,
         )
 
     def test_platform_code_in_message_wins(self):
@@ -91,6 +98,17 @@ class CredentialResolutionErrorTest(unittest.TestCase):
             error.message,
             "This execution is not entitled to use the credential configured on this "
             "inject. Contact your Cloud platform administrator",
+        )
+
+    def test_incompatible_message_identifies_the_reference(self):
+        error = CredentialResolutionError(
+            CredentialErrorCode.CREDENTIAL_INCOMPATIBLE, reference="ref-1"
+        )
+
+        self.assertEqual(
+            error.message,
+            "The credential ref-1 is not compatible with this inject. Select a "
+            "credential of the type expected by the inject, then run it again.",
         )
 
     def test_str_carries_the_code_and_the_message(self):
