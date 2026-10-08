@@ -10,6 +10,7 @@ from .errors import (
     UnsupportedSecretTypeError,
     credential_error_code_from_http,
 )
+from .materializer import CredentialCleanupError, MaterializedCredential, materialize
 from .resolved import (
     AwsAccessKeySecret,
     AwsAssumeRoleSecret,
@@ -41,6 +42,7 @@ __all__ = [
     "AzureManagedIdentitySecret",
     "AzureServicePrincipalSecret",
     "CredentialAttachment",
+    "CredentialCleanupError",
     "CredentialErrorCode",
     "CredentialResolutionError",
     "CredentialType",
@@ -49,6 +51,7 @@ __all__ = [
     "HashAlgorithm",
     "HashSecret",
     "InvalidResolvedSecretError",
+    "MaterializedCredential",
     "ResolvedSecret",
     "SecretType",
     "UnsupportedSecretTypeError",
@@ -57,6 +60,7 @@ __all__ = [
     "build_single_referenced_credential_element",
     "ensure_compatible",
     "get_credential_attachment",
+    "materialize",
     "parse_resolved_secret",
     "resolve_inject_credential",
 ]
