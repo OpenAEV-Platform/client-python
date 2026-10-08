@@ -212,7 +212,7 @@ def parse_resolved_secret(
     # quote a secret value, is not chained to it.
     try:
         return _build(_RESOLVED_SECRET_CLASSES[secret_type], value)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError) as e:
         error = InvalidResolvedSecretError(reference)
     raise error
 
@@ -241,9 +241,12 @@ def ensure_compatible(
         expected_type = _resolve_credential_type(expected)
         if expected_type is None:
             raise ValueError(f"No credential type is mapped to provider {expected!r}")
+
     if resolved.credential_type != expected_type:
         raise CredentialResolutionError(
-            CredentialErrorCode.CREDENTIAL_INCOMPATIBLE, reference
+            CredentialErrorCode.CREDENTIAL_INCOMPATIBLE,
+            reference,
+            expected_type=expected_type,
         )
     return resolved
 

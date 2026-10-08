@@ -11,6 +11,7 @@ bodies are deliberately never kept on the error.
 from enum import Enum
 from typing import Optional
 
+from pyoaev.credential.types import CredentialType
 from pyoaev.exceptions import OpenAEVError
 
 
@@ -44,9 +45,16 @@ _CREDENTIAL_ERROR_MESSAGES = {
     ),
     CredentialErrorCode.CREDENTIAL_INCOMPATIBLE: (
         "The credential {reference} is not compatible with this inject. Select a "
-        "credential of the type expected by the inject, then run it again."
+        "credential of type {type} on the inject, then run it again."
     ),
 }
+
+# Used when the expected credential type is not known where the error is raised
+# (for example an unknown secret type returned by the platform).
+_CREDENTIAL_INCOMPATIBLE_UNKNOWN_TYPE_MESSAGE = (
+    "The credential {reference} is not compatible with this inject. Select a "
+    "credential of the type expected by the inject, then run it again."
+)
 
 
 def credential_error_code_from_http(
@@ -76,6 +84,8 @@ class CredentialResolutionError(OpenAEVError):
 
     ``message`` holds the fixed human-readable message of ``code``. The HTTP
     response body is never stored, so it cannot surface in ``str()``.
+    ``expected_type`` is the credential type the inject expects, only used by
+    the ``CREDENTIAL_INCOMPATIBLE`` message.
     """
 
     def __init__(
@@ -83,11 +93,22 @@ class CredentialResolutionError(OpenAEVError):
         code: CredentialErrorCode,
         reference: Optional[str] = None,
         response_code: Optional[int] = None,
+        expected_type: Optional[CredentialType] = None,
     ) -> None:
         self.code = CredentialErrorCode(code)
         self.reference = reference
-        message = _CREDENTIAL_ERROR_MESSAGES[self.code].format(
-            reference=reference or "unknown reference"
+        self.expected_type = (
+            CredentialType(expected_type) if expected_type is not None else None
+        )
+        template = _CREDENTIAL_ERROR_MESSAGES[self.code]
+        if (
+            self.code == CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
+            and self.expected_type is None
+        ):
+            template = _CREDENTIAL_INCOMPATIBLE_UNKNOWN_TYPE_MESSAGE
+        message = template.format(
+            reference=reference or "unknown reference",
+            type=self.expected_type.value if self.expected_type else None,
         )
         super().__init__(
             error_message=message, response_code=response_code, response_body=None

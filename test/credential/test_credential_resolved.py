@@ -362,6 +362,8 @@ class EnsureCompatibleTest(unittest.TestCase):
                         error.code, CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
                     )
                     self.assertIn(REFERENCE, error.message)
+                    self.assertIs(error.expected_type, expected)
+                    self.assertIn(expected.value, error.message)
                     self.assertNotIn(SECRET, str(error))
 
     def test_provider_name_uses_the_contract_mapping(self):
@@ -383,6 +385,8 @@ class EnsureCompatibleTest(unittest.TestCase):
         self.assertEqual(
             context.exception.code, CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
         )
+        self.assertIs(context.exception.expected_type, CredentialType.CLOUD_AWS)
+        self.assertIn("CLOUD_AWS", context.exception.message)
 
     def test_unknown_provider_name_is_a_programming_error(self):
         with self.assertRaises(ValueError):
