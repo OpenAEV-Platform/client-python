@@ -3,6 +3,7 @@ import unittest
 from pyoaev.credential import (
     CredentialErrorCode,
     CredentialResolutionError,
+    CredentialType,
     credential_error_code_from_http,
 )
 from pyoaev.exceptions import OpenAEVError
@@ -100,16 +101,40 @@ class CredentialResolutionErrorTest(unittest.TestCase):
             "inject. Contact your Cloud platform administrator",
         )
 
-    def test_incompatible_message_identifies_the_reference(self):
+    def test_incompatible_message_identifies_the_expected_type(self):
+        error = CredentialResolutionError(
+            CredentialErrorCode.CREDENTIAL_INCOMPATIBLE,
+            reference="ref-1",
+            expected_type=CredentialType.CLOUD_AWS,
+        )
+
+        self.assertIs(error.expected_type, CredentialType.CLOUD_AWS)
+        self.assertEqual(
+            error.message,
+            "The credential ref-1 is not compatible with this inject. Select a "
+            "credential of type CLOUD_AWS on the inject, then run it again.",
+        )
+
+    def test_incompatible_message_without_expected_type(self):
         error = CredentialResolutionError(
             CredentialErrorCode.CREDENTIAL_INCOMPATIBLE, reference="ref-1"
         )
 
+        self.assertIsNone(error.expected_type)
         self.assertEqual(
             error.message,
             "The credential ref-1 is not compatible with this inject. Select a "
             "credential of the type expected by the inject, then run it again.",
         )
+
+    def test_expected_type_is_ignored_by_other_codes(self):
+        error = CredentialResolutionError(
+            CredentialErrorCode.CREDENTIAL_INACTIVE,
+            reference="ref-1",
+            expected_type=CredentialType.CLOUD_AWS,
+        )
+
+        self.assertNotIn("CLOUD_AWS", error.message)
 
     def test_str_carries_the_code_and_the_message(self):
         error = CredentialResolutionError(

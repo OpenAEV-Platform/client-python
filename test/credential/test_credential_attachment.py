@@ -165,6 +165,7 @@ class ResolveInjectCredentialTest(unittest.TestCase):
             context.exception.code, CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
         )
         self.assertEqual(context.exception.reference, REFERENCE)
+        self.assertIn("CLOUD_GCP", context.exception.message)
 
     def test_missing_authorisation_code_sends_no_resolution_request(self):
         with self.assertRaises(CredentialResolutionError):
