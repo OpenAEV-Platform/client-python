@@ -212,7 +212,7 @@ def parse_resolved_secret(
     # quote a secret value, is not chained to it.
     try:
         return _build(_RESOLVED_SECRET_CLASSES[secret_type], value)
-    except (ValueError, TypeError) as e:
+    except (ValueError, TypeError):
         error = InvalidResolvedSecretError(reference)
     raise error
 
