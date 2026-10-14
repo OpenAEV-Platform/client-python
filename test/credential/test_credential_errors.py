@@ -5,6 +5,8 @@ from pyoaev.credential import (
     CredentialResolutionError,
     CredentialType,
     credential_error_code_from_http,
+    credential_error_guidance,
+    credential_error_summary,
 )
 from pyoaev.exceptions import OpenAEVError
 
@@ -18,6 +20,7 @@ class CredentialErrorCodeTest(unittest.TestCase):
                 "CREDENTIAL_INACTIVE",
                 "CREDENTIAL_ACCESS_DENIED",
                 "CREDENTIAL_INCOMPATIBLE",
+                "CREDENTIAL_RESOLUTION_UNAVAILABLE",
             },
         )
 
@@ -56,7 +59,6 @@ class CredentialErrorCodeTest(unittest.TestCase):
             (400, "Bad Request"),
             (401, "Unauthorized"),
             (403, None),
-            (500, "boom"),
             (None, None),
         ):
             with self.subTest(response_code=response_code, message=message):
@@ -64,6 +66,20 @@ class CredentialErrorCodeTest(unittest.TestCase):
                     credential_error_code_from_http(response_code, message),
                     CredentialErrorCode.CREDENTIAL_ACCESS_DENIED,
                 )
+
+    def test_server_error_is_resolution_unavailable(self):
+        for response_code in (500, 502, 503, 504):
+            with self.subTest(response_code=response_code):
+                self.assertEqual(
+                    credential_error_code_from_http(response_code, "boom"),
+                    CredentialErrorCode.CREDENTIAL_RESOLUTION_UNAVAILABLE,
+                )
+
+    def test_platform_code_wins_over_server_error(self):
+        self.assertEqual(
+            credential_error_code_from_http(500, "CREDENTIAL_INACTIVE"),
+            CredentialErrorCode.CREDENTIAL_INACTIVE,
+        )
 
 
 class CredentialResolutionErrorTest(unittest.TestCase):
@@ -156,6 +172,51 @@ class CredentialResolutionErrorTest(unittest.TestCase):
         error = CredentialResolutionError(CredentialErrorCode.CREDENTIAL_NOT_FOUND)
 
         self.assertIsInstance(error, OpenAEVError)
+
+
+class CredentialErrorMessagePartsTest(unittest.TestCase):
+    def test_message_is_summary_then_guidance_for_every_code(self):
+        for code in CredentialErrorCode:
+            with self.subTest(code=code):
+                error = CredentialResolutionError(code, reference="ref-1")
+
+                self.assertEqual(error.message, f"{error.summary} {error.guidance}")
+                self.assertEqual(error.summary, credential_error_summary(code, "ref-1"))
+                self.assertEqual(error.guidance, credential_error_guidance(code))
+
+    def test_not_found_message_is_unchanged(self):
+        error = CredentialResolutionError(
+            CredentialErrorCode.CREDENTIAL_NOT_FOUND, reference="ref-1"
+        )
+
+        self.assertEqual(
+            error.message,
+            "The credential configured on this inject (ref-1) no longer exists at "
+            "the moment of execution. Select an existing credential on the inject, "
+            "then run it again.",
+        )
+
+    def test_incompatible_guidance_names_the_expected_type(self):
+        self.assertEqual(
+            credential_error_guidance(
+                CredentialErrorCode.CREDENTIAL_INCOMPATIBLE, CredentialType.CLOUD_GCP
+            ),
+            "Select a credential of type CLOUD_GCP on the inject, then run it again.",
+        )
+
+    def test_summary_without_reference_uses_the_sentinel(self):
+        self.assertIn(
+            "unknown reference",
+            credential_error_summary(CredentialErrorCode.CREDENTIAL_INACTIVE),
+        )
+
+    def test_resolution_unavailable_mentions_the_platform(self):
+        error = CredentialResolutionError(
+            CredentialErrorCode.CREDENTIAL_RESOLUTION_UNAVAILABLE, reference="ref-1"
+        )
+
+        self.assertIn("ref-1", error.message)
+        self.assertIn("platform", error.message)
 
 
 if __name__ == "__main__":

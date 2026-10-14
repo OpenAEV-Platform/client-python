@@ -14,6 +14,8 @@ from pyoaev.credential import (
     AzureManagedIdentitySecret,
     AzureServicePrincipalSecret,
     CredentialCleanupError,
+    CredentialErrorCode,
+    CredentialResolutionError,
     GcpOAuth2Secret,
     GcpServiceAccountSecret,
     HashAlgorithm,
@@ -242,12 +244,19 @@ class AzureMaterializerTest(MaterializerTestCase):
                 {"AZURE_AUTHORITY_HOST": "https://login.chinacloudapi.cn/"},
             )
 
-    def test_unknown_environment_is_rejected(self):
+    def test_unsupported_environment_is_incompatible(self):
         resolved = AzureManagedIdentitySecret(azure_environment="AzureGermanCloud")
 
-        with self.assertRaises(InvalidResolvedSecretError):
-            with self.materialize(resolved):
+        with self.assertRaises(CredentialResolutionError) as context:
+            with materialize(resolved, self.root, reference="ref-1"):
                 self.fail("must not be reached")
+
+        self.assertIs(
+            context.exception.code, CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
+        )
+        self.assertEqual(context.exception.reference, "ref-1")
+        self.assertIsNone(context.exception.__cause__)
+        self.assertIsNone(context.exception.__context__)
 
 
 class GcpMaterializerTest(MaterializerTestCase):

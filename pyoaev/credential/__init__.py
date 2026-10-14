@@ -1,6 +1,7 @@
 from .attachment import (
     CredentialAttachment,
     get_credential_attachment,
+    resolve_credential_attachment,
     resolve_inject_credential,
 )
 from .errors import (
@@ -9,6 +10,8 @@ from .errors import (
     InvalidResolvedSecretError,
     UnsupportedSecretTypeError,
     credential_error_code_from_http,
+    credential_error_guidance,
+    credential_error_summary,
 )
 from .materializer import CredentialCleanupError, MaterializedCredential, materialize
 from .resolved import (
@@ -57,10 +60,13 @@ __all__ = [
     "UnsupportedSecretTypeError",
     "UsernamePasswordSecret",
     "credential_error_code_from_http",
+    "credential_error_guidance",
+    "credential_error_summary",
     "build_single_referenced_credential_element",
     "ensure_compatible",
     "get_credential_attachment",
     "materialize",
     "parse_resolved_secret",
+    "resolve_credential_attachment",
     "resolve_inject_credential",
 ]

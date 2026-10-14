@@ -62,7 +62,8 @@ class InjectManager(RESTManager):
                 e.response_code, e.error_message
             )
         except requests.RequestException:
-            error_code = CredentialErrorCode.CREDENTIAL_ACCESS_DENIED
+            # Connection error or timeout: the platform never answered.
+            error_code = CredentialErrorCode.CREDENTIAL_RESOLUTION_UNAVAILABLE
         else:
             if not isinstance(result, dict):
                 error_code = CredentialErrorCode.CREDENTIAL_ACCESS_DENIED

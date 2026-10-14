@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Callable, Dict, Iterator, List, Optional
 
 from pyoaev.credential.errors import (
+    CredentialErrorCode,
+    CredentialResolutionError,
     InvalidResolvedSecretError,
     UnsupportedSecretTypeError,
 )
@@ -40,6 +42,10 @@ AZURE_AUTHORITY_HOSTS = {
     "AzureChinaCloud": "https://login.chinacloudapi.cn/",
     "AzureUSGovernment": "https://login.microsoftonline.us/",
 }
+
+
+class _UnsupportedAzureEnvironmentError(Exception):
+    """The Azure cloud of the credential has no known authority host."""
 
 
 class CredentialCleanupError(RuntimeError):
@@ -167,7 +173,9 @@ def _azure_authority_host(environment: str) -> str:
     try:
         return AZURE_AUTHORITY_HOSTS[environment]
     except KeyError:
-        raise InvalidResolvedSecretError() from None
+        # A valid platform value (e.g. the retired AzureGermanCloud) the
+        # injectors cannot target: the credential is incompatible, not invalid.
+        raise _UnsupportedAzureEnvironmentError() from None
 
 
 def _azure_service_principal(
@@ -245,7 +253,10 @@ _MATERIALIZERS: Dict[SecretType, Callable[..., Dict[str, str]]] = {
 
 @contextmanager
 def materialize(
-    resolved: ResolvedSecret, temporary_root: Optional[Path] = None
+    resolved: ResolvedSecret,
+    temporary_root: Optional[Path] = None,
+    *,
+    reference: Optional[str] = None,
 ) -> Iterator[MaterializedCredential]:
     """Materialize ``resolved`` for the duration of the ``with`` block.
 
@@ -253,19 +264,34 @@ def materialize(
         resolved: the secret returned by ``resolve_inject_credential``.
         temporary_root: parent of the private directory, the system temporary
             directory when omitted.
+        reference: the credential reference id, only used in error messages.
 
     Raises:
         UnsupportedSecretTypeError: the secret type is not a cloud credential
             (``USERNAME_PASSWORD``, ``HASH``).
+        CredentialResolutionError: ``CREDENTIAL_INCOMPATIBLE`` when the Azure
+            cloud of the credential cannot be targeted.
         InvalidResolvedSecretError: a value cannot be materialized safely.
         CredentialCleanupError: the temporary files could not be removed.
     """
     materializer = _MATERIALIZERS.get(resolved.secret_type)
     if materializer is None:
-        raise UnsupportedSecretTypeError(resolved.secret_type.value)
+        raise UnsupportedSecretTypeError(resolved.secret_type.value, reference)
     workspace = _Workspace(temporary_root)
+    error: Optional[CredentialResolutionError] = None
     try:
-        env = materializer(resolved, workspace)
+        # Raised outside of the except blocks so that no original error, which
+        # may quote a secret value, is chained to the reported one.
+        try:
+            env = materializer(resolved, workspace)
+        except _UnsupportedAzureEnvironmentError:
+            error = CredentialResolutionError(
+                CredentialErrorCode.CREDENTIAL_INCOMPATIBLE, reference
+            )
+        except InvalidResolvedSecretError:
+            error = InvalidResolvedSecretError(reference)
+        if error is not None:
+            raise error
         yield MaterializedCredential(
             secret_type=resolved.secret_type, env=env, files=list(workspace.files)
         )
