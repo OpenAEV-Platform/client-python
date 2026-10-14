@@ -1,17 +1,22 @@
-"""Base daemon: the shared runtime of collector and injector daemons."""
+"""Daemon adapters: the base daemon runtime and its heartbeat.
 
-import argparse
+Each adapter speaks the daemons seam types and delegates to the core
+implementation of its port. The API client is injected (``BaseClient``).
+"""
+
+import threading
 from abc import ABC, abstractmethod
-from inspect import signature
-from types import FunctionType
-from typing import TYPE_CHECKING
 
-from xtm_oaev_sdk.seam.common import BaseClient, OpenAEVError
+from xtm_oaev_sdk._core.daemons import DaemonRuntime, Heartbeat
+from xtm_oaev_sdk.public.common import logger
+from xtm_oaev_sdk.public.configuration import Configuration
+from xtm_oaev_sdk.seam.common import BaseClient
+from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort, HeartbeatPort
 
-if TYPE_CHECKING:  # annotation only: the core never imports the public layer
-    from xtm_oaev_sdk.public.configuration import Configuration
+__all__ = ["BaseDaemon", "PingAlive"]
 
-__all__ = ["BaseDaemon"]
+_runtime: DaemonRuntimePort = DaemonRuntime()
+_heartbeat: HeartbeatPort = Heartbeat()
 
 
 class BaseDaemon(ABC):
@@ -35,7 +40,7 @@ class BaseDaemon(ABC):
 
     def __init__(
         self,
-        configuration: "Configuration",
+        configuration: Configuration,
         callback: callable = None,
         logger=None,
         api_client: BaseClient | None = None,
@@ -46,18 +51,8 @@ class BaseDaemon(ABC):
 
         # logging
         # compatibility layer: in order for older configs to still work, search for legacy names
-        actual_log_level = (
-            self._configuration.get("log_level")
-            or self._configuration.get("collector_log_level")
-            or self._configuration.get("injector_log_level")
-            or "info"
-        )
-        actual_log_name = (
-            self._configuration.get("name")
-            or self._configuration.get("collector_name")
-            or self._configuration.get("injector_name")
-            or "daemon"
-        )
+        actual_log_level = _runtime.resolve_log_level(self._configuration)
+        actual_log_name = _runtime.resolve_name(self._configuration)
         self.logger = logger or BaseDaemon.__get_default_logger(
             actual_log_level.upper(),
             actual_log_name,
@@ -82,40 +77,18 @@ class BaseDaemon(ABC):
         it is immediately swallowed (but still logged) allowing the collector to keep
         running. This is useful for any transient issue (e.g. API endpoint down...).
         """
-        try:
-            # this is some black magic to allow injecting the collector daemon instance
-            # into an arbitrary callback that has a specific argument name
-            # this allow for avoiding subclassing the CollectorDaemon class just to provide the callback
-            # Example:
-            #
-            # def standalone_func(collector):
-            #   collector.api.call_openaev()
-            #
-            # CollectorDaemon(config=<pyboas.configuration.Configuration>, standalone_func).start()
-            if (
-                isinstance(self._callback, FunctionType)
-                and "collector" in signature(self._callback).parameters
-            ):
-                self._callback(collector=self)
-            else:
-                self._callback()
-        except Exception as err:  # pylint: disable=broad-except
-            self.logger.error(f"Error calling: {err}")
+        _runtime.invoke_callback(self._callback, self, self.logger)
 
     def start(self):
         """Start the daemon. This will run the implementor's run-once setup method and
         follow-up with the main execution loop. Note that at this point, if there is no
         configured callback, the method will abort and kill the daemon.
         """
-        parser = argparse.ArgumentParser(description="parse daemon options")
-        parser.add_argument("--dump-config-schema", action="store_true")
-        args = parser.parse_args()
-        if args.dump_config_schema:
-            print(self._configuration.schema())
+        if _runtime.dump_config_schema_requested():
+            _runtime.dump_config_schema(self._configuration)
             return
 
-        if self._callback is None:
-            raise OpenAEVError("This daemon has no configured callback.")
+        _runtime.ensure_callback(self._callback)
         self._setup()
         self._start_loop()
 
@@ -129,11 +102,7 @@ class BaseDaemon(ABC):
         """Returns the daemon instance's ID contained in configuration. Configuration
         must define any of these keys: `id`, `collector_id`, `injector_id`.
         """
-        return (
-            self._configuration.get("id")
-            or self._configuration.get("collector_id")
-            or self._configuration.get("injector_id")
-        )
+        return _runtime.resolve_id(self._configuration)
 
     def _create_default_api_client(self) -> BaseClient:
         """Builds the API client used when none was injected. The SDK has no
@@ -141,13 +110,40 @@ class BaseDaemon(ABC):
         construct one from the ``openaev_url``, ``openaev_token`` and
         ``openaev_tenant_id`` configuration keys).
         """
-        raise OpenAEVError(
-            "No api_client was provided to the daemon; inject an OpenAEV API client."
-        )
+        return _runtime.default_api_client()
 
     @classmethod
     def __get_default_logger(cls, log_level, name):
-        # transitional until the daemons capability is layered
-        from xtm_oaev_sdk.public.common import logger
-
         return logger(log_level)(name)
+
+
+class PingAlive(threading.Thread):
+    """Heartbeat thread keeping a daemon registered on the platform."""
+
+    def __init__(self, api, config, logger, ping_type) -> None:
+        threading.Thread.__init__(self)
+        self.ping_type = ping_type
+        self.api = api
+        self.tenant_id = _heartbeat.tenant_of(self.api)
+        self.config = config
+        self.logger = logger
+        self.in_error = False
+        self.exit_event = threading.Event()
+
+    def ping(self) -> None:
+        _heartbeat.ping(
+            self.api, self.config, self.ping_type, self.logger, self.exit_event
+        )
+
+    def run(self) -> None:
+        self.logger.info(
+            "Starting PingAlive thread", _heartbeat.tenant_meta(self.tenant_id)
+        )
+        self.ping()
+
+    def stop(self) -> None:
+        self.logger.info(
+            "Preparing PingAlive for clean shutdown",
+            _heartbeat.tenant_meta(self.tenant_id),
+        )
+        self.exit_event.set()

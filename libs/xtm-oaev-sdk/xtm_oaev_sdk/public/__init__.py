@@ -103,7 +103,7 @@ from xtm_oaev_sdk.public.contracts import (
 )
 
 # --- Daemons ---
-from xtm_oaev_sdk.seam.daemons import BaseDaemon, PingAlive
+from xtm_oaev_sdk.public.daemons import BaseDaemon, PingAlive
 
 # --- Seam / compatibility ---
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr

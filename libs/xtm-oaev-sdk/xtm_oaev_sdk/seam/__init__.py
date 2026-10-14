@@ -13,8 +13,8 @@ can evolve independently without leaking either:
   definitions, field elements, enums, template variables), the builder
   protocol and the ports its public adapters delegate to; closed and
   versioned (``SEAM_VERSION``).
-- **``daemons``** — the daemon runtime shared by collectors and injectors;
-  the API client is injected through the ``BaseClient`` protocol.
+- **``daemons``** — the ports of the daemon runtime shared by collectors and
+  injectors (lifecycle, heartbeat); closed and versioned (``SEAM_VERSION``).
 - **``signatures``** — the signatures capability's inbound seam
   (``seam/signatures/seam.py``), versioned ``SEAM_VERSION``.
 - **``port_io``** — the port I/O wire schema crossing the SDK↔platform
@@ -30,9 +30,10 @@ implements its ports; the public adapters speak its types and delegate to the
 core. As long as the core keeps answering the seam, the public surface keeps
 working; a seam change is a contract change (``SEAM_VERSION`` bump, changelog).
 
-``common``, ``configuration``, ``contracts``, ``seam/signatures/seam.py`` and
-``seam/port_io/models.py`` are closed today; the other packages still re-export ``_core`` until their
-capability is migrated.
+``common``, ``configuration``, ``contracts``, ``daemons``,
+``seam/signatures/seam.py`` and ``seam/port_io/models.py`` are closed today;
+the other packages still re-export ``_core`` until their capability is
+migrated.
 """
 
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr

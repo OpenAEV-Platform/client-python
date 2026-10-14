@@ -1,6 +1,6 @@
-"""Daemon runtime shared by collectors and injectors."""
+"""Daemons core: implementations of the daemons seam ports."""
 
-from .base_daemon import BaseDaemon
-from .ping_alive import PingAlive
+from .heartbeat import Heartbeat
+from .runtime import DaemonRuntime
 
-__all__ = ["BaseDaemon", "PingAlive"]
+__all__ = ["DaemonRuntime", "Heartbeat"]
