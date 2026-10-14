@@ -9,13 +9,13 @@ Architecture:
     _core/signatures/     Signature feature implementation
     seam/common/          Shared errors, enums, types, and utilities
     seam/configuration/   Configuration contracts and ports (closed, versioned)
-    seam/contracts/       Scenarios capability behaviour + builder protocol
+    seam/contracts/       Scenario contracts and ports (closed, versioned)
     seam/daemons/         Daemon runtime (API client injected)
     seam/signatures/      Signatures inbound I/O seam (versioned)
     seam/port_io/         Port I/O wire schema (versioned, seam-owned)
     seam/deprecation.py   PEP 562 deprecation primitive
-    contracts/contracts/  OpenAEV scenario data models (business layer)
     public/configuration  Configuration adapters
+    public/contracts      Scenario contract adapters
     public/               User-facing re-exports
 
 Port/adapter layering, capability by capability (see ``seam``):

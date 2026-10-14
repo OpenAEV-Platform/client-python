@@ -2,13 +2,35 @@
 
 __version__ = "0.1.0"
 
+# --- Configuration ---
+from xtm_oaev_sdk.public.configuration import (
+    CONFIGURATION_TYPES,
+    BaseConfigModel,
+    ConfigLoaderCollector,
+    ConfigLoaderOAEV,
+    Configuration,
+    ConfigurationHint,
+    ConfigurationProtocol,
+    ConnectorConfigSchemaGenerator,
+    DictionarySource,
+    EnvironmentSource,
+    HttpUrlToString,
+    LogLevelToLower,
+    SettingsLoader,
+    TimedeltaInSeconds,
+    is_falsy,
+    is_truthy,
+)
+
 # --- Contracts (scenarios) ---
-from xtm_oaev_sdk.contracts.contracts import (
+from xtm_oaev_sdk.public.contracts import (
     Contract,
     ContractAiTarget,
     ContractAsset,
     ContractAssetGroup,
     ContractAttachment,
+    ContractBuilder,
+    ContractBuilderProtocol,
     ContractCardinality,
     ContractCardinalityElement,
     ContractCheckbox,
@@ -35,27 +57,10 @@ from xtm_oaev_sdk.contracts.contracts import (
     PrimitiveType,
     SecurityPlatformType,
     SupportedLanguage,
+    VariableHelper,
     VariableType,
-)
-
-# --- Configuration ---
-from xtm_oaev_sdk.public.configuration import (
-    CONFIGURATION_TYPES,
-    BaseConfigModel,
-    ConfigLoaderCollector,
-    ConfigLoaderOAEV,
-    Configuration,
-    ConfigurationHint,
-    ConfigurationProtocol,
-    ConnectorConfigSchemaGenerator,
-    DictionarySource,
-    EnvironmentSource,
-    HttpUrlToString,
-    LogLevelToLower,
-    SettingsLoader,
-    TimedeltaInSeconds,
-    is_falsy,
-    is_truthy,
+    build_single_referenced_credential_element,
+    prepare_contracts,
 )
 
 # --- Common (shared) ---
@@ -95,13 +100,6 @@ from xtm_oaev_sdk.seam.common import (
     setup_logging_config,
     ssl_cert_chain,
     ssl_verify_locations,
-)
-from xtm_oaev_sdk.seam.contracts import (
-    ContractBuilder,
-    ContractBuilderProtocol,
-    VariableHelper,
-    build_single_referenced_credential_element,
-    prepare_contracts,
 )
 
 # --- Daemons ---

@@ -1,17 +1,16 @@
-"""Helpers centralizing how injectors declare credential-reference fields.
+"""Credential-reference fields: provider-to-credential-type mapping.
 
-Injectors can call ``build_single_referenced_credential_element`` instead of
-re-implementing provider-to-credential-type mapping in each project. This keeps
-contract generation consistent across the Python ecosystem and aligns the
+Injectors call ``build_single_referenced_credential_element`` instead of
+re-implementing the provider-to-credential-type mapping in each project. This
+keeps contract generation consistent across the Python ecosystem and aligns the
 serialized contract payload with the OpenAEV platform's expected values.
 """
 
 from typing import Optional
 
-from xtm_oaev_sdk._core.contracts.contract_config import ContractReferencedCredential
-from xtm_oaev_sdk._core.contracts.credential_types import CredentialType
+from xtm_oaev_sdk.seam.contracts import ContractReferencedCredential, CredentialType
 
-__all__ = ["build_single_referenced_credential_element"]
+__all__ = ["CredentialReferences"]
 
 _PROVIDER_TO_CREDENTIAL_TYPE = {
     "aws": CredentialType.CLOUD_AWS,
@@ -21,23 +20,18 @@ _PROVIDER_TO_CREDENTIAL_TYPE = {
 }
 
 
-def _resolve_credential_type(provider_name: str) -> Optional[CredentialType]:
-    normalized_provider = provider_name.casefold()
-    return _PROVIDER_TO_CREDENTIAL_TYPE.get(normalized_provider)
+class CredentialReferences:
+    """Implements ``ContractCredentialsPort``."""
 
+    def build_single_referenced_credential_element(
+        self, provider_name: str
+    ) -> ContractReferencedCredential:
+        return ContractReferencedCredential(
+            credential_reference_type=self._resolve_credential_type(provider_name),
+            multiple=False,
+        )
 
-def build_single_referenced_credential_element(
-    provider_name: str,
-) -> ContractReferencedCredential:
-    """Build a credential-reference field for a provider-specific contract
-    with ``multiple`` value at ``False``.
-
-    This is the centralized entry point injectors should use when they need the
-    OpenAEV inject form to ask for one referenced credential. The helper keeps
-    provider-to-``CredentialType`` mapping consistent across injector projects.
-    """
-
-    return ContractReferencedCredential(
-        credential_reference_type=_resolve_credential_type(provider_name),
-        multiple=False,
-    )
+    @staticmethod
+    def _resolve_credential_type(provider_name: str) -> Optional[CredentialType]:
+        normalized_provider = provider_name.casefold()
+        return _PROVIDER_TO_CREDENTIAL_TYPE.get(normalized_provider)

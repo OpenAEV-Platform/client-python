@@ -1,16 +1,12 @@
-"""Variable helper: pre-built contract template variables.
+"""Built-in contract template variables (user, exercise, team, platform URIs)."""
 
-Provides factory methods for standard template variables (user, exercise,
-team, URIs) that are injected into contract fields during simulation.
-"""
-
-from xtm_oaev_sdk._core.contracts.contract_utils import (
+from xtm_oaev_sdk.seam.contracts import (
     ContractCardinality,
     ContractVariable,
     VariableType,
 )
 
-__all__ = ["VariableHelper"]
+__all__ = ["BuiltinContractVariables"]
 
 USER = "user"
 EXERCISE = "exercise"
@@ -22,22 +18,10 @@ SCOREBOARD_URI = "scoreboard_uri"
 LESSONS_URI = "lessons_uri"
 
 
-class VariableHelper:
-    """Factory for standard contract template variables.
+class BuiltinContractVariables:
+    """Implements ``ContractVariablesPort``."""
 
-    Provides pre-built variable definitions for common injection
-    targets (users, exercises, teams, platform URIs).
-
-    Example:
-        >>> variables = [
-        ...     VariableHelper.user_variable(),
-        ...     VariableHelper.exercise_variable(),
-        ...     VariableHelper.team_variable(),
-        ... ] + VariableHelper.uri_variables()
-    """
-
-    @staticmethod
-    def user_variable() -> ContractVariable:
+    def user_variable(self) -> ContractVariable:
         """Create the user template variable with standard children."""
         return ContractVariable(
             key=USER,
@@ -78,8 +62,7 @@ class VariableHelper:
             ],
         )
 
-    @staticmethod
-    def exercise_variable() -> ContractVariable:
+    def exercise_variable(self) -> ContractVariable:
         """Create the exercise template variable with standard children."""
         return ContractVariable(
             key=EXERCISE,
@@ -108,8 +91,7 @@ class VariableHelper:
             ],
         )
 
-    @staticmethod
-    def team_variable() -> ContractVariable:
+    def team_variable(self) -> ContractVariable:
         """Create the teams template variable."""
         return ContractVariable(
             key=TEAMS,
@@ -118,8 +100,7 @@ class VariableHelper:
             cardinality=ContractCardinality.Multiple,
         )
 
-    @staticmethod
-    def uri_variables() -> list[ContractVariable]:
+    def uri_variables(self) -> list[ContractVariable]:
         """Create platform URI template variables."""
         return [
             ContractVariable(
@@ -147,3 +128,11 @@ class VariableHelper:
                 cardinality=ContractCardinality.One,
             ),
         ]
+
+    def default_variables(self) -> list[ContractVariable]:
+        """Create the variables every contract starts with."""
+        return [
+            self.user_variable(),
+            self.exercise_variable(),
+            self.team_variable(),
+        ] + self.uri_variables()

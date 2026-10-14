@@ -8,8 +8,10 @@ can evolve independently without leaking either:
 - **``configuration``** — the configuration contracts (hints, settings
   models, serialization types) and the ports its public adapters delegate
   to; closed and versioned (``SEAM_VERSION``).
-- **``contracts``** — the scenarios capability's behaviour layer (builder,
-  variable helper, preparation entry point) and its extension protocol.
+- **``contracts``** — the OpenAEV scenario data contracts (contract
+  definitions, field elements, enums, template variables), the builder
+  protocol and the ports its public adapters delegate to; closed and
+  versioned (``SEAM_VERSION``).
 - **``daemons``** — the daemon runtime shared by collectors and injectors;
   the API client is injected through the ``BaseClient`` protocol.
 - **``signatures``** — the signatures capability's inbound seam
@@ -27,13 +29,9 @@ implements its ports; the public adapters speak its types and delegate to the
 core. As long as the core keeps answering the seam, the public surface keeps
 working; a seam change is a contract change (``SEAM_VERSION`` bump, changelog).
 
-``configuration``, ``seam/signatures/seam.py`` and ``seam/port_io/models.py``
-are closed today; the other packages still re-export ``_core`` until their
+``configuration``, ``contracts``, ``seam/signatures/seam.py`` and
+``seam/port_io/models.py`` are closed today; the other packages still re-export ``_core`` until their
 capability is migrated.
-
-Distinct from the *business* :mod:`xtm_oaev_sdk.contracts` layer, which holds
-the OpenAEV scenario data models — a domain concept, unrelated to the
-boundary.
 """
 
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr

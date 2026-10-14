@@ -1,37 +1,25 @@
-"""Contract configuration: field types, elements, and contract definitions.
+"""Contract data contracts: field types, elements and contract definitions.
 
-Defines the full contract model hierarchy used by injectors and collectors
-to declare their configuration schemas, input fields, and output types.
-
-Key types:
-    - ContractElement (ABC): Base for all contract field types.
-    - Contract: A complete contract definition with fields, outputs, and metadata.
-    - ContractExpectationType: Expectation classification for contract fields.
+The contract model hierarchy injectors and collectors use to declare their
+input fields, output types, expectations and template variables. Elements own
+their invariants (derived ``type``, cardinality, predefined expectations).
 """
 
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
 
-from xtm_oaev_sdk._core.contracts.contract_utils import (
-    ContractCardinality,
-    ContractVariable,
-)
-from xtm_oaev_sdk._core.contracts.credential_types import CredentialType
-from xtm_oaev_sdk._core.contracts.variable_helper import VariableHelper
-from xtm_oaev_sdk._core.utils import EnhancedJSONEncoder
-
 __all__ = [
-    "Contract",
     "ContractAiTarget",
     "ContractAsset",
     "ContractAssetGroup",
     "ContractAttachment",
+    "ContractCardinality",
     "ContractCardinalityElement",
     "ContractCheckbox",
     "ContractConfig",
+    "ContractData",
     "ContractElement",
     "ContractExpectationType",
     "ContractExpectations",
@@ -46,14 +34,74 @@ __all__ = [
     "ContractText",
     "ContractTextArea",
     "ContractTuple",
+    "ContractVariable",
+    "CredentialType",
     "Domain",
     "Expectation",
     "LinkedFieldModel",
     "PrimitiveType",
     "SecurityPlatformType",
     "SupportedLanguage",
-    "prepare_contracts",
+    "VariableType",
 ]
+
+
+class ContractCardinality(str, Enum):
+    """Field cardinality in a contract definition.
+
+    Attributes:
+        One: Single value expected.
+        Multiple: Multiple values (list) expected.
+    """
+
+    One: str = "1"
+    Multiple: str = "n"
+
+
+class VariableType(str, Enum):
+    """Variable type classification for contract template variables.
+
+    Attributes:
+        String: Simple string value.
+        Object: Nested object with children.
+    """
+
+    String: str = "String"
+    Object: str = "Object"
+
+
+@dataclass
+class ContractVariable:
+    """A template variable available for injection into contract fields.
+
+    Args:
+        key: Variable identifier (dot-notation for nested, e.g. "user.email").
+        label: Human-readable description of the variable.
+        type: Variable type (String or Object).
+        cardinality: Whether this variable holds one or many values.
+        children: Nested child variables (for Object type).
+    """
+
+    key: str
+    label: str
+    type: VariableType
+    cardinality: ContractCardinality
+    children: list["ContractVariable"] = field(default_factory=list)
+
+
+class CredentialType(str, Enum):
+    """Credential reference types shared with the OpenAEV platform.
+
+    The Python mirror of the OpenAEV backend credential-type enum used by
+    credential secret references. Values must stay label-for-label in sync with
+    the platform so contracts can declare credential references without any
+    translation layer.
+    """
+
+    IDENTITY = "IDENTITY"
+    CLOUD_AWS = "CLOUD_AWS"
+    CLOUD_AZURE = "CLOUD_AZURE"
+    CLOUD_GCP = "CLOUD_GCP"
 
 
 class SupportedLanguage(str, Enum):
@@ -335,8 +383,8 @@ class Domain:
 
 
 @dataclass
-class Contract:
-    """A complete contract definition for an injector or collector.
+class ContractData:
+    """Data of a complete contract definition for an injector or collector.
 
     Contains fields (inputs), outputs, configuration, and metadata
     for registering the contract with the OpenAEV platform.
@@ -357,16 +405,7 @@ class Contract:
     outputs: list[ContractOutputElement]
     config: ContractConfig
     manual: bool
-    variables: list[ContractVariable] = field(
-        default_factory=lambda: (
-            [
-                VariableHelper.user_variable(),
-                VariableHelper.exercise_variable(),
-                VariableHelper.team_variable(),
-            ]
-            + VariableHelper.uri_variables()
-        )
-    )
+    variables: list[ContractVariable] = field(default_factory=list)
     contract_attack_patterns_external_ids: list[str] = field(default_factory=list)
     contract_vulnerability_external_ids: list[str] = field(default_factory=list)
     is_atomic_testing: bool = True
@@ -385,46 +424,6 @@ class Contract:
     def add_variable(self, var: ContractVariable) -> None:
         """Add a custom template variable to this contract."""
         self.variables.append(var)
-
-    def to_contract_add_input(self, source_id: str) -> dict[str, Any]:
-        """Serialize this contract for the platform creation API.
-
-        Args:
-            source_id: The injector ID that owns this contract.
-
-        Returns:
-            Dict payload for the contract creation endpoint.
-        """
-        return {
-            "contract_id": self.contract_id,
-            "external_contract_id": self.external_id,
-            "injector_id": source_id,
-            "contract_manual": self.manual,
-            "contract_labels": self.label,
-            "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
-            "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(self, cls=EnhancedJSONEncoder),
-            "is_atomic_testing": self.is_atomic_testing,
-            "contract_platforms": self.platforms,
-            "contract_domains": self.domains,
-        }
-
-    def to_contract_update_input(self) -> dict[str, Any]:
-        """Serialize this contract for the platform update API.
-
-        Returns:
-            Dict payload for the contract update endpoint.
-        """
-        return {
-            "contract_manual": self.manual,
-            "contract_labels": self.label,
-            "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
-            "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(self, cls=EnhancedJSONEncoder),
-            "is_atomic_testing": self.is_atomic_testing,
-            "contract_platforms": self.platforms,
-            "contract_domains": self.domains,
-        }
 
 
 @dataclass
@@ -445,30 +444,6 @@ class ContractText(ContractCardinalityElement):
     @property
     def get_type(self) -> str:
         return ContractFieldType.Text.value
-
-
-def prepare_contracts(contracts: list[Contract]) -> list[dict[str, Any]]:
-    """Serialize a list of contracts for bulk platform registration.
-
-    Args:
-        contracts: List of Contract instances to serialize.
-
-    Returns:
-        List of dicts suitable for the bulk contract registration API.
-    """
-    return list(
-        map(
-            lambda c: {
-                "contract_id": c.contract_id,
-                "contract_labels": c.label,
-                "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
-                "contract_content": json.dumps(c, cls=EnhancedJSONEncoder),
-                "contract_platforms": c.platforms,
-                "contract_domains": c.domains,
-            },
-            contracts,
-        )
-    )
 
 
 @dataclass

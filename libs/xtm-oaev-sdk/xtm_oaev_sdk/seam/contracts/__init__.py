@@ -1,27 +1,94 @@
-"""The scenarios (contracts) capability's seam surface.
+"""Contracts seam: the contract between the public adapters and the core.
 
-Re-presents the capability's behaviour layer — the concrete builder, the
-variable helper, and the preparation entry point — together with the
-capability's extension protocol, so that the public firewall never imports
-``_core`` directly.
-
-The *data models* of the scenarios capability are a business concern and
-live in :mod:`xtm_oaev_sdk.contracts`; this sub-package carries the
-behaviour and the protocol only.
+Closed: it imports nothing from ``xtm_oaev_sdk._core`` nor
+``xtm_oaev_sdk.public``. Any change to these contracts is a breaking change for
+one side of the boundary and must bump :data:`SEAM_VERSION`.
 """
 
-from xtm_oaev_sdk._core.contracts import (
-    ContractBuilder,
+from xtm_oaev_sdk.seam.contracts.models import (
+    ContractAiTarget,
+    ContractAsset,
+    ContractAssetGroup,
+    ContractAttachment,
+    ContractCardinality,
+    ContractCardinalityElement,
+    ContractCheckbox,
+    ContractConfig,
+    ContractData,
+    ContractElement,
+    ContractExpectations,
+    ContractExpectationType,
+    ContractFieldKey,
+    ContractFieldType,
+    ContractOutputElement,
+    ContractOutputType,
+    ContractPayload,
+    ContractReferencedCredential,
+    ContractSelect,
+    ContractTeam,
+    ContractText,
+    ContractTextArea,
+    ContractTuple,
+    ContractVariable,
+    CredentialType,
+    Domain,
+    Expectation,
+    LinkedFieldModel,
+    PrimitiveType,
+    SecurityPlatformType,
+    SupportedLanguage,
+    VariableType,
+)
+from xtm_oaev_sdk.seam.contracts.ports import (
+    ContractAssemblyPort,
     ContractBuilderProtocol,
-    VariableHelper,
-    build_single_referenced_credential_element,
-    prepare_contracts,
+    ContractCredentialsPort,
+    ContractSerializerPort,
+    ContractVariablesPort,
 )
 
+#: Version of the contracts seam. Bump on any contract change.
+SEAM_VERSION = "1.0.0"
+
 __all__ = [
-    "ContractBuilder",
+    "SEAM_VERSION",
+    # Data contracts
+    "ContractAiTarget",
+    "ContractAsset",
+    "ContractAssetGroup",
+    "ContractAttachment",
+    "ContractCardinality",
+    "ContractCardinalityElement",
+    "ContractCheckbox",
+    "ContractConfig",
+    "ContractData",
+    "ContractElement",
+    "ContractExpectationType",
+    "ContractExpectations",
+    "ContractFieldKey",
+    "ContractFieldType",
+    "ContractOutputElement",
+    "ContractOutputType",
+    "ContractPayload",
+    "ContractReferencedCredential",
+    "ContractSelect",
+    "ContractTeam",
+    "ContractText",
+    "ContractTextArea",
+    "ContractTuple",
+    "ContractVariable",
+    "CredentialType",
+    "Domain",
+    "Expectation",
+    "LinkedFieldModel",
+    "PrimitiveType",
+    "SecurityPlatformType",
+    "SupportedLanguage",
+    "VariableType",
+    # Ports
+    "ContractAssemblyPort",
     "ContractBuilderProtocol",
-    "VariableHelper",
-    "build_single_referenced_credential_element",
-    "prepare_contracts",
+    "ContractCredentialsPort",
+    "ContractSerializerPort",
+    "ContractVariablesPort",
 ]
