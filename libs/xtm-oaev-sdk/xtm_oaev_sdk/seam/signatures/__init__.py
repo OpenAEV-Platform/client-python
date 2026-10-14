@@ -1,0 +1,71 @@
+"""Signature feature data models.
+
+The inbound seam (the versioned ``InjectorConfig`` / ``ExecutionSignature`` /
+``ToolOutput`` I/O models) is declared in :mod:`xtm_oaev_sdk.seam.signatures.seam`;
+everything else in this package is the port's interface, re-export surface,
+and the concrete matching-engine layer.
+"""
+
+from xtm_oaev_sdk._core.signatures import (
+    CloudInjectorConfig,
+    ExecutionDetails,
+    ExecutionSignature,
+    ExecutionStatus,
+    ExpectationSignatureGroup,
+    ExtraSignatureData,
+    InjectExecutionActions,
+    InjectorConfig,
+    MatchTypes,
+    NetworkInjectorConfig,
+    SignatureCallbackPayload,
+    SignatureExpectationType,
+    SignatureManager,
+    SignatureManagerProtocol,
+    SignatureMatch,
+    SignatureOutputStructure,
+    SignaturePayload,
+    SignatureTarget,
+    SignatureTransportProtocol,
+    SignatureType,
+    SignatureTypes,
+    SignatureValue,
+    TargetSignatures,
+    ToolErrorInfo,
+    ToolOutput,
+    ToolTimeoutInfo,
+    build_marker,
+    build_network_configs,
+)
+from xtm_oaev_sdk.seam.signatures.seam import SEAM_VERSION
+
+__all__ = [
+    "SEAM_VERSION",
+    "CloudInjectorConfig",
+    "ExecutionDetails",
+    "ExecutionSignature",
+    "ExecutionStatus",
+    "ExpectationSignatureGroup",
+    "ExtraSignatureData",
+    "InjectExecutionActions",
+    "InjectorConfig",
+    "MatchTypes",
+    "NetworkInjectorConfig",
+    "SignatureCallbackPayload",
+    "SignatureExpectationType",
+    "SignatureManager",
+    "SignatureManagerProtocol",
+    "SignatureMatch",
+    "SignatureOutputStructure",
+    "SignaturePayload",
+    "SignatureTarget",
+    "SignatureTransportProtocol",
+    "SignatureType",
+    "SignatureTypes",
+    "SignatureValue",
+    "TargetSignatures",
+    "ToolErrorInfo",
+    "ToolOutput",
+    "ToolTimeoutInfo",
+    "build_marker",
+    "build_network_configs",
+]

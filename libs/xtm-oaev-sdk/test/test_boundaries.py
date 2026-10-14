@@ -2,6 +2,8 @@
 
 import pathlib
 import re
+import subprocess
+import sys
 
 import pytest
 
@@ -40,3 +42,24 @@ def test_sdk_sources_do_not_import(package: str) -> None:
 def test_sdk_sources_do_not_define_client_helpers(artifact: str) -> None:
     """It leaves transport and daemon helpers to the client."""
     assert _when_searching_sdk_sources(rf"^\s*{artifact}\b") == []
+
+
+def _sdk_modules() -> list[str]:
+    package_root = _SDK_ROOT.parent
+    return sorted(
+        ".".join(path.relative_to(package_root).with_suffix("").parts).removesuffix(
+            ".__init__"
+        )
+        for path in _SDK_ROOT.rglob("*.py")
+    )
+
+
+@pytest.mark.parametrize("module", _sdk_modules())
+def test_every_sdk_module_imports_first_in_a_fresh_interpreter(module: str) -> None:
+    """It has no import cycle hidden by a lucky import order."""
+    result = subprocess.run(
+        [sys.executable, "-W", "error", "-c", f"import {module}"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr

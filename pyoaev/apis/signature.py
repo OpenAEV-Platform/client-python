@@ -6,15 +6,15 @@ import time
 from typing import Any
 
 from pydantic import ValidationError
-from xtm_oaev_sdk import SignatureTransmissionError
-from xtm_oaev_sdk.seam import common as exc
-
-from pyoaev.base import RESTManager, RESTObject
-from pyoaev.signatures.models import (
+from xtm_oaev_sdk import (
     ExecutionDetails,
     SignatureCallbackPayload,
     SignatureOutputStructure,
+    SignatureTransmissionError,
 )
+from xtm_oaev_sdk.seam import common as exc
+
+from pyoaev.base import RESTManager, RESTObject
 
 
 class Signature(RESTObject):

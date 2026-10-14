@@ -105,14 +105,10 @@ class PingAlive(threading.Thread):
         self.exit_event.set()
 
 
-_deprecated_getattr = _make_deprecated_getattr(
+__getattr__ = _make_deprecated_getattr(
     {
         name: (f"Use 'from xtm_oaev_sdk import {name}' instead.", getattr(_sdk, name))
         for name in _MOVED
     },
     module_name=__name__,
 )
-
-
-def __getattr__(name: str):  # PEP 562
-    return _deprecated_getattr(name)

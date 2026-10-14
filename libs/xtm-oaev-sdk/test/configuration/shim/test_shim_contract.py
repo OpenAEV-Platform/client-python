@@ -46,6 +46,9 @@ LEGACY_NAMES = [
 ]
 
 
+_CONSUMER = "legacy_consumer.py"
+
+
 def _given_fresh_interpreter_script(script: str) -> list[str]:
     return [sys.executable, "-W", "error::DeprecationWarning", "-c", script]
 
@@ -58,7 +61,10 @@ def _when_import_legacy_name(module: str, name: str):
     namespace: dict = {}
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        exec(f"from {module} import {name} as _legacy", namespace)
+        exec(
+            compile(f"from {module} import {name} as _legacy", _CONSUMER, "exec"),
+            namespace,
+        )
     return namespace["_legacy"], caught
 
 
@@ -74,6 +80,8 @@ def test_legacy_import_warns_and_returns_the_sdk_object(module, name) -> None:
     deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
     assert deprecations
     assert f"from xtm_oaev_sdk import {name}" in str(deprecations[0].message)
+    # attributed to the consumer's line, so default warning filters show it
+    assert any(w.filename == _CONSUMER for w in deprecations)
 
 
 def test_importing_pyoaev_is_silent() -> None:

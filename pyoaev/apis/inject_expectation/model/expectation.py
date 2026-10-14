@@ -4,9 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 from thefuzz import fuzz
-
-from pyoaev.signatures.signature_type import SignatureType
-from pyoaev.signatures.types import MatchTypes, SignatureTypes
+from xtm_oaev_sdk import MatchTypes, SignatureType, SignatureTypes
 
 
 class ExpectationTypeEnum(str, Enum):

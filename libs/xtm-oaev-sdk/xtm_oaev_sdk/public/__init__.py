@@ -62,6 +62,43 @@ from xtm_oaev_sdk.seam.configuration import (
 # --- Seam / compatibility ---
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
 
+# --- Port I/O contract (versioned wire schema) ---
+from xtm_oaev_sdk.seam.port_io import (
+    PORT_IO_CONTRACT_VERSION,
+    ExecutionDetails,
+    ExecutionStatus,
+    ExpectationSignatureGroup,
+    InjectExecutionActions,
+    SignatureCallbackPayload,
+    SignatureExpectationType,
+    SignatureOutputStructure,
+    SignaturePayload,
+    SignatureTarget,
+    SignatureValue,
+    TargetSignatures,
+)
+
+# --- Signatures ---
+from xtm_oaev_sdk.seam.signatures import (
+    CloudInjectorConfig,
+    ExecutionSignature,
+    ExtraSignatureData,
+    InjectorConfig,
+    MatchTypes,
+    NetworkInjectorConfig,
+    SignatureManager,
+    SignatureManagerProtocol,
+    SignatureMatch,
+    SignatureTransportProtocol,
+    SignatureType,
+    SignatureTypes,
+    ToolErrorInfo,
+    ToolOutput,
+    ToolTimeoutInfo,
+    build_marker,
+    build_network_configs,
+)
+
 __all__ = [
     "__version__",
     # Common: errors
@@ -118,6 +155,36 @@ __all__ = [
     "TimedeltaInSeconds",
     "is_falsy",
     "is_truthy",
+    # Signatures
+    "CloudInjectorConfig",
+    "ExecutionDetails",
+    "ExecutionSignature",
+    "ExecutionStatus",
+    "ExpectationSignatureGroup",
+    "ExtraSignatureData",
+    "InjectExecutionActions",
+    "InjectorConfig",
+    "MatchTypes",
+    "NetworkInjectorConfig",
+    "SignatureCallbackPayload",
+    "SignatureExpectationType",
+    "SignatureManager",
+    "SignatureManagerProtocol",
+    "SignatureMatch",
+    "SignatureOutputStructure",
+    "SignaturePayload",
+    "SignatureTarget",
+    "SignatureTransportProtocol",
+    "SignatureType",
+    "SignatureTypes",
+    "SignatureValue",
+    "TargetSignatures",
+    "ToolErrorInfo",
+    "ToolOutput",
+    "ToolTimeoutInfo",
+    "build_marker",
+    "build_network_configs",
     # Seam / compatibility
+    "PORT_IO_CONTRACT_VERSION",
     "make_deprecated_getattr",
 ]

@@ -13,12 +13,8 @@ from typing import Callable, Dict, List
 import pika
 import xtm_oaev_sdk as _sdk
 from thefuzz import fuzz
-from xtm_oaev_sdk import (
-    Configuration,
-    ConfigurationError,
-    logger,
-    make_deprecated_getattr,
-)
+from xtm_oaev_sdk import Configuration, ConfigurationError, logger
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
 from pyoaev import OpenAEV, utils
 from pyoaev.daemons import CollectorDaemon
@@ -28,7 +24,7 @@ FALSY: List[str] = ["no", "false", "False"]
 
 # SSL helpers moved to xtm_oaev_sdk: legacy names resolve to the identical SDK
 # objects and warn on access (PEP 562).
-_deprecated_getattr = make_deprecated_getattr(
+__getattr__ = _make_deprecated_getattr(
     {
         name: (f"Use 'from xtm_oaev_sdk import {name}' instead.", getattr(_sdk, name))
         for name in (
@@ -40,10 +36,6 @@ _deprecated_getattr = make_deprecated_getattr(
     },
     module_name=__name__,
 )
-
-
-def __getattr__(name: str):  # PEP 562
-    return _deprecated_getattr(name)
 
 
 def create_mq_ssl_context(config) -> ssl.SSLContext:
