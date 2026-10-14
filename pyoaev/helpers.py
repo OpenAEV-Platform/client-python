@@ -11,7 +11,7 @@ legacy glue over the collectors-sdk ``CollectorDaemon``.
 import collectors_sdk as _collectors_sdk
 import injectors_sdk as _injectors_sdk
 import xtm_oaev_sdk as _sdk
-from collectors_sdk.seam import detection as _detection
+from collectors_sdk.public import detection as _detection
 from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
 from pyoaev import OpenAEV
