@@ -1,44 +1,27 @@
-from typing import List
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
 
-from pyoaev.contracts.contract_config import ContractElement, ContractOutputElement
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
+"""
 
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
-class ContractBuilder:
-    fields: List[ContractElement]
-    outputs: List[ContractOutputElement]
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "ContractBuilder",
+    "ContractElement",
+    "ContractOutputElement",
+]
 
-    def __init__(self):
-        self.fields = []
-        self.outputs = []
-
-    def add_fields(self, fields: List[ContractElement]):
-        self.fields = self.fields + fields
-        return self
-
-    def add_outputs(self, outputs: List[ContractOutputElement]):
-        self.outputs = self.outputs + outputs
-        return self
-
-    def mandatory(self, element: ContractElement):
-        element.mandatory = True
-        self.fields.append(element)
-        return self
-
-    def optional(self, element: ContractElement):
-        element.mandatory = False
-        self.fields.append(element)
-        return self
-
-    def mandatory_group(self, elements: List[ContractElement]):
-        keys: List[str] = list(map(lambda iterable: iterable.key, elements))
-        for element in elements:
-            element.mandatory = True
-            element.mandatoryGroups = keys
-            self.fields.append(element)
-        return self
-
-    def build_fields(self) -> List[ContractElement]:
-        return self.fields
-
-    def build_outputs(self) -> List[ContractOutputElement]:
-        return self.outputs
+__getattr__ = _make_deprecated_getattr(
+    {
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {name}' instead.",
+                getattr(_sdk, name),
+            )
+            for name in __all__
+        },
+    },
+    module_name=__name__,
+)

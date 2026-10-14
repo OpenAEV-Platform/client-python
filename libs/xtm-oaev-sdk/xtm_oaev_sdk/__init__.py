@@ -4,12 +4,15 @@ Architecture:
     _core/                Shared implementations (errors, utils, ssl_utils,
                           asset_types, security_domain)
     _core/configuration/  Configuration feature implementation
+    _core/contracts/      OpenAEV scenarios feature implementation
     _core/signatures/     Signature feature implementation
     seam/common/          Shared errors, enums, types, and utilities
     seam/configuration/   Configuration I/O surface
+    seam/contracts/       Scenarios capability behaviour + builder protocol
     seam/signatures/      Signatures inbound I/O seam (versioned)
     seam/port_io/         Port I/O wire schema (versioned, seam-owned)
     seam/deprecation.py   PEP 562 deprecation primitive
+    contracts/contracts/  OpenAEV scenario data models (business layer)
     public/               User-facing re-exports
 
 The seam is the compatibility boundary and the sole door between the public

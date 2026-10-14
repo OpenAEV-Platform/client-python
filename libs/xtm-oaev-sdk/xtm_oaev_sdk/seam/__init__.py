@@ -7,6 +7,8 @@ can evolve independently without leaking either:
   platform-facing vocabulary both sides import.
 - **``configuration``** — the configuration capability's I/O models and
   conversion primitives.
+- **``contracts``** — the scenarios capability's behaviour layer (builder,
+  variable helper, preparation entry point) and its extension protocol.
 - **``signatures``** — the signatures capability's inbound seam
   (``seam/signatures/seam.py``), versioned ``SEAM_VERSION``.
 - **``port_io``** — the port I/O wire schema crossing the SDK↔platform
@@ -25,6 +27,10 @@ through the boundary: they import ``_core`` so the public layer can. The seam
 is the **sole door** between ``public/`` and ``_core/``: every public import
 of a ``_core`` symbol crosses it. The seam never imports the public layer,
 nor does ``_core``.
+
+Distinct from the *business* :mod:`xtm_oaev_sdk.contracts` layer, which holds
+the OpenAEV scenario data models — a domain concept, unrelated to the
+boundary.
 """
 
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr

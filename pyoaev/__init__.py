@@ -4,7 +4,13 @@ __version__ = "3.261014.1"
 import xtm_oaev_sdk as _sdk
 from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
-from pyoaev import asset_types, configuration, exceptions, signatures  # noqa: F401
+from pyoaev import (  # noqa: F401
+    asset_types,
+    configuration,
+    contracts,
+    exceptions,
+    signatures,
+)
 from pyoaev._version import (  # noqa: F401
     __author__,
     __copyright__,
@@ -13,9 +19,8 @@ from pyoaev._version import (  # noqa: F401
     __title__,
 )
 from pyoaev.client import OpenAEV  # noqa: F401
-from pyoaev.contracts import *  # noqa: F401,F403,F405
 
-__all__ = [  # noqa: F405 (moved names are served by the PEP 562 __getattr__ below)
+__all__ = [  # moved names are served by the PEP 562 __getattr__ below
     "__author__",
     "__copyright__",
     "__email__",
@@ -42,6 +47,7 @@ __getattr__ = _make_deprecated_getattr(
             for name in (
                 *asset_types.__all__,
                 *configuration.__all__,
+                *contracts.__all__,
                 *exceptions.__all__,
             )
         },
