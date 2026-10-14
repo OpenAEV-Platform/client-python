@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run:
           name: install dependencies
-          command: pip3 install --user .[dev]
+          command: pip3 install --user ./libs/xtm-oaev-sdk .[dev]
       - run:
           name: confirm black version
           command: black --version
@@ -33,7 +33,7 @@ jobs:
       - checkout
       - run:
           name: install dependencies
-          command: pip3 install --user '.[dev]'
+          command: pip3 install --user ./libs/xtm-oaev-sdk '.[dev]'
       - run:
           name: run tests
           command: python -m pytest

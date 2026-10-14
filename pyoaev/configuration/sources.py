@@ -1,47 +1,25 @@
-import os
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
+
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
+"""
+
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "DictionarySource",
+    "EnvironmentSource",
+]
+
+_deprecated_getattr = _make_deprecated_getattr(
+    {
+        name: (f"Use 'from xtm_oaev_sdk import {name}' instead.", getattr(_sdk, name))
+        for name in __all__
+    },
+    module_name=__name__,
+)
 
 
-class EnvironmentSource:
-    """A utility for fecthing a value in the env vars."""
-
-    @classmethod
-    def get(cls, env_var: str) -> str | None:
-        """Gets the value for the specified env var
-
-        :param env_var: the name of the env var to query
-        :type env_var: str
-
-        :return: value of the env var, or None if not found
-        :rtype: str | None
-        """
-        return os.getenv(env_var) if env_var else None
-
-
-class DictionarySource:
-    """A utility for fetching a value from within a JSON-like (nested dict) structure"""
-
-    # this is quite hacky
-    # it only strictly handles two levels of keys in a dict
-    @classmethod
-    def get(cls, config_key_path: list[str] | None, source_dict: dict) -> str | None:
-        """Gets the value for the specified env var
-
-        :param config_key_path: the two-level dictionary path to the config key
-        :type config_key_path: list[str]
-        :param source_dict: JSON-like (nested dict) structure containing config values.
-        :type source_dict: dict
-
-        :return: value for the config key at specified path, or None if not found
-        :rtype: str | None
-        """
-        if config_key_path is None:
-            return None
-
-        assert (
-            isinstance(config_key_path, list)
-            and len(config_key_path) == 2
-            and all([len(path_part) > 0 for path_part in config_key_path])
-        )
-        return source_dict.get(config_key_path[0], {config_key_path[1]: None}).get(
-            config_key_path[1]
-        )
+def __getattr__(name: str):  # PEP 562
+    return _deprecated_getattr(name)

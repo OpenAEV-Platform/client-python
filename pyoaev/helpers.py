@@ -13,9 +13,9 @@ from typing import Callable, Dict, List
 
 import pika
 from thefuzz import fuzz
+from xtm_oaev_sdk import Configuration
 
 from pyoaev import OpenAEV, utils
-from pyoaev.configuration import Configuration
 from pyoaev.daemons import CollectorDaemon
 from pyoaev.exceptions import ConfigurationError
 

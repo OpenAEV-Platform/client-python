@@ -4,8 +4,9 @@ from inspect import signature
 from types import FunctionType
 from uuid import UUID
 
+from xtm_oaev_sdk import Configuration
+
 from pyoaev.client import OpenAEV
-from pyoaev.configuration import Configuration
 from pyoaev.exceptions import OpenAEVError
 from pyoaev.utils import logger
 
