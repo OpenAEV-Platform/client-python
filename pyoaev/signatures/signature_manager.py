@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
+from xtm_oaev_sdk import OpenAEVError
 
-from pyoaev.exceptions import OpenAEVError
 from pyoaev.signatures.models import (
     CloudInjectorConfig,
     ExecutionDetails,

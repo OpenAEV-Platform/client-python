@@ -1,6 +1,7 @@
+from xtm_oaev_sdk import RequiredOptional
+
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import CreateMixin, DeleteMixin, GetMixin, ListMixin, UpdateMixin
-from pyoaev.utils import RequiredOptional
 
 
 class AiTarget(RESTObject):

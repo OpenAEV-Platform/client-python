@@ -1,7 +1,8 @@
 import sched
 import time
 
-from pyoaev import Configuration
+from xtm_oaev_sdk import Configuration
+
 from pyoaev.daemons import BaseDaemon
 from pyoaev.utils import PingAlive
 

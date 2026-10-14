@@ -1,6 +1,8 @@
 from typing import Any, Dict, List
 
-from pyoaev import exceptions as exc
+from xtm_oaev_sdk import RequiredOptional
+from xtm_oaev_sdk.seam import common as exc
+
 from pyoaev.apis.inject_expectation.model import (
     DetectionExpectation,
     ExpectationTypeEnum,
@@ -8,7 +10,6 @@ from pyoaev.apis.inject_expectation.model import (
 )
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import ListMixin, UpdateMixin
-from pyoaev.utils import RequiredOptional
 
 
 class InjectExpectation(RESTObject):

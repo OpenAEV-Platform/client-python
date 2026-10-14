@@ -1,14 +1,36 @@
-import dataclasses
-import datetime
+"""Utilities specific to the pyoaev HTTP client and daemons.
+
+The shared utilities moved to :mod:`xtm_oaev_sdk`; their legacy names here
+resolve to the *identical* SDK objects and emit a :class:`DeprecationWarning`
+on access.
+"""
+
 import email.message
-import json
-import logging
 import threading
-import urllib.parse
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Iterator, Optional, Union
 
 import requests
-from pythonjsonlogger.json import JsonFormatter
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
+_MOVED = [
+    "AppLogger",
+    "CustomJsonFormatter",
+    "EncodedId",
+    "EnhancedJSONEncoder",
+    "RequiredOptional",
+    "copy_dict",
+    "logger",
+    "remove_none_from_dict",
+    "setup_logging_config",
+]
+
+__all__ = [  # noqa: F822 (moved names are served by the PEP 562 __getattr__ below)
+    "get_content_type",
+    "response_content",
+    "PingAlive",
+    *_MOVED,
+]
 
 
 class _StdoutStream:
@@ -46,141 +68,6 @@ def response_content(
     return None
 
 
-def copy_dict(
-    *,
-    src: Dict[str, Any],
-    dest: Dict[str, Any],
-) -> None:
-    for k, v in src.items():
-        if isinstance(v, dict):
-            for dict_k, dict_v in v.items():
-                dest[f"{k}[{dict_k}]"] = dict_v
-        else:
-            dest[k] = v
-
-
-class EncodedId(str):
-    def __new__(cls, value: Union[str, int, "EncodedId"]) -> "EncodedId":
-        if isinstance(value, EncodedId):
-            return value
-
-        if not isinstance(value, (int, str)):
-            raise TypeError(f"Unsupported type received: {type(value)}")
-        if isinstance(value, str):
-            value = urllib.parse.quote(value, safe="")
-        return super().__new__(cls, value)
-
-
-def remove_none_from_dict(data: Dict[str, Any]) -> Dict[str, Any]:
-    return {k: v for k, v in data.items() if v is not None}
-
-
-class EnhancedJSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if dataclasses.is_dataclass(o):
-            return dataclasses.asdict(o)
-        return super().default(o)
-
-
-@dataclasses.dataclass(frozen=True)
-class RequiredOptional:
-    required: Tuple[str, ...] = ()
-    optional: Tuple[str, ...] = ()
-    exclusive: Tuple[str, ...] = ()
-
-    def validate_attrs(
-        self,
-        *,
-        data: Dict[str, Any],
-        excludes: Optional[List[str]] = None,
-    ) -> None:
-        if excludes is None:
-            excludes = []
-
-        if self.required:
-            required = [k for k in self.required if k not in excludes]
-            missing = [attr for attr in required if attr not in data]
-            if missing:
-                raise AttributeError(f"Missing attributes: {', '.join(missing)}")
-
-        if self.exclusive:
-            exclusives = [attr for attr in data if attr in self.exclusive]
-            if len(exclusives) > 1:
-                raise AttributeError(
-                    f"Provide only one of these attributes: {', '.join(exclusives)}"
-                )
-            if not exclusives:
-                raise AttributeError(
-                    f"Must provide one of these attributes: "
-                    f"{', '.join(self.exclusive)}"
-                )
-
-
-class CustomJsonFormatter(JsonFormatter):
-    def add_fields(self, log_record, record, message_dict):
-        super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
-        if not log_record.get("timestamp"):
-            # This doesn't use record.created, so it is slightly off
-            now = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-            log_record["timestamp"] = now
-        if log_record.get("level"):
-            log_record["level"] = log_record["level"].upper()
-        else:
-            log_record["level"] = record.levelname
-
-
-def setup_logging_config(level, json_logging=True):
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("pika").setLevel(logging.ERROR)
-    # Exceptions
-    if json_logging:
-        log_handler = logging.StreamHandler()
-        log_handler.setLevel(level)
-        formatter = CustomJsonFormatter("%(timestamp)s %(level)s %(name)s %(message)s")
-        log_handler.setFormatter(formatter)
-        logging.basicConfig(handlers=[log_handler], level=level, force=True)
-    else:
-        logging.basicConfig(level=level)
-
-
-class AppLogger:
-    def __init__(self, level, json_logging=True, name: str = __name__):
-        self.log_level = level
-        self.json_logging = json_logging
-        setup_logging_config(self.log_level, self.json_logging)
-        self.local_logger = logging.getLogger(name)
-
-    def __call__(self, name):
-        self.local_logger = logging.getLogger(name)
-        return self
-
-    @staticmethod
-    def prepare_meta(meta=None):
-        return None if meta is None else {"attributes": meta}
-
-    @staticmethod
-    def setup_logger_level(lib, log_level):
-        logging.getLogger(lib).setLevel(log_level)
-
-    def debug(self, message, meta=None):
-        self.local_logger.debug(message, extra=AppLogger.prepare_meta(meta))
-
-    def info(self, message, meta=None):
-        self.local_logger.info(message, extra=AppLogger.prepare_meta(meta))
-
-    def warning(self, message, meta=None):
-        self.local_logger.warning(message, extra=AppLogger.prepare_meta(meta))
-
-    def error(self, message, meta=None):
-        # noinspection PyTypeChecker
-        self.local_logger.error(message, exc_info=1, extra=AppLogger.prepare_meta(meta))
-
-
-# DEPRECATED: compatibility
-def logger(level, json_logging=True):
-    return AppLogger(level, json_logging)
-
-
 class PingAlive(threading.Thread):
     def __init__(self, api, config, logger, ping_type) -> None:
         threading.Thread.__init__(self)
@@ -216,3 +103,16 @@ class PingAlive(threading.Thread):
             {"tenant_id": str(self.tenant_id) if self.tenant_id else None},
         )
         self.exit_event.set()
+
+
+_deprecated_getattr = _make_deprecated_getattr(
+    {
+        name: (f"Use 'from xtm_oaev_sdk import {name}' instead.", getattr(_sdk, name))
+        for name in _MOVED
+    },
+    module_name=__name__,
+)
+
+
+def __getattr__(name: str):  # PEP 562
+    return _deprecated_getattr(name)

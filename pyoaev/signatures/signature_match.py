@@ -1,4 +1,5 @@
-from pyoaev.exceptions import OpenAEVError
+from xtm_oaev_sdk import OpenAEVError
+
 from pyoaev.signatures.types import MatchTypes
 
 

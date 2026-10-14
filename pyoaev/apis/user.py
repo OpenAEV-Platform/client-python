@@ -1,9 +1,10 @@
 from typing import Any, Dict
 
-from pyoaev import exceptions as exc
+from xtm_oaev_sdk import RequiredOptional
+from xtm_oaev_sdk.seam import common as exc
+
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import CreateMixin, ListMixin, UpdateMixin
-from pyoaev.utils import RequiredOptional
 
 
 class User(RESTObject):

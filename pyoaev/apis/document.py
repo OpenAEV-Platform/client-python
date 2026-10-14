@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
-from pyoaev import exceptions as exc
+from xtm_oaev_sdk.seam import common as exc
+
 from pyoaev.base import RESTManager, RESTObject
 
 

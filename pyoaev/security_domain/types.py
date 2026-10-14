@@ -1,20 +1,26 @@
-from enum import Enum
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
+
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
+"""
+
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "SecurityDomains",
+]
+
+_MOVED = __all__
+
+_deprecated_getattr = _make_deprecated_getattr(
+    {
+        name: (f"Use 'from xtm_oaev_sdk import {name}' instead.", getattr(_sdk, name))
+        for name in _MOVED
+    },
+    module_name=__name__,
+)
 
 
-class SecurityDomains(Enum):
-    ENDPOINT = {"domain_name": "Endpoint", "domain_color": "#389CFF"}
-    NETWORK = {"domain_name": "Network", "domain_color": "#009933"}
-    WEB_APP = {"domain_name": "Web App", "domain_color": "#FF9933"}
-    EMAIL_INFILTRATION = {
-        "domain_name": "E-mail Infiltration",
-        "domain_color": "#FF6666",
-    }
-    DATA_EXFILTRATION = {"domain_name": "Data Exfiltration", "domain_color": "#9933CC"}
-    URL_FILTERING = {"domain_name": "URL Filtering", "domain_color": "#66CCFF"}
-    CLOUD = {"domain_name": "Cloud", "domain_color": "#9999CC"}
-    TABLE_TOP = {"domain_name": "Tabletop", "domain_color": "#FFCC33"}
-    ARTIFICIAL_INTELLIGENCE = {
-        "domain_name": "Artificial Intelligence",
-        "domain_color": "#7C4DFF",
-    }
-    TOCLASSIFY = {"domain_name": "To classify", "domain_color": "#FFFFFF"}
+def __getattr__(name: str):  # PEP 562
+    return _deprecated_getattr(name)

@@ -3,6 +3,8 @@
 Everything in this layer pins a stable interface so that the two sides of it
 can evolve independently without leaking either:
 
+- **``common``** — shared errors, enums, types, and utilities: the
+  platform-facing vocabulary both sides import.
 - **``configuration``** — the configuration capability's I/O models and
   conversion primitives.
 - **``deprecation``** — the PEP 562 deprecation primitive

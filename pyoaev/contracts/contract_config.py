@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pyoaev import utils
+from xtm_oaev_sdk import EnhancedJSONEncoder
+
 from pyoaev.contracts.contract_utils import ContractCardinality, ContractVariable
 from pyoaev.contracts.variable_helper import VariableHelper
 from pyoaev.credential.types import CredentialType
@@ -276,7 +277,7 @@ class Contract:
             "contract_labels": self.label,
             "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
             "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
+            "contract_content": json.dumps(self, cls=EnhancedJSONEncoder),
             "is_atomic_testing": self.is_atomic_testing,
             "contract_platforms": self.platforms,
             "contract_domains": self.domains,
@@ -288,7 +289,7 @@ class Contract:
             "contract_labels": self.label,
             "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
             "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
+            "contract_content": json.dumps(self, cls=EnhancedJSONEncoder),
             "is_atomic_testing": self.is_atomic_testing,
             "contract_platforms": self.platforms,
             "contract_domains": self.domains,
@@ -318,7 +319,7 @@ def prepare_contracts(contracts):
                 "contract_id": c.contract_id,
                 "contract_labels": c.label,
                 "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
-                "contract_content": json.dumps(c, cls=utils.EnhancedJSONEncoder),
+                "contract_content": json.dumps(c, cls=EnhancedJSONEncoder),
                 "contract_platforms": c.platforms,
                 "contract_domains": c.domains,
             },

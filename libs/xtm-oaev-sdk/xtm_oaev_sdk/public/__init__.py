@@ -2,6 +2,43 @@
 
 __version__ = "0.1.0"
 
+# --- Common (shared) ---
+from xtm_oaev_sdk.seam.common import (
+    AppLogger,
+    AppLoggerProtocol,
+    AssetCategory,
+    AssetCriticality,
+    AssetSubCategory,
+    CloudProvider,
+    ConfigurationError,
+    CustomJsonFormatter,
+    EncodedId,
+    EnhancedJSONEncoder,
+    OpenAEVAuthenticationError,
+    OpenAEVCreateError,
+    OpenAEVDeleteError,
+    OpenAEVError,
+    OpenAEVGetError,
+    OpenAEVHeadError,
+    OpenAEVHttpError,
+    OpenAEVListError,
+    OpenAEVParsingError,
+    OpenAEVUpdateError,
+    RedirectError,
+    RequiredOptional,
+    SecurityDomains,
+    SignatureTransmissionError,
+    copy_dict,
+    data_to_temp_file,
+    is_memory_certificate,
+    logger,
+    on_http_error,
+    remove_none_from_dict,
+    setup_logging_config,
+    ssl_cert_chain,
+    ssl_verify_locations,
+)
+
 # --- Configuration ---
 from xtm_oaev_sdk.seam.configuration import (
     CONFIGURATION_TYPES,
@@ -27,6 +64,43 @@ from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
 
 __all__ = [
     "__version__",
+    # Common: errors
+    "ConfigurationError",
+    "OpenAEVAuthenticationError",
+    "OpenAEVCreateError",
+    "OpenAEVDeleteError",
+    "OpenAEVError",
+    "OpenAEVGetError",
+    "OpenAEVHeadError",
+    "OpenAEVHttpError",
+    "OpenAEVListError",
+    "OpenAEVParsingError",
+    "OpenAEVUpdateError",
+    "RedirectError",
+    "SignatureTransmissionError",
+    "on_http_error",
+    # Common: utils
+    "AppLogger",
+    "AppLoggerProtocol",
+    "CustomJsonFormatter",
+    "EncodedId",
+    "EnhancedJSONEncoder",
+    "RequiredOptional",
+    "copy_dict",
+    "logger",
+    "remove_none_from_dict",
+    "setup_logging_config",
+    # Common: ssl
+    "data_to_temp_file",
+    "is_memory_certificate",
+    "ssl_cert_chain",
+    "ssl_verify_locations",
+    # Common: enums
+    "AssetCategory",
+    "AssetCriticality",
+    "AssetSubCategory",
+    "CloudProvider",
+    "SecurityDomains",
     # Configuration
     "BaseConfigModel",
     "CONFIGURATION_TYPES",

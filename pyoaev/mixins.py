@@ -12,11 +12,11 @@ from typing import (
 )
 
 import requests
+from xtm_oaev_sdk import EncodedId
+from xtm_oaev_sdk.seam import common as exc
 
 import pyoaev
 from pyoaev import base
-from pyoaev import exceptions as exc
-from pyoaev import utils
 
 __all__ = [
     "GetMixin",
@@ -42,7 +42,7 @@ class HeadMixin(_RestManagerBase):
 
         path = self.path
         if id is not None:
-            path = f"{path}/{utils.EncodedId(id)}"
+            path = f"{path}/{EncodedId(id)}"
 
         return self.openaev.http_head(path, **kwargs)
 
@@ -60,7 +60,7 @@ class GetMixin(HeadMixin, _RestManagerBase):
     @exc.on_http_error(exc.OpenAEVGetError)
     def get(self, id: Union[str, int], **kwargs: Any) -> base.RESTObject:
         if isinstance(id, str):
-            id = utils.EncodedId(id)
+            id = EncodedId(id)
         path = f"{self.path}/{id}"
         if TYPE_CHECKING:
             assert self._obj_cls is not None
@@ -171,7 +171,7 @@ class UpdateMixin(_RestManagerBase):
         if id is None:
             path = self.path
         else:
-            path = f"{self.path}/{utils.EncodedId(id)}"
+            path = f"{self.path}/{EncodedId(id)}"
 
         # excludes = []
         # if self._obj_cls is not None and self._obj_cls._id_attr is not None:
@@ -234,7 +234,7 @@ class DeleteMixin(_RestManagerBase):
         if id is None:
             path = self.path
         else:
-            path = f"{self.path}/{utils.EncodedId(id)}"
+            path = f"{self.path}/{EncodedId(id)}"
 
         result = self.openaev.http_delete(path, **kwargs)
         if TYPE_CHECKING:

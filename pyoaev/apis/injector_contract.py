@@ -1,10 +1,11 @@
 from typing import Any, Dict
 
-from pyoaev import exceptions as exc
+from xtm_oaev_sdk import RequiredOptional
+from xtm_oaev_sdk.seam import common as exc
+
 from pyoaev.apis.inputs.search import InjectorContractSearchPaginationInput
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import CreateMixin, DeleteMixin, UpdateMixin
-from pyoaev.utils import RequiredOptional
 
 
 class InjectorContract(RESTObject):

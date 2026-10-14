@@ -6,10 +6,10 @@ import time
 from typing import Any
 
 from pydantic import ValidationError
+from xtm_oaev_sdk import SignatureTransmissionError
+from xtm_oaev_sdk.seam import common as exc
 
-from pyoaev import exceptions as exc
 from pyoaev.base import RESTManager, RESTObject
-from pyoaev.exceptions import SignatureTransmissionError
 from pyoaev.signatures.models import (
     ExecutionDetails,
     SignatureCallbackPayload,
@@ -243,7 +243,7 @@ class SignatureApiManager(RESTManager):
         Raises:
             SignatureTransmissionError: 4xx error or all retries exhausted.
         """
-        from pyoaev.exceptions import OpenAEVError
+        from xtm_oaev_sdk import OpenAEVError
 
         effective_logger = logger if logger is not None else self._logger
         last_error: Exception | None = None
