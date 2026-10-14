@@ -1,11 +1,9 @@
+import warnings as _warnings
 from typing import Any, Dict, List
 
+import collectors_sdk as _collectors_sdk
 import xtm_oaev_sdk as exc
-from collectors_sdk import (
-    DetectionExpectation,
-    ExpectationTypeEnum,
-    PreventionExpectation,
-)
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.exceptions import on_http_error
@@ -88,33 +86,20 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
 
         :return: a list of expectation objects
         :rtype: list[DetectionExpectation|PreventionExpectation]
+
+        .. deprecated::
+            Building the expectation models is the collector runtime's job: use
+            ``collectors_sdk.expectations_models_for_source(api.inject_expectation,
+            source_id)`` instead.
         """
-        # TODO: we should implement a more clever mechanism to obtain
-        #   specialised Expectation instances rather than just if/elseing
-        #   through this list of possibilities.
-        expectations = []
-        for expectation_dict in self.expectations_assets_for_source(
-            source_id=source_id, **kwargs
-        ):
-            if (
-                expectation_dict["inject_expectation_type"]
-                == ExpectationTypeEnum.Detection.value
-            ):
-                expectations.append(
-                    DetectionExpectation(**expectation_dict, api_client=self)
-                )
-            elif (
-                expectation_dict["inject_expectation_type"]
-                == ExpectationTypeEnum.Prevention.value
-            ):
-                expectations.append(
-                    PreventionExpectation(**expectation_dict, api_client=self)
-                )
-            else:
-                expectations.append(
-                    PreventionExpectation(**expectation_dict, api_client=self)
-                )
-        return expectations
+        _warnings.warn(
+            "expectations_models_for_source is deprecated. Use 'from collectors_sdk "
+            "import expectations_models_for_source' and call "
+            "expectations_models_for_source(api.inject_expectation, source_id) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _collectors_sdk.expectations_models_for_source(self, source_id, **kwargs)
 
     @on_http_error(exc.OpenAEVUpdateError)
     def prevention_expectations_for_source(
@@ -159,3 +144,19 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         self.openaev.http_put(
             path, post_data={"inputs": inject_expectation_input_by_id}, **kwargs
         )
+
+
+# The expectation models moved to collectors_sdk; their legacy names here
+# resolve to the identical objects and emit a DeprecationWarning on access.
+_MOVED_MODELS = ["DetectionExpectation", "ExpectationTypeEnum", "PreventionExpectation"]
+
+__getattr__ = _make_deprecated_getattr(
+    {
+        name: (
+            f"Use 'from collectors_sdk import {name}' instead.",
+            getattr(_collectors_sdk, name),
+        )
+        for name in _MOVED_MODELS
+    },
+    module_name=__name__,
+)

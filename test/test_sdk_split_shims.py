@@ -38,6 +38,18 @@ IDENTICAL = [
         "ExpectationSignature",
         collectors_sdk,
     ),
+    *[
+        (module, name, collectors_sdk)
+        for module in (
+            "pyoaev.apis.inject_expectation",
+            "pyoaev.apis.inject_expectation.inject_expectation",
+        )
+        for name in (
+            "DetectionExpectation",
+            "ExpectationTypeEnum",
+            "PreventionExpectation",
+        )
+    ],
 ]
 
 
@@ -162,8 +174,7 @@ def test_legacy_collector_helper_still_resolves() -> None:
     assert callable(legacy)
 
 
-def test_expectation_manager_builds_sdk_models() -> None:
-    """It hands out collectors-sdk expectation models."""
+def _given_expectation_manager():
     from pyoaev.apis import InjectExpectationManager
 
     manager = InjectExpectationManager(MagicMock())
@@ -176,10 +187,48 @@ def test_expectation_manager_builds_sdk_models() -> None:
             }
         ]
     )
+    return manager
 
-    (model,) = manager.expectations_models_for_source(source_id="collector")
+
+def _when_call_legacy_models_for_source(manager, **kwargs):
+    namespace: dict = {"manager": manager, "kwargs": kwargs}
+    source = "_result = manager.expectations_models_for_source(**kwargs)"
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        exec(compile(source, _CONSUMER, "exec"), namespace)
+    deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+    return namespace["_result"], deprecations
+
+
+def test_expectation_manager_builds_sdk_models() -> None:
+    """It still hands out collectors-sdk expectation models, with a warning."""
+    manager = _given_expectation_manager()
+
+    (model,), deprecations = _when_call_legacy_models_for_source(
+        manager, source_id="collector"
+    )
 
     assert isinstance(model, collectors_sdk.DetectionExpectation)
+    _then_warns_at_consumer(deprecations)
+    assert "from collectors_sdk import expectations_models_for_source" in str(
+        deprecations[0].message
+    )
+
+
+def test_expectation_manager_delegates_to_collectors_sdk() -> None:
+    """It builds nothing itself: collectors-sdk builds the models from the manager."""
+    manager = _given_expectation_manager()
+    sentinel = [object()]
+
+    with patch.object(
+        collectors_sdk, "expectations_models_for_source", return_value=sentinel
+    ) as builder:
+        result, _ = _when_call_legacy_models_for_source(
+            manager, source_id="collector", expiration_time=5
+        )
+
+    builder.assert_called_once_with(manager, "collector", expiration_time=5)
+    assert result is sentinel
 
 
 def test_importing_pyoaev_modules_is_silent() -> None:

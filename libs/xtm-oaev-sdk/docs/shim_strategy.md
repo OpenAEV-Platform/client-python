@@ -155,7 +155,7 @@ so patching a method on any of those paths hits the class connectors instantiate
 | `pyoaev/utils.py` | xtm-oaev-sdk common and `PingAlive`; keeps the REST client helpers `get_content_type`, `response_content`, `EncodedId`, `RequiredOptional`, `copy_dict`, `remove_none_from_dict` |
 | `pyoaev/daemons/*` | `BaseDaemon` / `CollectorDaemon` adapters |
 | `pyoaev/helpers.py` | collectors-sdk detection, injectors-sdk helpers (`OpenAEVInjectorHelper` adapter), xtm SSL helpers, `OpenAEVCollectorHelper` |
-| `pyoaev/apis/inject_expectation/model/*` | collectors-sdk expectations (the API manager builds them) |
+| `pyoaev/apis/__init__.py`, `apis/inject_expectation/*` | collectors-sdk expectations; `InjectExpectationManager.expectations_models_for_source` delegates to `collectors_sdk.expectations_models_for_source`, with a warning |
 
 ## How it is tested
 
@@ -182,7 +182,8 @@ against the new stack. Identical results.
 In a major release of `pyoaev`:
 
 1. delete the shim modules and the `__getattr__` of `pyoaev/__init__.py`;
-2. delete the client-building adapters and `OpenAEVCollectorHelper`;
+2. delete the client-building adapters, `OpenAEVCollectorHelper` and
+   `InjectExpectationManager.expectations_models_for_source`;
 3. drop the `xtm-oaev-sdk` / `collectors-sdk` / `injectors-sdk` dependencies only the
    shims need (keep `xtm-oaev-sdk` if the client still leans on its errors and
    transport models);

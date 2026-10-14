@@ -213,7 +213,7 @@ source selection to `SettingsSourcesPort`. The settings models (`BaseConfigModel
 |---|---|---|---|---|
 | daemons | `DEFAULT_PERIOD_SECONDS`, `DEFAULT_PLATFORM_TAG_COLOR` | `CollectorRegistrationPort`, `CollectorSchedulePort` | `CollectorRegistration`, `CollectorSchedule` | `CollectorDaemon` |
 | detection | | `AlertMatchingPort` | `AlertMatcher` | `OpenAEVDetectionHelper` |
-| expectations | `ExpectationData`, `ExpectationSignature`, `ExpectationTypeEnum` | `ExpectationMatchingPort`, `ExpectationUpdatePort` | `ExpectationMatcher`, `ExpectationUpdates` | `Expectation`, `DetectionExpectation`, `PreventionExpectation` |
+| expectations | `ExpectationData`, `ExpectationSignature`, `ExpectationTypeEnum`, `ExpectationApiProtocol` | `ExpectationLoadingPort`, `ExpectationMatchingPort`, `ExpectationUpdatePort` | `ExpectationLoader`, `ExpectationMatcher`, `ExpectationUpdates` | `Expectation`, `DetectionExpectation`, `PreventionExpectation`, `expectations_models_for_source` |
 
 ### injectors-sdk
 

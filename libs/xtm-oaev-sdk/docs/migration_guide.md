@@ -174,13 +174,13 @@ every legacy module that exposed it.
 | `CollectorDaemon` | `pyoaev.daemons`, `pyoaev.daemons.collector_daemon`, `pyoaev.helpers` | `from collectors_sdk import CollectorDaemon` |
 | `DEFAULT_PERIOD_SECONDS` | `pyoaev.daemons.collector_daemon` | `from collectors_sdk import DEFAULT_PERIOD_SECONDS` |
 | `DEFAULT_PLATFORM_TAG_COLOR` | `pyoaev.daemons.collector_daemon` | `from collectors_sdk import DEFAULT_PLATFORM_TAG_COLOR` |
-| `DetectionExpectation` | `pyoaev.apis.inject_expectation.model`, `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import DetectionExpectation` |
+| `DetectionExpectation` | `pyoaev.apis`, `pyoaev.apis.inject_expectation`, `pyoaev.apis.inject_expectation.inject_expectation`, `pyoaev.apis.inject_expectation.model`, `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import DetectionExpectation` |
 | `Expectation` | `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import Expectation` |
 | `ExpectationSignature` | `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import ExpectationSignature` |
-| `ExpectationTypeEnum` | `pyoaev.apis.inject_expectation.model`, `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import ExpectationTypeEnum` |
+| `ExpectationTypeEnum` | `pyoaev.apis`, `pyoaev.apis.inject_expectation`, `pyoaev.apis.inject_expectation.inject_expectation`, `pyoaev.apis.inject_expectation.model`, `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import ExpectationTypeEnum` |
 | `OpenAEVCollectorHelper` | `pyoaev.helpers` | `from collectors_sdk import CollectorDaemon` |
 | `OpenAEVDetectionHelper` | `pyoaev.helpers` | `from collectors_sdk import OpenAEVDetectionHelper` |
-| `PreventionExpectation` | `pyoaev.apis.inject_expectation.model`, `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import PreventionExpectation` |
+| `PreventionExpectation` | `pyoaev.apis`, `pyoaev.apis.inject_expectation`, `pyoaev.apis.inject_expectation.inject_expectation`, `pyoaev.apis.inject_expectation.model`, `pyoaev.apis.inject_expectation.model.expectation` | `from collectors_sdk import PreventionExpectation` |
 
 ### To injectors-sdk
 
@@ -271,6 +271,24 @@ from xtm_oaev_sdk import SignatureManager
 
 manager = SignatureManager(transport=client.signature, logger=logger)
 ```
+
+Collector expectations:
+
+```python
+# before
+for expectation in api.inject_expectation.expectations_models_for_source(source_id=source_id):
+    ...
+
+# after
+from collectors_sdk import expectations_models_for_source
+
+for expectation in expectations_models_for_source(api.inject_expectation, source_id=source_id):
+    ...
+```
+
+The client fetches the expectation data. collectors-sdk turns it into
+`DetectionExpectation` / `PreventionExpectation` models. The former method still works,
+firing a `DeprecationWarning`.
 
 ## Renamed names
 
