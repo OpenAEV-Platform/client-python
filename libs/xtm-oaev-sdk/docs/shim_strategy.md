@@ -149,6 +149,7 @@ so patching a method on any of those paths hits the class connectors instantiate
 | `pyoaev/__init__.py` | the moved names it exported (asset enums, exceptions, configuration, contracts, signatures) |
 | `pyoaev/configuration/*` | xtm-oaev-sdk configuration |
 | `pyoaev/contracts/*` | xtm-oaev-sdk contracts (`ExpectationType` renamed, variable constants) |
+| `pyoaev/credential/*` | xtm-oaev-sdk contracts (credential references) |
 | `pyoaev/signatures/*` | xtm-oaev-sdk signatures (`ExpectationType` renamed, `SignatureManager` adapter) |
 | `pyoaev/exceptions.py`, `asset_types.py`, `security_domain/types.py` | xtm-oaev-sdk common |
 | `pyoaev/utils.py` | xtm-oaev-sdk common and `PingAlive`; keeps the HTTP helpers `get_content_type`, `response_content` |

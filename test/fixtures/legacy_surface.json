@@ -444,12 +444,14 @@
       "ContractOutputElement",
       "ContractOutputType",
       "ContractPayload",
+      "ContractReferencedCredential",
       "ContractSelect",
       "ContractTeam",
       "ContractText",
       "ContractTextArea",
       "ContractTuple",
       "ContractVariable",
+      "CredentialType",
       "Domain",
       "Expectation",
       "ExpectationType",
@@ -478,6 +480,18 @@
       "USER",
       "VariableHelper",
       "VariableType"
+    ],
+    "pyoaev.credential": [
+      "CredentialType",
+      "build_single_referenced_credential_element"
+    ],
+    "pyoaev.credential.types": [
+      "CredentialType"
+    ],
+    "pyoaev.credential.utils": [
+      "ContractReferencedCredential",
+      "CredentialType",
+      "build_single_referenced_credential_element"
     ],
     "pyoaev.daemons": [
       "BaseDaemon",
@@ -639,5 +653,5 @@
       "setup_logging_config"
     ]
   },
-  "pyoaev_version": "3.260923.0"
+  "pyoaev_version": "3.261014.1"
 }

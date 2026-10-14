@@ -25,7 +25,7 @@ implementation of it.
 |---|---|
 | common | `OpenAEVError` and its subclasses, `on_http_error`, `AppLogger`, `logger`, `setup_logging_config`, `CustomJsonFormatter`, `EnhancedJSONEncoder`, `EncodedId`, `RequiredOptional`, `copy_dict`, `remove_none_from_dict`, SSL helpers, asset and security-domain enums, `BaseClient` / `DaemonProtocol` / `AppLoggerProtocol` |
 | configuration | `Configuration`, `ConfigurationHint`, `SettingsLoader`, `BaseConfigModel`, `ConfigLoaderOAEV`, `ConfigLoaderCollector`, `ConnectorConfigSchemaGenerator`, sources, serializer types |
-| contracts | `Contract`, `ContractBuilder`, `VariableHelper`, `prepare_contracts`, every contract element (`ContractText`, `ContractSelect`, …) and enum |
+| contracts | `Contract`, `ContractBuilder`, `VariableHelper`, `prepare_contracts`, every contract element (`ContractText`, `ContractSelect`, …) and enum, credential references (`CredentialType`, `ContractReferencedCredential`, `build_single_referenced_credential_element`) |
 | signatures | `SignatureManager`, `build_network_configs`, `build_marker`, matching types, the inbound I/O models and the port I/O wire models (`PORT_IO_CONTRACT_VERSION`) |
 | daemons | `BaseDaemon`, `PingAlive` |
 | deprecation | `make_deprecated_getattr` (PEP 562 deprecation primitive) |

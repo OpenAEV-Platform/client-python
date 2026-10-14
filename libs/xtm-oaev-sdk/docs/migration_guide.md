@@ -70,6 +70,7 @@ every legacy module that exposed it.
 | `BaseDaemon` | `pyoaev.daemons`, `pyoaev.daemons.base_daemon`, `pyoaev.daemons.collector_daemon` | `from xtm_oaev_sdk import BaseDaemon` |
 | `build_marker` | `pyoaev.signatures.ai_marker` | `from xtm_oaev_sdk import build_marker` |
 | `build_network_configs` | `pyoaev`, `pyoaev.signatures`, `pyoaev.signatures.models` | `from xtm_oaev_sdk import build_network_configs` |
+| `build_single_referenced_credential_element` | `pyoaev.credential`, `pyoaev.credential.utils` | `from xtm_oaev_sdk import build_single_referenced_credential_element` |
 | `CloudInjectorConfig` | `pyoaev`, `pyoaev.signatures`, `pyoaev.signatures.models`, `pyoaev.signatures.signature_manager` | `from xtm_oaev_sdk import CloudInjectorConfig` |
 | `CloudProvider` | `pyoaev`, `pyoaev.asset_types` | `from xtm_oaev_sdk import CloudProvider` |
 | `ConfigLoaderCollector` | `pyoaev`, `pyoaev.configuration`, `pyoaev.configuration.settings_loader` | `from xtm_oaev_sdk import ConfigLoaderCollector` |
@@ -95,6 +96,7 @@ every legacy module that exposed it.
 | `ContractOutputElement` | `pyoaev.contracts.contract_builder`, `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractOutputElement` |
 | `ContractOutputType` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractOutputType` |
 | `ContractPayload` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractPayload` |
+| `ContractReferencedCredential` | `pyoaev.contracts.contract_config`, `pyoaev.credential.utils` | `from xtm_oaev_sdk import ContractReferencedCredential` |
 | `ContractSelect` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractSelect` |
 | `ContractTeam` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractTeam` |
 | `ContractText` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractText` |
@@ -102,6 +104,7 @@ every legacy module that exposed it.
 | `ContractTuple` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractTuple` |
 | `ContractVariable` | `pyoaev.contracts.contract_config`, `pyoaev.contracts.contract_utils`, `pyoaev.contracts.variable_helper` | `from xtm_oaev_sdk import ContractVariable` |
 | `copy_dict` | `pyoaev.utils` | `from xtm_oaev_sdk import copy_dict` |
+| `CredentialType` | `pyoaev.contracts.contract_config`, `pyoaev.credential`, `pyoaev.credential.types`, `pyoaev.credential.utils` | `from xtm_oaev_sdk import CredentialType` |
 | `CustomJsonFormatter` | `pyoaev.utils` | `from xtm_oaev_sdk import CustomJsonFormatter` |
 | `data_to_temp_file` | `pyoaev.helpers` | `from xtm_oaev_sdk import data_to_temp_file` |
 | `DictionarySource` | `pyoaev.configuration.configuration`, `pyoaev.configuration.sources` | `from xtm_oaev_sdk import DictionarySource` |
