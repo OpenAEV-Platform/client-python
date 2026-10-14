@@ -8,7 +8,9 @@ carries a credential reference::
 ``attachments`` is ``null`` when the inject has no reference: the injector then
 keeps its legacy credential fields and no resolution request is sent.
 
-``resolve_inject_credential`` is the single entry point injectors call.
+``resolve_inject_credential`` is the single entry point injectors call. An
+injector that reads the attachment while validating its input and resolves it
+later calls ``get_credential_attachment`` then ``resolve_credential_attachment``.
 """
 
 from dataclasses import dataclass, field
@@ -100,6 +102,23 @@ def resolve_inject_credential(
     attachment = get_credential_attachment(data)
     if attachment is None:
         return None
+    return resolve_credential_attachment(api, inject_id, attachment, expected_type)
+
+
+def resolve_credential_attachment(
+    api: "OpenAEV",
+    inject_id: str,
+    attachment: CredentialAttachment,
+    expected_type: Union[CredentialType, str],
+) -> ResolvedSecret:
+    """Resolve an attachment already read with ``get_credential_attachment``.
+
+    Same contract as ``resolve_inject_credential``, for injectors that read
+    the attachment and resolve it at two different stages.
+
+    Raises:
+        CredentialResolutionError: with the code to report in the trace.
+    """
     payload = api.inject.resolve_attachment_secret(
         inject_id, attachment.reference, attachment.authorisation_code
     )
@@ -110,5 +129,6 @@ def resolve_inject_credential(
 __all__ = [
     "CredentialAttachment",
     "get_credential_attachment",
+    "resolve_credential_attachment",
     "resolve_inject_credential",
 ]

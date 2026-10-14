@@ -12,6 +12,7 @@ from pyoaev.credential import (
     CredentialResolutionError,
     CredentialType,
     get_credential_attachment,
+    resolve_credential_attachment,
     resolve_inject_credential,
 )
 
@@ -215,6 +216,34 @@ class ResolveInjectCredentialTest(unittest.TestCase):
             {"attachment_id": REFERENCE, "authorisation": AUTHORISATION_CODE},
         )
         self.assertEqual(resolved.aws_access_key_id, "AKIAEXAMPLE")
+
+
+class ResolveCredentialAttachmentTest(unittest.TestCase):
+    def setUp(self):
+        self.api = mock.MagicMock()
+        self.api.inject.resolve_attachment_secret.return_value = AWS_PAYLOAD
+        self.attachment = CredentialAttachment(REFERENCE, AUTHORISATION_CODE)
+
+    def test_attachment_read_earlier_is_resolved_parsed_and_checked(self):
+        resolved = resolve_credential_attachment(
+            self.api, INJECT_ID, self.attachment, "aws"
+        )
+
+        self.api.inject.resolve_attachment_secret.assert_called_once_with(
+            INJECT_ID, REFERENCE, AUTHORISATION_CODE
+        )
+        self.assertIsInstance(resolved, AwsAccessKeySecret)
+
+    def test_incompatible_credential(self):
+        with self.assertRaises(CredentialResolutionError) as context:
+            resolve_credential_attachment(
+                self.api, INJECT_ID, self.attachment, CredentialType.CLOUD_AZURE
+            )
+
+        self.assertEqual(
+            context.exception.code, CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
+        )
+        self.assertEqual(context.exception.reference, REFERENCE)
 
 
 if __name__ == "__main__":

@@ -132,13 +132,22 @@ class TestResolveAttachmentSecret(TestCase):
         for response in (
             build_response(401, {"message": "Unauthorized"}, "Unauthorized"),
             build_response(400, {"message": "attachment_id: must not be blank"}),
-            build_response(500, {"message": "boom"}, "Internal Server Error"),
-            build_response(502, None, "Bad Gateway"),
         ):
             with self.subTest(status_code=response.status_code):
                 self._assert_resolution_error(
                     response, CredentialErrorCode.CREDENTIAL_ACCESS_DENIED
                 )
+
+    def test_server_errors_are_resolution_unavailable(self):
+        for response in (
+            build_response(500, {"message": "boom"}, "Internal Server Error"),
+            build_response(502, None, "Bad Gateway"),
+        ):
+            with self.subTest(status_code=response.status_code):
+                error = self._assert_resolution_error(
+                    response, CredentialErrorCode.CREDENTIAL_RESOLUTION_UNAVAILABLE
+                )
+                self.assertNotIn("boom", error.message)
 
     def test_non_json_success_is_access_denied(self):
         response = requests.Response()
@@ -150,7 +159,7 @@ class TestResolveAttachmentSecret(TestCase):
             response, CredentialErrorCode.CREDENTIAL_ACCESS_DENIED
         )
 
-    def test_network_error_is_access_denied(self):
+    def test_network_error_is_resolution_unavailable(self):
         api_client = OpenAEV("url", "token")
         with mock.patch(
             "requests.Session.request",
@@ -162,7 +171,8 @@ class TestResolveAttachmentSecret(TestCase):
                 )
 
         self.assertEqual(
-            context.exception.code, CredentialErrorCode.CREDENTIAL_ACCESS_DENIED
+            context.exception.code,
+            CredentialErrorCode.CREDENTIAL_RESOLUTION_UNAVAILABLE,
         )
 
     def test_error_never_exposes_response_body(self):
