@@ -16,7 +16,7 @@ from thefuzz import fuzz
 from xtm_oaev_sdk import Configuration, ConfigurationError, logger
 from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
-from pyoaev import OpenAEV, utils
+from pyoaev import OpenAEV
 from pyoaev.daemons import CollectorDaemon
 
 TRUTHY: List[str] = ["yes", "true", "True"]
@@ -183,7 +183,7 @@ class ListenQueue(threading.Thread):
             self.thread.join()
 
 
-class PingAlive(utils.PingAlive):
+class PingAlive(_sdk.PingAlive):
     pass
 
 

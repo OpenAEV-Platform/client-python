@@ -9,6 +9,8 @@ can evolve independently without leaking either:
   conversion primitives.
 - **``contracts``** — the scenarios capability's behaviour layer (builder,
   variable helper, preparation entry point) and its extension protocol.
+- **``daemons``** — the daemon runtime shared by collectors and injectors;
+  the API client is injected through the ``BaseClient`` protocol.
 - **``signatures``** — the signatures capability's inbound seam
   (``seam/signatures/seam.py``), versioned ``SEAM_VERSION``.
 - **``port_io``** — the port I/O wire schema crossing the SDK↔platform

@@ -1,5 +1,5 @@
-"""Shared contracts: errors, enums, type aliases, and the concrete utility
-layer."""
+"""Shared contracts: errors, protocols, enums, type aliases, and the concrete
+utility layer."""
 
 from xtm_oaev_sdk._core.asset_types import (
     AssetCategory,
@@ -7,6 +7,8 @@ from xtm_oaev_sdk._core.asset_types import (
     AssetSubCategory,
     CloudProvider,
 )
+from xtm_oaev_sdk._core.client_protocol import BaseClient
+from xtm_oaev_sdk._core.daemon_protocol import DaemonProtocol
 from xtm_oaev_sdk._core.errors import (
     ConfigurationError,
     OpenAEVAuthenticationError,
@@ -61,6 +63,8 @@ __all__ = [
     "on_http_error",
     # Protocols
     "AppLoggerProtocol",
+    "BaseClient",
+    "DaemonProtocol",
     # Types
     "EncodedId",
     "RequiredOptional",

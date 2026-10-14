@@ -1,14 +1,16 @@
 """xtm-oaev-sdk — OpenAEV SDK core (DDD + Light Hex Architecture).
 
 Architecture:
-    _core/                Shared implementations (errors, utils, ssl_utils,
+    _core/                Shared implementations (errors, utils, ssl_utils, protocols,
                           asset_types, security_domain)
     _core/configuration/  Configuration feature implementation
     _core/contracts/      OpenAEV scenarios feature implementation
+    _core/daemons/        Daemon runtime (base daemon, heartbeat)
     _core/signatures/     Signature feature implementation
     seam/common/          Shared errors, enums, types, and utilities
     seam/configuration/   Configuration I/O surface
     seam/contracts/       Scenarios capability behaviour + builder protocol
+    seam/daemons/         Daemon runtime (API client injected)
     seam/signatures/      Signatures inbound I/O seam (versioned)
     seam/port_io/         Port I/O wire schema (versioned, seam-owned)
     seam/deprecation.py   PEP 562 deprecation primitive

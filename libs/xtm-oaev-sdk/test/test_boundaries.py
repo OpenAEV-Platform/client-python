@@ -31,7 +31,6 @@ def test_sdk_sources_do_not_import(package: str) -> None:
     "artifact",
     [
         "class ListenQueue",
-        "class PingAlive",
         "class OpenAEVConfigHelper",
         "class OpenAEVCollectorHelper",
         "class OpenAEVInjectorHelper",

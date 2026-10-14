@@ -45,9 +45,11 @@ from xtm_oaev_sdk.seam.common import (
     AssetCategory,
     AssetCriticality,
     AssetSubCategory,
+    BaseClient,
     CloudProvider,
     ConfigurationError,
     CustomJsonFormatter,
+    DaemonProtocol,
     EncodedId,
     EnhancedJSONEncoder,
     OpenAEVAuthenticationError,
@@ -101,6 +103,9 @@ from xtm_oaev_sdk.seam.contracts import (
     build_single_referenced_credential_element,
     prepare_contracts,
 )
+
+# --- Daemons ---
+from xtm_oaev_sdk.seam.daemons import BaseDaemon, PingAlive
 
 # --- Seam / compatibility ---
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
@@ -170,6 +175,9 @@ __all__ = [
     "logger",
     "remove_none_from_dict",
     "setup_logging_config",
+    # Common: protocols
+    "BaseClient",
+    "DaemonProtocol",
     # Common: ssl
     "data_to_temp_file",
     "is_memory_certificate",
@@ -236,6 +244,9 @@ __all__ = [
     "VariableType",
     "build_single_referenced_credential_element",
     "prepare_contracts",
+    # Daemons
+    "BaseDaemon",
+    "PingAlive",
     # Signatures
     "CloudInjectorConfig",
     "ExecutionDetails",

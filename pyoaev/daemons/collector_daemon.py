@@ -1,10 +1,9 @@
 import sched
 import time
 
-from xtm_oaev_sdk import Configuration
+from xtm_oaev_sdk import Configuration, PingAlive
 
-from pyoaev.daemons import BaseDaemon
-from pyoaev.utils import PingAlive
+from pyoaev.daemons.base_daemon import _ClientBaseDaemon
 
 DEFAULT_PERIOD_SECONDS = 60
 
@@ -13,7 +12,7 @@ DEFAULT_PERIOD_SECONDS = 60
 DEFAULT_PLATFORM_TAG_COLOR = "#6b7280"
 
 
-class CollectorDaemon(BaseDaemon):
+class CollectorDaemon(_ClientBaseDaemon):
     """Implementation of a daemon of Collector type. Note that it requires
     specific configuration keys to run its setup.
     `collector_icon_filepath`: relative path to an icon image (preferably PNG)
