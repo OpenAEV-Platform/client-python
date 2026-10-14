@@ -31,6 +31,11 @@ __all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
 __getattr__ = _make_deprecated_getattr(
     {
         "CollectorDaemon": (_COLLECTOR_DAEMON_MESSAGE, _ClientCollectorDaemon),
+        "BaseDaemon": (
+            "Use 'from xtm_oaev_sdk import BaseDaemon' and pass "
+            "api_client=OpenAEV(...) instead.",
+            _ClientBaseDaemon,
+        ),
         **{
             name: (
                 f"Use 'from collectors_sdk import {name}' instead.",

@@ -32,6 +32,13 @@ __getattr__ = _make_deprecated_getattr(
             "api_client=OpenAEV(...) instead.",
             _ClientBaseDaemon,
         ),
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {name}' instead.",
+                getattr(_sdk, name),
+            )
+            for name in ("Configuration", "OpenAEVError", "logger")
+        },
     },
     module_name=__name__,
 )
