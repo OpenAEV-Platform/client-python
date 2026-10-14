@@ -108,6 +108,17 @@ class TestUtils(unittest.TestCase):
         rules = module.RequiredOptional(exclusive=("a", "b"))
         rules.validate_attrs(data={"a": 1})
 
+    def test_copy_dict_flattens_nested_dict(self):
+        destination = {}
+        module.copy_dict(
+            src={"a": 1, "meta": {"x": "y", "n": 2}},
+            dest=destination,
+        )
+        self.assertEqual(destination, {"a": 1, "meta[x]": "y", "meta[n]": 2})
+
+    def test_remove_none_from_dict(self):
+        self.assertEqual(module.remove_none_from_dict({"a": 1, "b": None}), {"a": 1})
+
 
 if __name__ == "__main__":
     unittest.main()

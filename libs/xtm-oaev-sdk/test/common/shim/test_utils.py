@@ -18,17 +18,6 @@ class TestUtils(unittest.TestCase):
     def test_custom_json_formatter_inherits_non_deprecated_formatter(self):
         self.assertTrue(issubclass(module.CustomJsonFormatter, JsonFormatter))
 
-    def test_copy_dict_flattens_nested_dict(self):
-        destination = {}
-        module.copy_dict(
-            src={"a": 1, "meta": {"x": "y", "n": 2}},
-            dest=destination,
-        )
-        self.assertEqual(destination, {"a": 1, "meta[x]": "y", "meta[n]": 2})
-
-    def test_remove_none_from_dict(self):
-        self.assertEqual(module.remove_none_from_dict({"a": 1, "b": None}), {"a": 1})
-
     def test_enhanced_json_encoder_serializes_not_dataclasses(self):
         data = {"test": "this is a test", "other": 3}
         classic_json_dump = json.dumps(data)

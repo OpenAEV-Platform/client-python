@@ -38,7 +38,7 @@ rule applies.
 | *How this TDR manifests in the real world.*
 
 `is_truthy` gets `TruthinessPort`, `Truthiness` and the public `is_truthy`: exactly the
-treatment `SignatureManager` gets. `copy_dict` goes through `DictToolsPort` / `DictTools`.
+treatment `SignatureManager` gets. `build_marker` goes through `MarkerPort` / `MarkerBuilder`.
 
 ---
 

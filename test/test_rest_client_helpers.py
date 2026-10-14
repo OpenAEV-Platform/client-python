@@ -1,4 +1,7 @@
-"""REST client helpers owned by pyoaev: RequiredOptional, EncodedId, on_http_error."""
+"""REST client helpers owned by pyoaev.
+
+RequiredOptional, EncodedId, copy_dict, remove_none_from_dict and on_http_error.
+"""
 
 import dataclasses
 import subprocess
@@ -9,7 +12,7 @@ import pytest
 import xtm_oaev_sdk as sdk
 
 from pyoaev.exceptions import on_http_error
-from pyoaev.utils import EncodedId, RequiredOptional
+from pyoaev.utils import EncodedId, RequiredOptional, copy_dict, remove_none_from_dict
 
 
 def _given_required_optional(**kwargs: Any) -> RequiredOptional:
@@ -59,6 +62,14 @@ def _when_encode_invalid_id_raises(value: Any) -> Exception:
     return exc_info.value
 
 
+def _when_copy_dict(src: dict[str, Any], dest: dict[str, Any]) -> None:
+    copy_dict(src=src, dest=dest)
+
+
+def _when_remove_none_from_dict(data: dict[str, Any]) -> dict[str, Any]:
+    return remove_none_from_dict(data)
+
+
 def _when_call_decorated_raises(function, error: type[Exception]) -> Exception:
     with pytest.raises(error) as exc_info:
         on_http_error(error)(function)()
@@ -79,6 +90,10 @@ def _then_contains_text(exc: Exception, text: str) -> None:
 
 def _then_error_is_frozen(exc: Exception) -> None:
     assert isinstance(exc, dataclasses.FrozenInstanceError)
+
+
+def _then_dict_equals(actual: dict[str, Any], expected: dict[str, Any]) -> None:
+    assert actual == expected
 
 
 def _then_encoded_object_equals(encoded: EncodedId, expected: str) -> None:
@@ -156,6 +171,32 @@ def test_encoded_id_accepts_int_and_returns_string_representation() -> None:
     _then_encoded_object_equals(encoded, "42")
 
 
+def test_copy_dict_flattens_nested_dict_keys() -> None:
+    """It flattens nested dict keys to bracket notation."""
+    destination: dict[str, Any] = {}
+    _when_copy_dict(src={"filters": {"type": "malware"}}, dest=destination)
+    _then_dict_equals(destination, {"filters[type]": "malware"})
+
+
+def test_copy_dict_copies_non_dict_values_directly() -> None:
+    """It copies non-dict values without transformation."""
+    destination: dict[str, Any] = {}
+    _when_copy_dict(src={"name": "sdk", "count": 2}, dest=destination)
+    _then_dict_equals(destination, {"name": "sdk", "count": 2})
+
+
+def test_remove_none_from_dict_strips_none_valued_keys() -> None:
+    """It removes the entries whose value is None."""
+    result = _when_remove_none_from_dict({"a": 1, "b": None, "c": "x"})
+    _then_dict_equals(result, {"a": 1, "c": "x"})
+
+
+def test_remove_none_from_dict_keeps_non_none_values() -> None:
+    """It keeps falsy values that are not None."""
+    result = _when_remove_none_from_dict({"a": 0, "b": False, "c": ""})
+    _then_dict_equals(result, {"a": 0, "b": False, "c": ""})
+
+
 def test_on_http_error_wraps_http_errors_into_the_given_type() -> None:
     """It re-raises an HTTP error as the given error, keeping its details."""
     http_error = sdk.OpenAEVHttpError("boom", 404, b"missing")
@@ -193,9 +234,13 @@ def test_rest_client_helpers_are_pyoaev_own_and_silent() -> None:
         "import pyoaev.utils, pyoaev.exceptions, xtm_oaev_sdk as sdk\n"
         "assert pyoaev.utils.EncodedId.__module__ == 'pyoaev.utils'\n"
         "assert pyoaev.utils.RequiredOptional.__module__ == 'pyoaev.utils'\n"
+        "assert pyoaev.utils.copy_dict.__module__ == 'pyoaev.utils'\n"
+        "assert pyoaev.utils.remove_none_from_dict.__module__ == 'pyoaev.utils'\n"
         "assert pyoaev.exceptions.on_http_error.__module__ == 'pyoaev.exceptions'\n"
         "assert not hasattr(sdk, 'EncodedId')\n"
         "assert not hasattr(sdk, 'RequiredOptional')\n"
         "assert not hasattr(sdk, 'on_http_error')\n"
+        "assert not hasattr(sdk, 'copy_dict')\n"
+        "assert not hasattr(sdk, 'remove_none_from_dict')\n"
     )
     assert result.returncode == 0, result.stderr

@@ -6,7 +6,6 @@ from typing import Any, Protocol, runtime_checkable
 
 __all__ = [
     "CertificatesPort",
-    "DictToolsPort",
     "JsonEncodingPort",
     "LoggingPort",
 ]
@@ -45,17 +44,6 @@ class LoggingPort(Protocol):
         self, log_record: dict[str, Any], record: logging.LogRecord
     ) -> None:
         """Add the timestamp and uppercase level fields of a JSON record."""
-
-
-@runtime_checkable
-class DictToolsPort(Protocol):
-    """Reshapes the dictionaries exchanged with the platform."""
-
-    def copy_dict(self, *, src: dict[str, Any], dest: dict[str, Any]) -> None:
-        """Copy ``src`` into ``dest``, flattening nested dicts as ``key[sub]``."""
-
-    def remove_none_from_dict(self, data: dict[str, Any]) -> dict[str, Any]:
-        """New dict without the None-valued entries."""
 
 
 @runtime_checkable

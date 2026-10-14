@@ -103,7 +103,6 @@ every legacy module that exposed it.
 | `ContractTextArea` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractTextArea` |
 | `ContractTuple` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import ContractTuple` |
 | `ContractVariable` | `pyoaev.contracts.contract_config`, `pyoaev.contracts.contract_utils`, `pyoaev.contracts.variable_helper` | `from xtm_oaev_sdk import ContractVariable` |
-| `copy_dict` | `pyoaev.utils` | `from xtm_oaev_sdk import copy_dict` |
 | `CredentialType` | `pyoaev.contracts.contract_config`, `pyoaev.credential`, `pyoaev.credential.types`, `pyoaev.credential.utils` | `from xtm_oaev_sdk import CredentialType` |
 | `CustomJsonFormatter` | `pyoaev.utils` | `from xtm_oaev_sdk import CustomJsonFormatter` |
 | `data_to_temp_file` | `pyoaev.helpers` | `from xtm_oaev_sdk import data_to_temp_file` |
@@ -143,7 +142,6 @@ every legacy module that exposed it.
 | `prepare_contracts` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import prepare_contracts` |
 | `PrimitiveType` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import PrimitiveType` |
 | `RedirectError` | `pyoaev`, `pyoaev.exceptions` | `from xtm_oaev_sdk import RedirectError` |
-| `remove_none_from_dict` | `pyoaev.utils` | `from xtm_oaev_sdk import remove_none_from_dict` |
 | `SecurityDomains` | `pyoaev.security_domain.types` | `from xtm_oaev_sdk import SecurityDomains` |
 | `SecurityPlatformType` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import SecurityPlatformType` |
 | `SettingsLoader` | `pyoaev`, `pyoaev.configuration`, `pyoaev.configuration.settings_loader` | `from xtm_oaev_sdk import SettingsLoader` |
@@ -292,8 +290,8 @@ variables of `xtm_oaev_sdk.VariableHelper` instead.
 The API client, and everything wired around it: `OpenAEV`, `pyoaev.apis` (including
 `inputs.search`), `pyoaev.backends`, `pyoaev.base`, `pyoaev.client`, `pyoaev.mixins`, and
 the REST client helpers `pyoaev.utils.get_content_type` / `response_content` /
-`EncodedId` / `RequiredOptional`, plus `pyoaev.exceptions.on_http_error`. Nothing to
-migrate there.
+`EncodedId` / `RequiredOptional` / `copy_dict` / `remove_none_from_dict`, plus
+`pyoaev.exceptions.on_http_error`. Nothing to migrate there.
 
 ## Things you may notice
 

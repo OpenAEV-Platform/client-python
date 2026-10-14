@@ -91,16 +91,6 @@ def _when_encode_unsupported_type_raises(encoder: Any, value: Any) -> Exception:
     return exc_info.value
 
 
-def _when_copy_dict(src: dict[str, Any], dest: dict[str, Any]) -> None:
-    copy_dict_fn = _given_public_symbol("copy_dict")
-    copy_dict_fn(src=src, dest=dest)
-
-
-def _when_remove_none_from_dict(data: dict[str, Any]) -> dict[str, Any]:
-    remove_none_fn = _given_public_symbol("remove_none_from_dict")
-    return remove_none_fn(data)
-
-
 def _when_call_logger(level: int, json_logging: bool) -> Any:
     logger_fn = _given_public_symbol("logger")
     with warnings.catch_warnings():
@@ -150,10 +140,6 @@ def _then_encoded_object_equals(encoded: Any, expected: Any) -> None:
 
 def _then_type_error_for_unsupported_type(exc: Exception) -> None:
     assert "not json serializable" in str(exc).lower()
-
-
-def _then_dict_equals(actual: dict[str, Any], expected: dict[str, Any]) -> None:
-    assert actual == expected
 
 
 def _then_is_app_logger_instance(instance: Any) -> None:
@@ -213,32 +199,6 @@ def test_enhanced_json_encoder_raises_type_error_for_unsupported_types() -> None
     encoder = _given_json_encoder()
     exc = _when_encode_unsupported_type_raises(encoder, _UnsupportedType())
     _then_type_error_for_unsupported_type(exc)
-
-
-def test_copy_dict_flattens_nested_dict_keys() -> None:
-    """Verify copy_dict flattens nested dict keys to bracket notation."""
-    destination: dict[str, Any] = {}
-    _when_copy_dict(src={"filters": {"type": "malware"}}, dest=destination)
-    _then_dict_equals(destination, {"filters[type]": "malware"})
-
-
-def test_copy_dict_copies_non_dict_values_directly() -> None:
-    """Verify copy_dict copies non-dict values without transformation."""
-    destination: dict[str, Any] = {}
-    _when_copy_dict(src={"name": "sdk", "count": 2}, dest=destination)
-    _then_dict_equals(destination, {"name": "sdk", "count": 2})
-
-
-def test_remove_none_from_dict_strips_none_valued_keys() -> None:
-    """Verify remove_none_from_dict removes entries with None values."""
-    result = _when_remove_none_from_dict({"a": 1, "b": None, "c": "x"})
-    _then_dict_equals(result, {"a": 1, "c": "x"})
-
-
-def test_remove_none_from_dict_keeps_non_none_values() -> None:
-    """Verify remove_none_from_dict keeps entries with non-None values."""
-    result = _when_remove_none_from_dict({"a": 0, "b": False, "c": ""})
-    _then_dict_equals(result, {"a": 0, "b": False, "c": ""})
 
 
 def test_logger_function_returns_app_logger() -> None:

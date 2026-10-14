@@ -23,7 +23,7 @@ implementation of it.
 
 | Capability | Public API |
 |---|---|
-| common | `OpenAEVError` and its subclasses, `AppLogger`, `logger`, `setup_logging_config`, `CustomJsonFormatter`, `EnhancedJSONEncoder`, `copy_dict`, `remove_none_from_dict`, SSL helpers, asset and security-domain enums, `BaseClient` / `DaemonProtocol` / `AppLoggerProtocol` |
+| common | `OpenAEVError` and its subclasses, `AppLogger`, `logger`, `setup_logging_config`, `CustomJsonFormatter`, `EnhancedJSONEncoder`, SSL helpers, asset and security-domain enums, `BaseClient` / `DaemonProtocol` / `AppLoggerProtocol` |
 | configuration | `Configuration`, `ConfigurationHint`, `SettingsLoader`, `BaseConfigModel`, `ConfigLoaderOAEV`, `ConfigLoaderCollector`, `ConnectorConfigSchemaGenerator`, sources, serializer types |
 | contracts | `Contract`, `ContractBuilder`, `VariableHelper`, `prepare_contracts`, every contract element (`ContractText`, `ContractSelect`, …) and enum, credential references (`CredentialType`, `ContractReferencedCredential`, `build_single_referenced_credential_element`) |
 | signatures | `SignatureManager`, `build_network_configs`, `build_marker`, matching types, the inbound I/O models and the port I/O wire models (`PORT_IO_CONTRACT_VERSION`) |

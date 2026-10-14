@@ -29,7 +29,6 @@ from xtm_oaev_sdk.seam.common.errors import (
 )
 from xtm_oaev_sdk.seam.common.ports import (
     CertificatesPort,
-    DictToolsPort,
     JsonEncodingPort,
     LoggingPort,
 )
@@ -72,7 +71,6 @@ __all__ = [
     "DaemonProtocol",
     # Ports
     "CertificatesPort",
-    "DictToolsPort",
     "JsonEncodingPort",
     "LoggingPort",
 ]

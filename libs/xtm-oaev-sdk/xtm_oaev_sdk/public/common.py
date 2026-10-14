@@ -12,12 +12,7 @@ import ssl
 from typing import Any
 
 from pythonjsonlogger.json import JsonFormatter
-from xtm_oaev_sdk._core.common import (
-    Certificates,
-    DictTools,
-    JsonEncoding,
-    LoggingSetup,
-)
+from xtm_oaev_sdk._core.common import Certificates, JsonEncoding, LoggingSetup
 from xtm_oaev_sdk.seam.common import (
     AppLoggerProtocol,
     AssetCategory,
@@ -28,7 +23,6 @@ from xtm_oaev_sdk.seam.common import (
     CloudProvider,
     ConfigurationError,
     DaemonProtocol,
-    DictToolsPort,
     JsonEncodingPort,
     LoggingPort,
     OpenAEVAuthenticationError,
@@ -71,11 +65,9 @@ __all__ = [
     "RedirectError",
     "SecurityDomains",
     "SignatureTransmissionError",
-    "copy_dict",
     "data_to_temp_file",
     "is_memory_certificate",
     "logger",
-    "remove_none_from_dict",
     "setup_logging_config",
     "ssl_cert_chain",
     "ssl_verify_locations",
@@ -83,7 +75,6 @@ __all__ = [
 
 _encoding: JsonEncodingPort = JsonEncoding()
 _logging: LoggingPort = LoggingSetup()
-_dicts: DictToolsPort = DictTools()
 _certificates: CertificatesPort = Certificates()
 
 
@@ -115,41 +106,6 @@ class EnhancedJSONEncoder(json.JSONEncoder):
             TypeError: If the object is not serializable.
         """
         return _encoding.encode_default(o)
-
-
-def remove_none_from_dict(data: dict[str, Any]) -> dict[str, Any]:
-    """Remove all keys with None values from a dict.
-
-    Args:
-        data: Source dictionary.
-
-    Returns:
-        New dictionary with None-valued entries removed.
-
-    Example:
-        >>> remove_none_from_dict({"a": 1, "b": None, "c": "x"})
-        {'a': 1, 'c': 'x'}
-    """
-    return _dicts.remove_none_from_dict(data)
-
-
-def copy_dict(*, src: dict[str, Any], dest: dict[str, Any]) -> None:
-    """Flatten nested dict values into bracket-notation keys.
-
-    For nested dicts, expands ``{"key": {"sub": "val"}}`` into
-    ``dest["key[sub]"] = "val"``. Non-dict values copy directly.
-
-    Args:
-        src: Source dictionary to copy from.
-        dest: Destination dictionary to copy into (mutated in place).
-
-    Example:
-        >>> dest = {}
-        >>> copy_dict(src={"filters": {"type": "malware"}}, dest=dest)
-        >>> dest
-        {'filters[type]': 'malware'}
-    """
-    _dicts.copy_dict(src=src, dest=dest)
 
 
 class CustomJsonFormatter(JsonFormatter):

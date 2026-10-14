@@ -2,8 +2,8 @@
 
 The shared utilities moved to :mod:`xtm_oaev_sdk`; their legacy names here
 resolve to the *identical* SDK objects and emit a :class:`DeprecationWarning`
-on access. ``EncodedId`` and ``RequiredOptional`` are REST client helpers and
-stay defined here.
+on access. ``EncodedId``, ``RequiredOptional``, ``copy_dict`` and
+``remove_none_from_dict`` are REST client helpers and stay defined here.
 """
 
 import dataclasses
@@ -19,9 +19,7 @@ _MOVED = [
     "AppLogger",
     "CustomJsonFormatter",
     "EnhancedJSONEncoder",
-    "copy_dict",
     "logger",
-    "remove_none_from_dict",
     "setup_logging_config",
     "PingAlive",
 ]
@@ -29,7 +27,9 @@ _MOVED = [
 __all__ = [  # noqa: F822 (moved names are served by the PEP 562 __getattr__ below)
     "EncodedId",
     "RequiredOptional",
+    "copy_dict",
     "get_content_type",
+    "remove_none_from_dict",
     "response_content",
     *_MOVED,
 ]
@@ -80,6 +80,23 @@ class EncodedId(str):
         if isinstance(value, str):
             value = urllib.parse.quote(value, safe="")
         return super().__new__(cls, value)
+
+
+def copy_dict(
+    *,
+    src: Dict[str, Any],
+    dest: Dict[str, Any],
+) -> None:
+    for k, v in src.items():
+        if isinstance(v, dict):
+            for dict_k, dict_v in v.items():
+                dest[f"{k}[{dict_k}]"] = dict_v
+        else:
+            dest[k] = v
+
+
+def remove_none_from_dict(data: Dict[str, Any]) -> Dict[str, Any]:
+    return {k: v for k, v in data.items() if v is not None}
 
 
 @dataclasses.dataclass(frozen=True)

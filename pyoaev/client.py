@@ -4,10 +4,10 @@ from uuid import UUID
 
 import requests
 import xtm_oaev_sdk as exceptions
-from xtm_oaev_sdk import copy_dict
 
 from pyoaev import utils
 from pyoaev._version import __version__  # noqa: F401
+from pyoaev.utils import copy_dict
 
 REDIRECT_MSG = (
     "pyoaev detected a {status_code} ({reason!r}) redirection. You must update "

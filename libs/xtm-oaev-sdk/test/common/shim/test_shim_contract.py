@@ -31,9 +31,7 @@ _UTILS = [
     "AppLogger",
     "CustomJsonFormatter",
     "EnhancedJSONEncoder",
-    "copy_dict",
     "logger",
-    "remove_none_from_dict",
     "setup_logging_config",
 ]
 _SSL = [
@@ -126,8 +124,7 @@ def test_sdk_objects_stay_silent_once_pyoaev_is_loaded() -> None:
     script = (
         "import pyoaev, pyoaev.exceptions, pyoaev.utils, pyoaev.helpers\n"
         "import xtm_oaev_sdk as sdk\n"
-        "sdk.copy_dict(src={'a': {'b': 1}}, dest={})\n"
-        "sdk.remove_none_from_dict({'a': None})\n"
+        "sdk.EnhancedJSONEncoder().encode({'a': 1})\n"
         "sdk.AssetCategory('WEB_APPLICATION')\n"
         "try:\n"
         "    raise sdk.OpenAEVHttpError('boom', 500)\n"
