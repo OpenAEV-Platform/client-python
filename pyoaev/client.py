@@ -3,8 +3,8 @@ from urllib import parse
 from uuid import UUID
 
 import requests
+import xtm_oaev_sdk as exceptions
 from xtm_oaev_sdk import copy_dict
-from xtm_oaev_sdk.seam import common as exceptions
 
 from pyoaev import utils
 from pyoaev._version import __version__  # noqa: F401

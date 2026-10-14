@@ -9,6 +9,13 @@ payloads sent to the API.
 
 from enum import Enum
 
+__all__ = [
+    "AssetCategory",
+    "AssetSubCategory",
+    "CloudProvider",
+    "AssetCriticality",
+]
+
 
 class AssetCategory(str, Enum):
     HOST = "HOST"

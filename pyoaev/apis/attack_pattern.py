@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from xtm_oaev_sdk.seam import common as exc
+import xtm_oaev_sdk as exc
 
 from pyoaev.base import RESTManager, RESTObject
 

@@ -393,7 +393,7 @@ def test_importing_utils_does_not_raise_jsonlogger_deprecation_warning() -> None
             "-W",
             "error::DeprecationWarning",
             "-c",
-            "import xtm_oaev_sdk._core.utils",
+            "import xtm_oaev_sdk",
         ],
         capture_output=True,
         text=True,

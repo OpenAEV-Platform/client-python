@@ -3,8 +3,9 @@
 Everything in this layer pins a stable interface so that the two sides of it
 can evolve independently without leaking either:
 
-- **``common``** — shared errors, enums, types, and utilities: the
-  platform-facing vocabulary both sides import.
+- **``common``** — the shared vocabulary (errors, enums, value objects,
+  consumer protocols) and the common ports; closed and versioned
+  (``SEAM_VERSION``).
 - **``configuration``** — the configuration contracts (hints, settings
   models, serialization types) and the ports its public adapters delegate
   to; closed and versioned (``SEAM_VERSION``).
@@ -29,7 +30,7 @@ implements its ports; the public adapters speak its types and delegate to the
 core. As long as the core keeps answering the seam, the public surface keeps
 working; a seam change is a contract change (``SEAM_VERSION`` bump, changelog).
 
-``configuration``, ``contracts``, ``seam/signatures/seam.py`` and
+``common``, ``configuration``, ``contracts``, ``seam/signatures/seam.py`` and
 ``seam/port_io/models.py`` are closed today; the other packages still re-export ``_core`` until their
 capability is migrated.
 """

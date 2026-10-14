@@ -1,15 +1,18 @@
-"""Shared contracts: errors, protocols, enums, type aliases, and the concrete
-utility layer."""
+"""Common seam: the shared vocabulary and the common ports.
 
-from xtm_oaev_sdk._core.asset_types import (
+Errors, enums, value objects and consumer protocols every capability speaks,
+plus the ports the common public adapters delegate to. Closed: it imports
+nothing from ``xtm_oaev_sdk._core`` nor ``xtm_oaev_sdk.public``. Any change to
+these contracts must bump :data:`SEAM_VERSION`.
+"""
+
+from xtm_oaev_sdk.seam.common.asset_types import (
     AssetCategory,
     AssetCriticality,
     AssetSubCategory,
     CloudProvider,
 )
-from xtm_oaev_sdk._core.client_protocol import BaseClient
-from xtm_oaev_sdk._core.daemon_protocol import DaemonProtocol
-from xtm_oaev_sdk._core.errors import (
+from xtm_oaev_sdk.seam.common.errors import (
     ConfigurationError,
     OpenAEVAuthenticationError,
     OpenAEVCreateError,
@@ -23,29 +26,27 @@ from xtm_oaev_sdk._core.errors import (
     OpenAEVUpdateError,
     RedirectError,
     SignatureTransmissionError,
-    on_http_error,
 )
-from xtm_oaev_sdk._core.security_domain import SecurityDomains
-from xtm_oaev_sdk._core.ssl_utils import (
-    data_to_temp_file,
-    is_memory_certificate,
-    ssl_cert_chain,
-    ssl_verify_locations,
+from xtm_oaev_sdk.seam.common.ports import (
+    CertificatesPort,
+    DictToolsPort,
+    HttpErrorPort,
+    JsonEncodingPort,
+    LoggingPort,
 )
-from xtm_oaev_sdk._core.utils import (
-    AppLogger,
+from xtm_oaev_sdk.seam.common.protocols import (
     AppLoggerProtocol,
-    CustomJsonFormatter,
-    EncodedId,
-    EnhancedJSONEncoder,
-    RequiredOptional,
-    copy_dict,
-    logger,
-    remove_none_from_dict,
-    setup_logging_config,
+    BaseClient,
+    DaemonProtocol,
 )
+from xtm_oaev_sdk.seam.common.security_domains import SecurityDomains
+from xtm_oaev_sdk.seam.common.values import EncodedId, RequiredOptional
+
+#: Version of the common seam. Bump on any contract change.
+SEAM_VERSION = "1.0.0"
 
 __all__ = [
+    "SEAM_VERSION",
     # Errors
     "ConfigurationError",
     "OpenAEVAuthenticationError",
@@ -60,30 +61,24 @@ __all__ = [
     "OpenAEVUpdateError",
     "RedirectError",
     "SignatureTransmissionError",
-    "on_http_error",
-    # Protocols
-    "AppLoggerProtocol",
-    "BaseClient",
-    "DaemonProtocol",
-    # Types
-    "EncodedId",
-    "RequiredOptional",
     # Enums
     "AssetCategory",
     "AssetCriticality",
     "AssetSubCategory",
     "CloudProvider",
+    # Enums (security domains)
     "SecurityDomains",
-    # Behaviour (concrete adapters)
-    "AppLogger",
-    "CustomJsonFormatter",
-    "EnhancedJSONEncoder",
-    "copy_dict",
-    "data_to_temp_file",
-    "is_memory_certificate",
-    "logger",
-    "remove_none_from_dict",
-    "setup_logging_config",
-    "ssl_cert_chain",
-    "ssl_verify_locations",
+    # Value objects
+    "EncodedId",
+    "RequiredOptional",
+    # Consumer protocols
+    "AppLoggerProtocol",
+    "BaseClient",
+    "DaemonProtocol",
+    # Ports
+    "CertificatesPort",
+    "DictToolsPort",
+    "HttpErrorPort",
+    "JsonEncodingPort",
+    "LoggingPort",
 ]

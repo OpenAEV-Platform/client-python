@@ -5,6 +5,7 @@ import logging
 import time
 from typing import Any
 
+import xtm_oaev_sdk as exc
 from pydantic import ValidationError
 from xtm_oaev_sdk import (
     ExecutionDetails,
@@ -12,7 +13,6 @@ from xtm_oaev_sdk import (
     SignatureOutputStructure,
     SignatureTransmissionError,
 )
-from xtm_oaev_sdk.seam import common as exc
 
 from pyoaev.base import RESTManager, RESTObject
 

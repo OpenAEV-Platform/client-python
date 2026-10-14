@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 from typing import Any, Protocol, runtime_checkable
 
 from pydantic import ValidationError
-from xtm_oaev_sdk._core.errors import OpenAEVError
 from xtm_oaev_sdk._core.signatures.models import (
     CloudInjectorConfig,
     ExecutionDetails,
@@ -24,6 +23,7 @@ from xtm_oaev_sdk._core.signatures.models import (
     TargetSignatures,
     ToolOutput,
 )
+from xtm_oaev_sdk.seam.common import OpenAEVError
 
 __all__ = [
     "SignatureManager",

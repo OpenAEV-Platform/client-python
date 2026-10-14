@@ -29,8 +29,23 @@ Example:
     ...     print(f"SDK error: {e}")
 """
 
-import functools
-from typing import TYPE_CHECKING, Any, Callable, Optional, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Optional, Union
+
+__all__ = [
+    "OpenAEVError",
+    "OpenAEVAuthenticationError",
+    "OpenAEVHttpError",
+    "OpenAEVParsingError",
+    "RedirectError",
+    "OpenAEVHeadError",
+    "OpenAEVGetError",
+    "OpenAEVUpdateError",
+    "OpenAEVListError",
+    "OpenAEVCreateError",
+    "OpenAEVDeleteError",
+    "SignatureTransmissionError",
+    "ConfigurationError",
+]
 
 
 class OpenAEVError(Exception):
@@ -260,56 +275,3 @@ class ConfigurationError(OpenAEVError):
     """
 
     pass
-
-
-_F = TypeVar("_F", bound=Callable[..., Any])
-
-
-def on_http_error(error: Type[Exception]) -> Callable[[_F], _F]:
-    """Decorator that wraps OpenAEVHttpError into a caller-specified type.
-
-    Use on API methods to convert generic HTTP errors into operation-specific
-    exception types while preserving error context.
-
-    Args:
-        error: The exception class to raise instead of OpenAEVHttpError.
-            Must accept (error_message, response_code, response_body) args.
-
-    Returns:
-        A decorator that wraps the target function.
-
-    Example:
-        >>> @on_http_error(OpenAEVCreateError)
-        ... def create_entity(self, data):
-        ...     return self._post("/entities", data)
-    """
-
-    def wrap(f: _F) -> _F:
-        @functools.wraps(f)
-        def wrapped_f(*args: Any, **kwargs: Any) -> Any:
-            try:
-                return f(*args, **kwargs)
-            except OpenAEVHttpError as e:
-                raise error(e.error_message, e.response_code, e.response_body) from e
-
-        return cast(_F, wrapped_f)
-
-    return wrap
-
-
-__all__ = [
-    "OpenAEVError",
-    "OpenAEVAuthenticationError",
-    "OpenAEVHttpError",
-    "OpenAEVParsingError",
-    "RedirectError",
-    "OpenAEVHeadError",
-    "OpenAEVGetError",
-    "OpenAEVUpdateError",
-    "OpenAEVListError",
-    "OpenAEVCreateError",
-    "OpenAEVDeleteError",
-    "SignatureTransmissionError",
-    "ConfigurationError",
-    "on_http_error",
-]

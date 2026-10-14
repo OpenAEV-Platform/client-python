@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
+import xtm_oaev_sdk as exc
 from xtm_oaev_sdk import RequiredOptional
-from xtm_oaev_sdk.seam import common as exc
 
 from pyoaev.apis.inputs.search import SearchPaginationInput
 from pyoaev.base import RESTManager, RESTObject

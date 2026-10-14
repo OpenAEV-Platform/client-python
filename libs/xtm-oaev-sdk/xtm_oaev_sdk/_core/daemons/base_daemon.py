@@ -6,9 +6,7 @@ from inspect import signature
 from types import FunctionType
 from typing import TYPE_CHECKING
 
-from xtm_oaev_sdk._core.client_protocol import BaseClient
-from xtm_oaev_sdk._core.errors import OpenAEVError
-from xtm_oaev_sdk._core.utils import logger
+from xtm_oaev_sdk.seam.common import BaseClient, OpenAEVError
 
 if TYPE_CHECKING:  # annotation only: the core never imports the public layer
     from xtm_oaev_sdk.public.configuration import Configuration
@@ -149,4 +147,7 @@ class BaseDaemon(ABC):
 
     @classmethod
     def __get_default_logger(cls, log_level, name):
+        # transitional until the daemons capability is layered
+        from xtm_oaev_sdk.public.common import logger
+
         return logger(log_level)(name)

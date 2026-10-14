@@ -100,7 +100,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(log_record["level"], "INFO")
 
     def test_setup_logging_config_json_logging_true_uses_custom_formatter(self):
-        with patch("xtm_oaev_sdk._core.utils.logging.basicConfig") as mock_basic_config:
+        with patch("logging.basicConfig") as mock_basic_config:
             module.setup_logging_config(logging.INFO, json_logging=True)
 
         kwargs = mock_basic_config.call_args.kwargs
@@ -111,13 +111,13 @@ class TestUtils(unittest.TestCase):
         )
 
     def test_setup_logging_config_json_logging_false_calls_basic_config(self):
-        with patch("xtm_oaev_sdk._core.utils.logging.basicConfig") as mock_basic_config:
+        with patch("logging.basicConfig") as mock_basic_config:
             module.setup_logging_config(logging.WARNING, json_logging=False)
 
         mock_basic_config.assert_called_once_with(level=logging.WARNING)
 
     def test_app_logger_methods_delegate_to_local_logger(self):
-        with patch("xtm_oaev_sdk._core.utils.setup_logging_config"):
+        with patch("xtm_oaev_sdk.public.common.setup_logging_config"):
             app_logger = module.AppLogger(logging.INFO)
         app_logger.local_logger = MagicMock()
 
@@ -132,7 +132,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(app_logger.local_logger.error.called)
 
     def test_logger_helper_returns_app_logger(self):
-        with patch("xtm_oaev_sdk._core.utils.setup_logging_config"):
+        with patch("xtm_oaev_sdk.public.common.setup_logging_config"):
             helper = module.logger(logging.INFO)
         self.assertIsInstance(helper, module.AppLogger)
 

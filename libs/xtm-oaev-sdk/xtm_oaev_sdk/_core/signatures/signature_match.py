@@ -4,8 +4,8 @@ This module provides the `SignatureMatch` class, which stores the selected
 match type and its optional score.
 """
 
-from xtm_oaev_sdk._core.errors import OpenAEVError
 from xtm_oaev_sdk._core.signatures.types import MatchTypes
+from xtm_oaev_sdk.seam.common import OpenAEVError
 
 __all__ = ["SignatureMatch"]
 

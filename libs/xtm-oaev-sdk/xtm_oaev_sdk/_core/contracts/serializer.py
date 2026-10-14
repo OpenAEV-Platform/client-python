@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from xtm_oaev_sdk._core.utils import EnhancedJSONEncoder
+from xtm_oaev_sdk._core.common import JsonEncoding
 from xtm_oaev_sdk.seam.contracts import ContractData
 
 __all__ = ["ContractSerializer"]
@@ -11,6 +11,9 @@ __all__ = ["ContractSerializer"]
 
 class ContractSerializer:
     """Implements ``ContractSerializerPort``."""
+
+    def __init__(self) -> None:
+        self._encoding = JsonEncoding()
 
     def to_add_input(self, contract: ContractData, source_id: str) -> dict[str, Any]:
         """Serialize a contract for the platform creation API.
@@ -29,7 +32,9 @@ class ContractSerializer:
             "contract_labels": contract.label,
             "contract_attack_patterns_external_ids": contract.contract_attack_patterns_external_ids,
             "contract_vulnerability_external_ids": contract.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(contract, cls=EnhancedJSONEncoder),
+            "contract_content": json.dumps(
+                contract, default=self._encoding.encode_default
+            ),
             "is_atomic_testing": contract.is_atomic_testing,
             "contract_platforms": contract.platforms,
             "contract_domains": contract.domains,
@@ -46,7 +51,9 @@ class ContractSerializer:
             "contract_labels": contract.label,
             "contract_attack_patterns_external_ids": contract.contract_attack_patterns_external_ids,
             "contract_vulnerability_external_ids": contract.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(contract, cls=EnhancedJSONEncoder),
+            "contract_content": json.dumps(
+                contract, default=self._encoding.encode_default
+            ),
             "is_atomic_testing": contract.is_atomic_testing,
             "contract_platforms": contract.platforms,
             "contract_domains": contract.domains,
@@ -67,7 +74,9 @@ class ContractSerializer:
                     "contract_id": c.contract_id,
                     "contract_labels": c.label,
                     "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
-                    "contract_content": json.dumps(c, cls=EnhancedJSONEncoder),
+                    "contract_content": json.dumps(
+                        c, default=self._encoding.encode_default
+                    ),
                     "contract_platforms": c.platforms,
                     "contract_domains": c.domains,
                 },

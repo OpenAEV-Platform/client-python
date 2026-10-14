@@ -12,8 +12,8 @@ from typing import (
 )
 
 import requests
+import xtm_oaev_sdk as exc
 from xtm_oaev_sdk import EncodedId
-from xtm_oaev_sdk.seam import common as exc
 
 import pyoaev
 from pyoaev import base
