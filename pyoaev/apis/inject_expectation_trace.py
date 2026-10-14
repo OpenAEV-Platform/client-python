@@ -1,10 +1,11 @@
 from typing import Any, Dict, List
 
 import xtm_oaev_sdk as exc
-from xtm_oaev_sdk import RequiredOptional
 
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.mixins import CreateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class InjectExpectationTrace(RESTObject):
@@ -24,7 +25,7 @@ class InjectExpectationTraceManager(CreateMixin, RESTManager):
         ),
     )
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def bulk_create(
         self, payload: Dict[str, List[Dict[str, str]]], **kwargs: Any
     ) -> dict[str, Any]:

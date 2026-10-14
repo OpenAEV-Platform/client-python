@@ -26,14 +26,11 @@ _ERRORS = [
     "OpenAEVUpdateError",
     "RedirectError",
     "SignatureTransmissionError",
-    "on_http_error",
 ]
 _UTILS = [
     "AppLogger",
     "CustomJsonFormatter",
-    "EncodedId",
     "EnhancedJSONEncoder",
-    "RequiredOptional",
     "copy_dict",
     "logger",
     "remove_none_from_dict",
@@ -59,11 +56,7 @@ LEGACY_NAMES = (
     + [("pyoaev.asset_types", name) for name in _ASSET_TYPES]
     + [("pyoaev.security_domain.types", "SecurityDomains")]
     + [("pyoaev", name) for name in _ASSET_TYPES]
-    + [
-        ("pyoaev", name)
-        for name in _ERRORS
-        if name not in ("OpenAEVError", "on_http_error")
-    ]
+    + [("pyoaev", name) for name in _ERRORS if name != "OpenAEVError"]
 )
 
 
@@ -110,7 +103,7 @@ def test_pyoaev_all_still_lists_legacy_exceptions() -> None:
     import pyoaev
 
     for name in _ERRORS:
-        if name not in ("OpenAEVError", "on_http_error"):
+        if name != "OpenAEVError":
             assert name in pyoaev.__all__
     for name in _ASSET_TYPES:
         assert name in pyoaev.__all__
@@ -133,8 +126,8 @@ def test_sdk_objects_stay_silent_once_pyoaev_is_loaded() -> None:
     script = (
         "import pyoaev, pyoaev.exceptions, pyoaev.utils, pyoaev.helpers\n"
         "import xtm_oaev_sdk as sdk\n"
-        "sdk.EncodedId('a b')\n"
-        "sdk.RequiredOptional(required=('a',)).validate_attrs(data={'a': 1})\n"
+        "sdk.copy_dict(src={'a': {'b': 1}}, dest={})\n"
+        "sdk.remove_none_from_dict({'a': None})\n"
         "sdk.AssetCategory('WEB_APPLICATION')\n"
         "try:\n"
         "    raise sdk.OpenAEVHttpError('boom', 500)\n"

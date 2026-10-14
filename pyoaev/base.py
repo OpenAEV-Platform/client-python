@@ -15,7 +15,9 @@ from typing import (
     get_type_hints,
 )
 
-from xtm_oaev_sdk import EncodedId, OpenAEVParsingError
+from xtm_oaev_sdk import OpenAEVParsingError
+
+from pyoaev.utils import EncodedId
 
 from .client import OpenAEV, OpenAEVList
 

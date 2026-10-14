@@ -57,8 +57,7 @@ the data *is*:
   signatures coerced to `[]`);
 - `__post_init__` invariants of the contract elements (derived `type`, forced
   cardinality, predefined expectations);
-- value objects: `EncodedId` (URL encoding), `RequiredOptional.validate_attrs`,
-  `SignatureMatch` (score invariant), `SignatureType.make_struct_for_matching`;
+- value objects: `SignatureMatch` (score invariant), `SignatureType.make_struct_for_matching`;
 - exceptions, including `OpenAEVError`'s extraction of a readable message from its
   own response body: the core raises them and users catch them, so they have to live
   where both sides can reach them.
@@ -200,7 +199,7 @@ source selection to `SettingsSourcesPort`. The settings models (`BaseConfigModel
 
 | Capability | Seam: contracts | Seam: ports | Core | Public adapters |
 |---|---|---|---|---|
-| common | the error hierarchy, the asset and security-domain enums, `EncodedId`, `RequiredOptional`, `BaseClient`, `DaemonProtocol`, `AppLoggerProtocol` | `HttpErrorPort`, `JsonEncodingPort`, `LoggingPort`, `DictToolsPort`, `CertificatesPort` | `HttpErrorTranslator`, `JsonEncoding`, `LoggingSetup`, `DictTools`, `Certificates` | `on_http_error`, `AppLogger`, `logger`, `setup_logging_config`, `CustomJsonFormatter`, `EnhancedJSONEncoder`, `copy_dict`, `remove_none_from_dict`, the SSL helpers |
+| common | the error hierarchy, the asset and security-domain enums, `BaseClient`, `DaemonProtocol`, `AppLoggerProtocol` | `JsonEncodingPort`, `LoggingPort`, `DictToolsPort`, `CertificatesPort` | `JsonEncoding`, `LoggingSetup`, `DictTools`, `Certificates` | `AppLogger`, `logger`, `setup_logging_config`, `CustomJsonFormatter`, `EnhancedJSONEncoder`, `copy_dict`, `remove_none_from_dict`, the SSL helpers |
 | configuration | `ConfigurationHint`, settings models, serializer types, `CONFIGURATION_TYPES`, `ConfigurationProtocol` | `ConfigurationResolverPort`, `ConfigurationSourcesPort`, `ConnectorSchemaPort`, `SettingsSourcesPort`, `TruthinessPort` | `ConfigurationResolver`, `ConfigurationSources`, `ConnectorSchemaTransformer`, `SettingsSourceSelector`, `Truthiness` | `Configuration`, `EnvironmentSource`, `DictionarySource`, `ConnectorConfigSchemaGenerator`, `SettingsLoader`, `is_truthy`, `is_falsy` |
 | contracts | `ContractData`, contract elements and enums, `ContractVariable`, `Expectation`, `CredentialType`, `ContractBuilderProtocol` | `ContractAssemblyPort`, `ContractVariablesPort`, `ContractSerializerPort`, `ContractCredentialsPort` | `ContractAssembly`, `BuiltinContractVariables`, `ContractSerializer`, `CredentialReferences` | `Contract`, `ContractBuilder`, `VariableHelper`, `prepare_contracts`, `build_single_referenced_credential_element` |
 | signatures | inbound I/O models, matching types and policies, `ExtraSignatureData`, `SignatureTransportProtocol`, `SignatureManagerProtocol` | `SignatureEnginePort`, `ContainerAddressPort`, `NetworkTargetsPort`, `MarkerPort` | `SignatureEngine`, `ContainerAddressResolver`, `NetworkTargets`, `MarkerBuilder` | `SignatureManager`, `build_network_configs`, `build_marker` |

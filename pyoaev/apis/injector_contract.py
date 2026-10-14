@@ -1,11 +1,12 @@
 from typing import Any, Dict
 
 import xtm_oaev_sdk as exc
-from xtm_oaev_sdk import RequiredOptional
 
 from pyoaev.apis.inputs.search import InjectorContractSearchPaginationInput
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.mixins import CreateMixin, DeleteMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class InjectorContract(RESTObject):
@@ -47,7 +48,7 @@ class InjectorContractManager(CreateMixin, UpdateMixin, DeleteMixin, RESTManager
         ),
     )
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def search(
         self, input: InjectorContractSearchPaginationInput, **kwargs: Any
     ) -> Dict[str, Any]:

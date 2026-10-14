@@ -2,29 +2,14 @@
 
 import logging
 import ssl
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 __all__ = [
     "CertificatesPort",
     "DictToolsPort",
-    "HttpErrorPort",
     "JsonEncodingPort",
     "LoggingPort",
 ]
-
-
-@runtime_checkable
-class HttpErrorPort(Protocol):
-    """Converts generic HTTP errors into operation-specific ones."""
-
-    def call(
-        self,
-        function: Callable[..., Any],
-        error: type[Exception],
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
-        """Result of ``function``, raising ``error`` instead of an HTTP error."""
 
 
 @runtime_checkable

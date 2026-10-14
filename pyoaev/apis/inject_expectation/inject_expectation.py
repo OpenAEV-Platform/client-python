@@ -6,10 +6,11 @@ from collectors_sdk import (
     ExpectationTypeEnum,
     PreventionExpectation,
 )
-from xtm_oaev_sdk import RequiredOptional
 
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.mixins import ListMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class InjectExpectation(RESTObject):
@@ -21,7 +22,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
     _obj_cls = InjectExpectation
     _update_attrs = RequiredOptional(required=("collector_id", "result", "is_success"))
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def expectations_assets_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -41,7 +42,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         )
         return result
 
-    @exc.on_http_error(exc.OpenAEVListError)
+    @on_http_error(exc.OpenAEVListError)
     def ai_expectations_for_source(
         self, source_id: str, **kwargs: Any
     ) -> List[Dict[str, Any]]:
@@ -115,7 +116,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
                 )
         return expectations
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def prevention_expectations_for_source(
         self, source_id: str, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -123,7 +124,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         result = self.openaev.http_get(path, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def detection_expectations_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -137,7 +138,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         )
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def update(
         self,
         inject_expectation_id: str,
@@ -148,7 +149,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         result = self.openaev.http_put(path, post_data=inject_expectation, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def bulk_update(
         self,
         inject_expectation_input_by_id: Dict[str, Dict[str, Any]],

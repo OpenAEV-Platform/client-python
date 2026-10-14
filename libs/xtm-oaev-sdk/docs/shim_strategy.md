@@ -151,8 +151,8 @@ so patching a method on any of those paths hits the class connectors instantiate
 | `pyoaev/contracts/*` | xtm-oaev-sdk contracts (`ExpectationType` renamed, variable constants) |
 | `pyoaev/credential/*` | xtm-oaev-sdk contracts (credential references) |
 | `pyoaev/signatures/*` | xtm-oaev-sdk signatures (`ExpectationType` renamed, `SignatureManager` adapter) |
-| `pyoaev/exceptions.py`, `asset_types.py`, `security_domain/types.py` | xtm-oaev-sdk common |
-| `pyoaev/utils.py` | xtm-oaev-sdk common and `PingAlive`; keeps the HTTP helpers `get_content_type`, `response_content` |
+| `pyoaev/exceptions.py`, `asset_types.py`, `security_domain/types.py` | xtm-oaev-sdk common; `exceptions.py` keeps the REST client decorator `on_http_error` |
+| `pyoaev/utils.py` | xtm-oaev-sdk common and `PingAlive`; keeps the REST client helpers `get_content_type`, `response_content`, `EncodedId`, `RequiredOptional` |
 | `pyoaev/daemons/*` | `BaseDaemon` / `CollectorDaemon` adapters |
 | `pyoaev/helpers.py` | collectors-sdk detection, injectors-sdk helpers (`OpenAEVInjectorHelper` adapter), xtm SSL helpers, `OpenAEVCollectorHelper` |
 | `pyoaev/apis/inject_expectation/model/*` | collectors-sdk expectations (the API manager builds them) |

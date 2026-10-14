@@ -1,7 +1,6 @@
-from xtm_oaev_sdk import RequiredOptional
-
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class Injector(RESTObject):

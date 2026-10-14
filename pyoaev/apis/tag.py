@@ -3,6 +3,7 @@ from typing import Any, Dict
 import xtm_oaev_sdk as exc
 
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 
 
 class Tag(RESTObject):
@@ -13,7 +14,7 @@ class TagManager(RESTManager):
     _path = "/tags"
     _obj_cls = Tag
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def upsert(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/upsert"
         result = self.openaev.http_post(path, post_data=data, **kwargs)

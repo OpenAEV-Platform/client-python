@@ -1,10 +1,11 @@
 from typing import Any, Dict
 
 import xtm_oaev_sdk as exc
-from xtm_oaev_sdk import RequiredOptional
 
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
+from pyoaev.utils import RequiredOptional
 
 
 class SecurityPlatform(RESTObject):
@@ -25,7 +26,7 @@ class SecurityPlatformManager(
         ),
     )
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def upsert(
         self, security_platform: Dict[str, Any], **kwargs: Any
     ) -> Dict[str, Any]:

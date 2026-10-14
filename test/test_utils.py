@@ -1,4 +1,5 @@
 import unittest
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 import pyoaev.utils as module
@@ -71,6 +72,41 @@ class TestUtils(unittest.TestCase):
             )
 
         mock_print.assert_called_once_with(b"visible")
+
+    def test_encoded_id_from_existing_instance_returns_same_object(self):
+        encoded_id = module.EncodedId("with space")
+        self.assertIs(module.EncodedId(encoded_id), encoded_id)
+
+    def test_encoded_id_encodes_string_and_keeps_int(self):
+        self.assertEqual(module.EncodedId("a/b c"), "a%2Fb%20c")
+        self.assertEqual(module.EncodedId(42), "42")
+
+    def test_encoded_id_rejects_unsupported_type(self):
+        with self.assertRaises(TypeError):
+            module.EncodedId(cast(Any, ["bad"]))
+
+    def test_required_optional_required_attribute_missing(self):
+        rules = module.RequiredOptional(required=("name",))
+        with self.assertRaises(AttributeError):
+            rules.validate_attrs(data={})
+
+    def test_required_optional_excludes_required_attribute(self):
+        rules = module.RequiredOptional(required=("name",))
+        rules.validate_attrs(data={}, excludes=["name"])
+
+    def test_required_optional_exclusive_allows_only_one_key(self):
+        rules = module.RequiredOptional(exclusive=("a", "b"))
+        with self.assertRaises(AttributeError):
+            rules.validate_attrs(data={"a": 1, "b": 2})
+
+    def test_required_optional_exclusive_requires_one_key(self):
+        rules = module.RequiredOptional(exclusive=("a", "b"))
+        with self.assertRaises(AttributeError):
+            rules.validate_attrs(data={})
+
+    def test_required_optional_exclusive_with_single_key_is_valid(self):
+        rules = module.RequiredOptional(exclusive=("a", "b"))
+        rules.validate_attrs(data={"a": 1})
 
 
 if __name__ == "__main__":

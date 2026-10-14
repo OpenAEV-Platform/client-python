@@ -13,10 +13,11 @@ from typing import (
 
 import requests
 import xtm_oaev_sdk as exc
-from xtm_oaev_sdk import EncodedId
 
 import pyoaev
 from pyoaev import base
+from pyoaev.exceptions import on_http_error
+from pyoaev.utils import EncodedId
 
 __all__ = [
     "GetMixin",
@@ -33,7 +34,7 @@ else:
 
 
 class HeadMixin(_RestManagerBase):
-    @exc.on_http_error(exc.OpenAEVHeadError)
+    @on_http_error(exc.OpenAEVHeadError)
     def head(
         self, id: Optional[Union[str, int]] = None, **kwargs: Any
     ) -> "requests.structures.CaseInsensitiveDict[Any]":
@@ -57,7 +58,7 @@ class GetMixin(HeadMixin, _RestManagerBase):
     _path: Optional[str]
     openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenAEVGetError)
+    @on_http_error(exc.OpenAEVGetError)
     def get(self, id: Union[str, int], **kwargs: Any) -> base.RESTObject:
         if isinstance(id, str):
             id = EncodedId(id)
@@ -80,7 +81,7 @@ class GetWithoutIdMixin(HeadMixin, _RestManagerBase):
     _path: Optional[str]
     openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenAEVGetError)
+    @on_http_error(exc.OpenAEVGetError)
     def get(self, **kwargs: Any) -> base.RESTObject:
         if TYPE_CHECKING:
             assert self.path is not None
@@ -101,7 +102,7 @@ class ListMixin(HeadMixin, _RestManagerBase):
     _path: Optional[str]
     openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenAEVListError)
+    @on_http_error(exc.OpenAEVListError)
     def list(self, **kwargs: Any) -> Union[base.RESTObjectList, List[base.RESTObject]]:
 
         if self.openaev.per_page:
@@ -159,7 +160,7 @@ class UpdateMixin(_RestManagerBase):
             http_method = self.openaev.http_put
         return http_method
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def update(
         self,
         id: Optional[Union[str, int]] = None,
@@ -193,7 +194,7 @@ class CreateMixin(_RestManagerBase):
     _path: Optional[str]
     openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenAEVCreateError)
+    @on_http_error(exc.OpenAEVCreateError)
     def create(
         self, data: Optional[Dict[str, Any]] = None, icon: tuple = None, **kwargs: Any
     ) -> base.RESTObject:
@@ -227,7 +228,7 @@ class DeleteMixin(_RestManagerBase):
     _path: Optional[str]
     openaev: pyoaev.OpenAEV
 
-    @exc.on_http_error(exc.OpenAEVDeleteError)
+    @on_http_error(exc.OpenAEVDeleteError)
     def delete(
         self, id: Optional[Union[str, int]] = None, **kwargs: Any
     ) -> requests.Response:

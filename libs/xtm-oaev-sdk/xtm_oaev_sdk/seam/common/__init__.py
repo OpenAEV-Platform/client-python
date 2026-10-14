@@ -30,7 +30,6 @@ from xtm_oaev_sdk.seam.common.errors import (
 from xtm_oaev_sdk.seam.common.ports import (
     CertificatesPort,
     DictToolsPort,
-    HttpErrorPort,
     JsonEncodingPort,
     LoggingPort,
 )
@@ -40,7 +39,6 @@ from xtm_oaev_sdk.seam.common.protocols import (
     DaemonProtocol,
 )
 from xtm_oaev_sdk.seam.common.security_domains import SecurityDomains
-from xtm_oaev_sdk.seam.common.values import EncodedId, RequiredOptional
 
 #: Version of the common seam. Bump on any contract change.
 SEAM_VERSION = "1.0.0"
@@ -68,9 +66,6 @@ __all__ = [
     "CloudProvider",
     # Enums (security domains)
     "SecurityDomains",
-    # Value objects
-    "EncodedId",
-    "RequiredOptional",
     # Consumer protocols
     "AppLoggerProtocol",
     "BaseClient",
@@ -78,7 +73,6 @@ __all__ = [
     # Ports
     "CertificatesPort",
     "DictToolsPort",
-    "HttpErrorPort",
     "JsonEncodingPort",
     "LoggingPort",
 ]

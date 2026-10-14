@@ -15,6 +15,7 @@ from xtm_oaev_sdk import (
 )
 
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 
 
 class Signature(RESTObject):
@@ -207,7 +208,7 @@ class SignatureApiManager(RESTManager):
         SignatureCallbackPayload.model_validate(envelope)
         return envelope
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def callback(
         self, inject_id: str, data: dict[str, Any], **kwargs: Any
     ) -> dict[str, Any]:

@@ -54,15 +54,6 @@ def _given_app_logger_with_recording_logger() -> tuple[Any, _RecordingLogger]:
     return app_logger, recorder
 
 
-def _given_required_optional(**kwargs: Any) -> Any:
-    required_optional_cls = _given_public_symbol("RequiredOptional")
-    return required_optional_cls(**kwargs)
-
-
-def _given_exclusive_spec() -> Any:
-    return _given_required_optional(exclusive=("id", "key"))
-
-
 def _given_json_encoder() -> Any:
     encoder_cls = _given_public_symbol("EnhancedJSONEncoder")
     return encoder_cls()
@@ -97,39 +88,6 @@ def _when_encode_with_default(encoder: Any, value: Any) -> Any:
 def _when_encode_unsupported_type_raises(encoder: Any, value: Any) -> Exception:
     with pytest.raises(TypeError) as exc_info:
         encoder.default(value)
-    return exc_info.value
-
-
-def _when_validate_attrs_raises(
-    validator: Any, data: dict[str, Any], excludes: list[str] | None = None
-) -> Exception:
-    with pytest.raises(AttributeError) as exc_info:
-        validator.validate_attrs(data=data, excludes=excludes)
-    return exc_info.value
-
-
-def _when_validate_attrs(
-    validator: Any, data: dict[str, Any], excludes: list[str] | None = None
-) -> None:
-    validator.validate_attrs(data=data, excludes=excludes)
-
-
-def _when_set_required_optional_field_raises(
-    instance: Any, field_name: str, value: Any
-) -> Exception:
-    with pytest.raises(dataclasses.FrozenInstanceError) as exc_info:
-        setattr(instance, field_name, value)
-    return exc_info.value
-
-
-def _when_encode_id(value: Any) -> Any:
-    encoded_id_cls = _given_public_symbol("EncodedId")
-    return encoded_id_cls(value)
-
-
-def _when_encode_invalid_id_raises(value: Any) -> Exception:
-    with pytest.raises(TypeError) as exc_info:
-        _when_encode_id(value)
     return exc_info.value
 
 
@@ -190,21 +148,8 @@ def _then_encoded_object_equals(encoded: Any, expected: Any) -> None:
     assert encoded == expected
 
 
-def _then_contains_text(exc: Exception, text: str) -> None:
-    assert text in str(exc)
-
-
-def _then_error_is_frozen(exc: Exception) -> None:
-    assert isinstance(exc, dataclasses.FrozenInstanceError)
-
-
 def _then_type_error_for_unsupported_type(exc: Exception) -> None:
     assert "not json serializable" in str(exc).lower()
-
-
-def _then_idempotent_reencode(value: Any) -> None:
-    encoded_id_cls = _given_public_symbol("EncodedId")
-    assert encoded_id_cls(encoded_id_cls(value)) == encoded_id_cls(value)
 
 
 def _then_dict_equals(actual: dict[str, Any], expected: dict[str, Any]) -> None:
@@ -268,75 +213,6 @@ def test_enhanced_json_encoder_raises_type_error_for_unsupported_types() -> None
     encoder = _given_json_encoder()
     exc = _when_encode_unsupported_type_raises(encoder, _UnsupportedType())
     _then_type_error_for_unsupported_type(exc)
-
-
-def test_required_optional_is_frozen() -> None:
-    """Verify RequiredOptional is immutable and rejects field assignment."""
-    required_optional = _given_required_optional(required=("name",))
-    exc = _when_set_required_optional_field_raises(
-        required_optional, "required", ("id",)
-    )
-    _then_error_is_frozen(exc)
-
-
-def test_required_optional_validate_attrs_missing_required_raises() -> None:
-    """Verify RequiredOptional.validate_attrs raises for missing required fields."""
-    required_optional = _given_required_optional(required=("name", "type"))
-    exc = _when_validate_attrs_raises(required_optional, {"name": "sdk"})
-    _then_contains_text(exc, "Missing attributes")
-
-
-@pytest.mark.parametrize(
-    ("data", "expected_text"),
-    [
-        ({}, "Must provide one of these attributes"),
-        ({"id": "1", "key": "2"}, "Provide only one of these attributes"),
-    ],
-)
-def test_required_optional_validate_attrs_exclusive_violations_raise(
-    data: dict[str, Any], expected_text: str
-) -> None:
-    """Verify RequiredOptional.validate_attrs raises for exclusive rule violations."""
-    required_optional = _given_exclusive_spec()
-    exc = _when_validate_attrs_raises(required_optional, data)
-    _then_contains_text(exc, expected_text)
-
-
-def test_required_optional_validate_attrs_excludes_skip_required_check() -> None:
-    """Verify RequiredOptional.validate_attrs excludes bypass required checks."""
-    required_optional = _given_required_optional(required=("name", "type"))
-    _when_validate_attrs(required_optional, {"name": "sdk"}, excludes=["type"])
-
-
-def test_required_optional_validate_attrs_valid_data_passes() -> None:
-    """Verify RequiredOptional.validate_attrs accepts valid required/exclusive data."""
-    required_optional = _given_required_optional(
-        required=("name",), exclusive=("id", "key")
-    )
-    _when_validate_attrs(required_optional, {"name": "sdk", "id": "123"})
-
-
-def test_encoded_id_url_encodes_strings() -> None:
-    """Verify EncodedId percent-encodes unsafe string characters."""
-    encoded = _when_encode_id("hello world")
-    _then_encoded_object_equals(encoded, "hello%20world")
-
-
-def test_encoded_id_is_idempotent_when_reencoded() -> None:
-    """Verify EncodedId(EncodedId(x)) yields the same encoded value."""
-    _then_idempotent_reencode("hello world")
-
-
-def test_encoded_id_rejects_non_str_non_int_values() -> None:
-    """Verify EncodedId raises TypeError for unsupported value types."""
-    exc = _when_encode_invalid_id_raises(3.14)
-    _then_contains_text(exc, "Unsupported type received")
-
-
-def test_encoded_id_accepts_int_and_returns_string_representation() -> None:
-    """Verify EncodedId passes integer values through as string content."""
-    encoded = _when_encode_id(42)
-    _then_encoded_object_equals(encoded, "42")
 
 
 def test_copy_dict_flattens_nested_dict_keys() -> None:

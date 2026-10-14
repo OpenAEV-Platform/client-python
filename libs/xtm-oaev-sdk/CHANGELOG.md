@@ -12,8 +12,8 @@ this SDK. The former `pyoaev` paths keep working, each one firing a
 
 ### Added
 
-- `common`: the `OpenAEVError` hierarchy, `on_http_error`, `AppLogger`, logging setup,
-  JSON encoding, SSL helpers, asset and security-domain enums, and the `BaseClient`,
+- `common`: the `OpenAEVError` hierarchy, `AppLogger`, logging setup, JSON encoding,
+  SSL helpers, asset and security-domain enums, and the `BaseClient`,
   `DaemonProtocol` and `AppLoggerProtocol` protocols. Seam `1.0.0`.
 - `configuration`: `Configuration`, `ConfigurationHint`, `SettingsLoader`, the settings
   models, sources and schema generator. Seam `1.0.0`.

@@ -38,7 +38,7 @@ world, runs the show, or needs another part of the SDK goes behind a port instea
 
 - validators and derived fields: `ConfigurationHint`, `ExpectationData`'s null signatures coerced to `[]`;
 - `__post_init__` invariants of the contract elements;
-- value objects: `EncodedId`, `RequiredOptional.validate_attrs`, `SignatureMatch`, `SignatureType.make_struct_for_matching`;
+- value objects: `SignatureMatch`, `SignatureType.make_struct_for_matching`;
 - exceptions, including `OpenAEVError`'s message extraction: the core raises them and users catch them, so both sides must reach them.
 
 ---

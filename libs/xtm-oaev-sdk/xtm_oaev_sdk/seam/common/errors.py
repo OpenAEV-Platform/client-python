@@ -8,7 +8,7 @@ Exception tree::
     OpenAEVError (base)
     ├── OpenAEVAuthenticationError   — credential/token failures
     ├── OpenAEVHttpError             — generic HTTP transport errors
-    │   └── (wrapped by on_http_error decorator into caller-specific types)
+    │   └── (wrapped by the HTTP client, e.g. pyoaev's on_http_error, into caller-specific types)
     ├── OpenAEVParsingError          — response deserialization failures
     ├── RedirectError                — unexpected HTTP redirects
     ├── OpenAEVHeadError             — HEAD request failures
@@ -198,8 +198,8 @@ class OpenAEVAuthenticationError(OpenAEVError):
 class OpenAEVHttpError(OpenAEVError):
     """Generic HTTP transport error.
 
-    Raised on unexpected HTTP responses. Use the ``on_http_error``
-    decorator to automatically wrap these into operation-specific types.
+    Raised on unexpected HTTP responses. HTTP clients (e.g. pyoaev's
+    ``on_http_error`` decorator) wrap these into operation-specific types.
     """
 
     pass

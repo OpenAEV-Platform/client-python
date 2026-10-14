@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 import xtm_oaev_sdk as exc
 
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 
 
 class AttackPattern(RESTObject):
@@ -13,7 +14,7 @@ class AttackPatternManager(RESTManager):
     _path = "/attack_patterns"
     _obj_cls = AttackPattern
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def upsert(
         self,
         attack_patterns: List[Dict[str, Any]],

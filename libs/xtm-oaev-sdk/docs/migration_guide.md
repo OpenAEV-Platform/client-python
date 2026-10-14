@@ -109,7 +109,6 @@ every legacy module that exposed it.
 | `data_to_temp_file` | `pyoaev.helpers` | `from xtm_oaev_sdk import data_to_temp_file` |
 | `DictionarySource` | `pyoaev.configuration.configuration`, `pyoaev.configuration.sources` | `from xtm_oaev_sdk import DictionarySource` |
 | `Domain` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import Domain` |
-| `EncodedId` | `pyoaev.utils` | `from xtm_oaev_sdk import EncodedId` |
 | `EnhancedJSONEncoder` | `pyoaev.utils` | `from xtm_oaev_sdk import EnhancedJSONEncoder` |
 | `EnvironmentSource` | `pyoaev.configuration.configuration`, `pyoaev.configuration.sources` | `from xtm_oaev_sdk import EnvironmentSource` |
 | `ExecutionDetails` | `pyoaev.signatures.models`, `pyoaev.signatures.signature_manager` | `from xtm_oaev_sdk import ExecutionDetails` |
@@ -130,7 +129,6 @@ every legacy module that exposed it.
 | `logger` | `pyoaev.daemons.base_daemon`, `pyoaev.utils` | `from xtm_oaev_sdk import logger` |
 | `MatchTypes` | `pyoaev`, `pyoaev.apis.inject_expectation.model.expectation`, `pyoaev.signatures`, `pyoaev.signatures.signature_match`, `pyoaev.signatures.signature_type`, `pyoaev.signatures.types` | `from xtm_oaev_sdk import MatchTypes` |
 | `NetworkInjectorConfig` | `pyoaev`, `pyoaev.signatures`, `pyoaev.signatures.models`, `pyoaev.signatures.signature_manager` | `from xtm_oaev_sdk import NetworkInjectorConfig` |
-| `on_http_error` | `pyoaev.exceptions` | `from xtm_oaev_sdk import on_http_error` |
 | `OpenAEVAuthenticationError` | `pyoaev`, `pyoaev.exceptions` | `from xtm_oaev_sdk import OpenAEVAuthenticationError` |
 | `OpenAEVCreateError` | `pyoaev`, `pyoaev.exceptions` | `from xtm_oaev_sdk import OpenAEVCreateError` |
 | `OpenAEVDeleteError` | `pyoaev`, `pyoaev.exceptions` | `from xtm_oaev_sdk import OpenAEVDeleteError` |
@@ -146,7 +144,6 @@ every legacy module that exposed it.
 | `PrimitiveType` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import PrimitiveType` |
 | `RedirectError` | `pyoaev`, `pyoaev.exceptions` | `from xtm_oaev_sdk import RedirectError` |
 | `remove_none_from_dict` | `pyoaev.utils` | `from xtm_oaev_sdk import remove_none_from_dict` |
-| `RequiredOptional` | `pyoaev.utils` | `from xtm_oaev_sdk import RequiredOptional` |
 | `SecurityDomains` | `pyoaev.security_domain.types` | `from xtm_oaev_sdk import SecurityDomains` |
 | `SecurityPlatformType` | `pyoaev.contracts.contract_config` | `from xtm_oaev_sdk import SecurityPlatformType` |
 | `SettingsLoader` | `pyoaev`, `pyoaev.configuration`, `pyoaev.configuration.settings_loader` | `from xtm_oaev_sdk import SettingsLoader` |
@@ -293,8 +290,10 @@ variables of `xtm_oaev_sdk.VariableHelper` instead.
 ## What stays in pyoaev
 
 The API client, and everything wired around it: `OpenAEV`, `pyoaev.apis` (including
-`inputs.search`), `pyoaev.backends`, `pyoaev.base`, `pyoaev.client`, `pyoaev.mixins`,
-and `pyoaev.utils.get_content_type` / `response_content`. Nothing to migrate there.
+`inputs.search`), `pyoaev.backends`, `pyoaev.base`, `pyoaev.client`, `pyoaev.mixins`, and
+the REST client helpers `pyoaev.utils.get_content_type` / `response_content` /
+`EncodedId` / `RequiredOptional`, plus `pyoaev.exceptions.on_http_error`. Nothing to
+migrate there.
 
 ## Things you may notice
 

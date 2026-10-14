@@ -6,17 +6,15 @@ Each adapter speaks the common seam types and delegates to the core
 implementation of its port.
 """
 
-import functools
 import json
 import logging
 import ssl
-from typing import Any, Callable, Type, TypeVar, cast
+from typing import Any
 
 from pythonjsonlogger.json import JsonFormatter
 from xtm_oaev_sdk._core.common import (
     Certificates,
     DictTools,
-    HttpErrorTranslator,
     JsonEncoding,
     LoggingSetup,
 )
@@ -31,8 +29,6 @@ from xtm_oaev_sdk.seam.common import (
     ConfigurationError,
     DaemonProtocol,
     DictToolsPort,
-    EncodedId,
-    HttpErrorPort,
     JsonEncodingPort,
     LoggingPort,
     OpenAEVAuthenticationError,
@@ -46,7 +42,6 @@ from xtm_oaev_sdk.seam.common import (
     OpenAEVParsingError,
     OpenAEVUpdateError,
     RedirectError,
-    RequiredOptional,
     SecurityDomains,
     SignatureTransmissionError,
 )
@@ -62,7 +57,6 @@ __all__ = [
     "ConfigurationError",
     "CustomJsonFormatter",
     "DaemonProtocol",
-    "EncodedId",
     "EnhancedJSONEncoder",
     "OpenAEVAuthenticationError",
     "OpenAEVCreateError",
@@ -75,56 +69,22 @@ __all__ = [
     "OpenAEVParsingError",
     "OpenAEVUpdateError",
     "RedirectError",
-    "RequiredOptional",
     "SecurityDomains",
     "SignatureTransmissionError",
     "copy_dict",
     "data_to_temp_file",
     "is_memory_certificate",
     "logger",
-    "on_http_error",
     "remove_none_from_dict",
     "setup_logging_config",
     "ssl_cert_chain",
     "ssl_verify_locations",
 ]
 
-_http_errors: HttpErrorPort = HttpErrorTranslator()
 _encoding: JsonEncodingPort = JsonEncoding()
 _logging: LoggingPort = LoggingSetup()
 _dicts: DictToolsPort = DictTools()
 _certificates: CertificatesPort = Certificates()
-
-_F = TypeVar("_F", bound=Callable[..., Any])
-
-
-def on_http_error(error: Type[Exception]) -> Callable[[_F], _F]:
-    """Decorator that wraps OpenAEVHttpError into a caller-specified type.
-
-    Use on API methods to convert generic HTTP errors into operation-specific
-    exception types while preserving error context.
-
-    Args:
-        error: The exception class to raise instead of OpenAEVHttpError.
-            Must accept (error_message, response_code, response_body) args.
-
-    Returns:
-        A decorator that wraps the target function.
-
-    Example:
-        >>> @on_http_error(OpenAEVCreateError)
-        ... def create_entity(self, data):
-        ...     return self._post("/entities", data)
-    """
-
-    def wrap(f: _F) -> _F:
-        @functools.wraps(f)
-        def wrapped_f(*args: Any, **kwargs: Any) -> Any:
-            return _http_errors.call(f, error, *args, **kwargs)
-
-        return cast(_F, wrapped_f)
-
-    return wrap
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):

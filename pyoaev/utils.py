@@ -2,11 +2,14 @@
 
 The shared utilities moved to :mod:`xtm_oaev_sdk`; their legacy names here
 resolve to the *identical* SDK objects and emit a :class:`DeprecationWarning`
-on access.
+on access. ``EncodedId`` and ``RequiredOptional`` are REST client helpers and
+stay defined here.
 """
 
+import dataclasses
 import email.message
-from typing import Any, Callable, Iterator, Optional, Union
+import urllib.parse
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 import requests
 import xtm_oaev_sdk as _sdk
@@ -15,9 +18,7 @@ from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 _MOVED = [
     "AppLogger",
     "CustomJsonFormatter",
-    "EncodedId",
     "EnhancedJSONEncoder",
-    "RequiredOptional",
     "copy_dict",
     "logger",
     "remove_none_from_dict",
@@ -26,6 +27,8 @@ _MOVED = [
 ]
 
 __all__ = [  # noqa: F822 (moved names are served by the PEP 562 __getattr__ below)
+    "EncodedId",
+    "RequiredOptional",
     "get_content_type",
     "response_content",
     *_MOVED,
@@ -65,6 +68,52 @@ def response_content(
         if chunk:
             action(chunk)
     return None
+
+
+class EncodedId(str):
+    def __new__(cls, value: Union[str, int, "EncodedId"]) -> "EncodedId":
+        if isinstance(value, EncodedId):
+            return value
+
+        if not isinstance(value, (int, str)):
+            raise TypeError(f"Unsupported type received: {type(value)}")
+        if isinstance(value, str):
+            value = urllib.parse.quote(value, safe="")
+        return super().__new__(cls, value)
+
+
+@dataclasses.dataclass(frozen=True)
+class RequiredOptional:
+    required: Tuple[str, ...] = ()
+    optional: Tuple[str, ...] = ()
+    exclusive: Tuple[str, ...] = ()
+
+    def validate_attrs(
+        self,
+        *,
+        data: Dict[str, Any],
+        excludes: Optional[List[str]] = None,
+    ) -> None:
+        if excludes is None:
+            excludes = []
+
+        if self.required:
+            required = [k for k in self.required if k not in excludes]
+            missing = [attr for attr in required if attr not in data]
+            if missing:
+                raise AttributeError(f"Missing attributes: {', '.join(missing)}")
+
+        if self.exclusive:
+            exclusives = [attr for attr in data if attr in self.exclusive]
+            if len(exclusives) > 1:
+                raise AttributeError(
+                    f"Provide only one of these attributes: {', '.join(exclusives)}"
+                )
+            if not exclusives:
+                raise AttributeError(
+                    f"Must provide one of these attributes: "
+                    f"{', '.join(self.exclusive)}"
+                )
 
 
 __getattr__ = _make_deprecated_getattr(

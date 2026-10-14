@@ -3,13 +3,11 @@
 from .certificates import Certificates
 from .dicts import DictTools
 from .encoding import JsonEncoding
-from .http_errors import HttpErrorTranslator
 from .logging_setup import LoggingSetup
 
 __all__ = [
     "Certificates",
     "DictTools",
-    "HttpErrorTranslator",
     "JsonEncoding",
     "LoggingSetup",
 ]
