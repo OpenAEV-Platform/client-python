@@ -61,6 +61,7 @@ build-backend = "setuptools.build_meta"
 include-package-data = true
 
 [tool.setuptools.packages.find]
+include = ["pyoaev*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "pyoaev.__version__" }
