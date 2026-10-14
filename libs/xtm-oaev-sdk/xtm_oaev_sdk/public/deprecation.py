@@ -8,14 +8,15 @@ consumers declares a mapping from each old name to
 ``(deprecation_message, replacement)`` and installs a module-level
 ``__getattr__`` built by :func:`make_deprecated_getattr`::
 
-    from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
+    from xtm_oaev_sdk import make_deprecated_getattr
 
-    _DEPRECATED: dict[str, tuple[str, object]] = {
-        "OldName": ("Use 'from xtm_oaev_sdk import NewName' instead.", NewName),
-    }
+    __getattr__ = make_deprecated_getattr(  # PEP 562
+        {"OldName": ("Use 'from xtm_oaev_sdk import NewName' instead.", NewName)},
+        module_name=__name__,
+    )
 
-    def __getattr__(name: str):  # PEP 562
-        return make_deprecated_getattr(_DEPRECATED, module_name=__name__)(name)
+Assign the factory's result directly: a ``def __getattr__`` wrapper adds a
+frame, and the warning would then point at the shim instead of the caller.
 
 Why a factory, and why it returns the object directly:
 
@@ -32,18 +33,19 @@ Why a factory, and why it returns the object directly:
   ``AttributeError`` (naming the module), so a typo or a not-yet-retired name
   is never silently swallowed by the deprecation layer.
 
-This module is a *pure compatibility primitive*: it imports nothing from the
-SDK's capabilities, so the dependency direction of the seam holds — the seam
-is imported by consumers, never the other way round.
+This adapter speaks the deprecation seam types and delegates to the core
+implementation of its port.
 """
 
-from __future__ import annotations
-
-import warnings
 from collections.abc import Mapping as _Mapping
 from typing import Any
 
+from xtm_oaev_sdk._core.deprecation import DeprecationShims
+from xtm_oaev_sdk.seam.deprecation import DeprecationPort
+
 __all__ = ["make_deprecated_getattr"]
+
+_deprecation: DeprecationPort = DeprecationShims()
 
 
 def make_deprecated_getattr(
@@ -78,25 +80,6 @@ def make_deprecated_getattr(
     raises ``ValueError`` at call time — i.e. at import time of the module that
     installs the shim — rather than at first access.
     """
-    resolved: dict[str, tuple[str, Any]] = {}
-    for key, value in mapping.items():
-        if not isinstance(key, str) or not key:
-            raise ValueError(
-                f"deprecated-name mapping keys must be non-empty strings, got {key!r}"
-            )
-        if not isinstance(value, tuple) or len(value) != 2:
-            raise ValueError(
-                f"mapping entry for {key!r} must be (message, target), got {value!r}"
-            )
-        resolved[key] = (value[0], value[1])
-
-    def __getattr__(name: str) -> Any:
-        entry = resolved.get(name)
-        if entry is None:
-            where = module_name if module_name is not None else "this module"
-            raise AttributeError(f"{where} has no attribute {name!r}") from None
-        message, target = entry
-        warnings.warn(message, DeprecationWarning, stacklevel=2)
-        return target
-
-    return __getattr__
+    return _deprecation.build_getattr(
+        _deprecation.resolve_mapping(mapping), module_name
+    )

@@ -105,6 +105,9 @@ from xtm_oaev_sdk.public.contracts import (
 # --- Daemons ---
 from xtm_oaev_sdk.public.daemons import BaseDaemon, PingAlive
 
+# --- Seam / compatibility ---
+from xtm_oaev_sdk.public.deprecation import make_deprecated_getattr
+
 # --- Signatures ---
 from xtm_oaev_sdk.public.signatures import (
     CloudInjectorConfig,
@@ -125,9 +128,6 @@ from xtm_oaev_sdk.public.signatures import (
     build_marker,
     build_network_configs,
 )
-
-# --- Seam / compatibility ---
-from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
 
 # --- Port I/O contract (versioned wire schema) ---
 from xtm_oaev_sdk.seam.port_io import (

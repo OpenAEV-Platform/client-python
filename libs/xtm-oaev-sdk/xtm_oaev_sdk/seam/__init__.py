@@ -21,9 +21,9 @@ can evolve independently without leaking either:
 - **``port_io``** — the port I/O wire schema crossing the SDK↔platform
   boundary; the seam **owns** the models (``seam/port_io/models.py``),
   versioned ``PORT_IO_CONTRACT_VERSION``.
-- **``deprecation``** — the PEP 562 deprecation primitive
-  (:func:`make_deprecated_getattr`) for retiring public names without
-  breaking importers.
+- **``deprecation``** — the port behind the PEP 562 deprecation primitive
+  (``make_deprecated_getattr``) that retires public names without breaking
+  importers; closed and versioned (``SEAM_VERSION``).
 
 A seam is **closed**: it imports only the standard library, third-party data
 libraries and sibling seam modules — never ``_core`` nor ``public``. The core
@@ -31,10 +31,7 @@ implements its ports; the public adapters speak its types and delegate to the
 core. As long as the core keeps answering the seam, the public surface keeps
 working; a seam change is a contract change (``SEAM_VERSION`` bump, changelog).
 
-``common``, ``configuration``, ``contracts``, ``daemons``, ``signatures`` and
-``port_io`` are closed; only ``deprecation`` remains to be layered.
+Every seam package is closed.
 """
 
-from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
-
-__all__ = ["make_deprecated_getattr"]
+__all__: list[str] = []

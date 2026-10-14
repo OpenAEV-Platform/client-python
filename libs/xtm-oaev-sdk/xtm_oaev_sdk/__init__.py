@@ -6,6 +6,7 @@ Architecture:
     _core/configuration/  Configuration feature implementation
     _core/contracts/      OpenAEV scenarios feature implementation
     _core/daemons/        Daemon runtime (base daemon, heartbeat)
+    _core/deprecation/    Deprecation shims (PEP 562 __getattr__)
     _core/signatures/     Signature feature implementation
     seam/common/          Shared errors, enums, value objects, protocols, ports
     seam/configuration/   Configuration contracts and ports (closed, versioned)
@@ -13,12 +14,13 @@ Architecture:
     seam/daemons/         Daemon runtime ports (closed, versioned)
     seam/signatures/      Signature contracts, inbound I/O models and ports (closed)
     seam/port_io/         Port I/O wire schema (versioned, seam-owned)
-    seam/deprecation.py   PEP 562 deprecation primitive
+    seam/deprecation/     Deprecation port (closed, versioned)
     public/common         Common adapters
     public/configuration  Configuration adapters
     public/contracts      Scenario contract adapters
     public/daemons        Daemon runtime adapters (API client injected)
     public/signatures     Signature manager and helpers adapters
+    public/deprecation    PEP 562 deprecation primitive adapter
     public/               User-facing re-exports
 
 Port/adapter layering, capability by capability (see ``seam``):
@@ -29,8 +31,6 @@ Port/adapter layering, capability by capability (see ``seam``):
 - ``public`` exposes adapters that speak seam types and delegate to ``_core``,
   plus the seam contracts themselves — never a core object.
 
-Capabilities not migrated yet still re-export ``_core`` through their seam
-package.
 """
 
 __version__ = "0.1.0"

@@ -126,10 +126,8 @@ def test_mapping_is_copied_not_referenced() -> None:
 # --- 8. the primitive is a public, documented export ---
 def test_public_export_and_all() -> None:
     import xtm_oaev_sdk as sdk
-    from xtm_oaev_sdk.seam import make_deprecated_getattr as from_seam
 
     assert sdk.make_deprecated_getattr is make_deprecated_getattr
-    assert from_seam is make_deprecated_getattr
     assert "make_deprecated_getattr" in sdk.__all__
 
 
