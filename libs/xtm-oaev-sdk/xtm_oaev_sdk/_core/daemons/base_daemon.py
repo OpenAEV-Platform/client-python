@@ -4,11 +4,14 @@ import argparse
 from abc import ABC, abstractmethod
 from inspect import signature
 from types import FunctionType
+from typing import TYPE_CHECKING
 
 from xtm_oaev_sdk._core.client_protocol import BaseClient
-from xtm_oaev_sdk._core.configuration import Configuration
 from xtm_oaev_sdk._core.errors import OpenAEVError
 from xtm_oaev_sdk._core.utils import logger
+
+if TYPE_CHECKING:  # annotation only: the core never imports the public layer
+    from xtm_oaev_sdk.public.configuration import Configuration
 
 __all__ = ["BaseDaemon"]
 
@@ -34,7 +37,7 @@ class BaseDaemon(ABC):
 
     def __init__(
         self,
-        configuration: Configuration,
+        configuration: "Configuration",
         callback: callable = None,
         logger=None,
         api_client: BaseClient | None = None,

@@ -1,40 +1,48 @@
-"""Configuration feature contracts: the I/O surface plus the concrete
-capability layer."""
+"""Configuration seam: the contract between the public adapters and the core.
 
-from xtm_oaev_sdk._core.configuration import (
+Closed: it imports nothing from ``xtm_oaev_sdk._core`` nor
+``xtm_oaev_sdk.public``. Any change to these contracts is a breaking change for
+one side of the boundary and must bump :data:`SEAM_VERSION`.
+"""
+
+from xtm_oaev_sdk.seam.configuration.models import (
     CONFIGURATION_TYPES,
     BaseConfigModel,
     ConfigLoaderCollector,
     ConfigLoaderOAEV,
-    Configuration,
     ConfigurationHint,
-    ConfigurationProtocol,
-    ConnectorConfigSchemaGenerator,
-    DictionarySource,
-    EnvironmentSource,
     HttpUrlToString,
     LogLevelToLower,
-    SettingsLoader,
     TimedeltaInSeconds,
-    is_falsy,
-    is_truthy,
+)
+from xtm_oaev_sdk.seam.configuration.ports import (
+    ConfigurationProtocol,
+    ConfigurationResolverPort,
+    ConfigurationSourcesPort,
+    ConnectorSchemaPort,
+    SettingsSourcesPort,
+    TruthinessPort,
 )
 
+#: Version of the configuration seam. Bump on any contract change.
+SEAM_VERSION = "1.0.0"
+
 __all__ = [
+    "SEAM_VERSION",
+    # Data contracts
     "BaseConfigModel",
     "CONFIGURATION_TYPES",
     "ConfigLoaderCollector",
     "ConfigLoaderOAEV",
-    "Configuration",
     "ConfigurationHint",
-    "ConfigurationProtocol",
-    "ConnectorConfigSchemaGenerator",
-    "DictionarySource",
-    "EnvironmentSource",
     "HttpUrlToString",
     "LogLevelToLower",
-    "SettingsLoader",
     "TimedeltaInSeconds",
-    "is_falsy",
-    "is_truthy",
+    # Ports
+    "ConfigurationProtocol",
+    "ConfigurationResolverPort",
+    "ConfigurationSourcesPort",
+    "ConnectorSchemaPort",
+    "SettingsSourcesPort",
+    "TruthinessPort",
 ]

@@ -1,40 +1,58 @@
-"""Settings loader: Pydantic-based configuration from env, YAML, and .env files.
+"""Configuration data contracts: hints, base models and serialization types.
 
-Provides base models and settings classes for structured, validated
-configuration loading with prioritized source resolution.
-
-Source priority (highest to lowest):
-    1. Environment variables
-    2. YAML config file (config.yml)
-    3. .env file
-    4. Default values
+Settings models are frozen, allow extra fields for forward compatibility and
+validate their defaults. Source priority when loading settings (highest to
+lowest): environment variables, YAML config file, .env file, defaults.
 """
 
-import os
 from abc import ABC
 from datetime import timedelta
-from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, PlainSerializer
-from pydantic_settings import (
-    BaseSettings,
-    DotEnvSettingsSource,
-    PydanticBaseSettingsSource,
-    SettingsConfigDict,
-    YamlConfigSettingsSource,
-)
 
 __all__ = [
     "BaseConfigModel",
+    "CONFIGURATION_TYPES",
     "ConfigLoaderCollector",
     "ConfigLoaderOAEV",
+    "ConfigurationHint",
     "HttpUrlToString",
     "LogLevelToLower",
-    "SettingsLoader",
     "TimedeltaInSeconds",
 ]
+
+CONFIGURATION_TYPES = str | int | bool | Any | None
+"""Union type for configuration values."""
+
+
+class ConfigurationHint(BaseModel):
+    """An individual configuration hint defining where a value can be found.
+
+    Hints specify the resolution strategy for a configuration key:
+    which environment variable to check, which file path to follow,
+    and what default to use if no source provides a value.
+
+    The model is mutable: ``Configuration.set()`` assigns ``data`` in place.
+
+    Args:
+        data: Override value. When set, this value is returned directly.
+        env: Environment variable name to read.
+        file_path: JSON path (nested keys) in the config file.
+        is_number: Whether to interpret the resolved value as an integer.
+        default: Fallback value when no source provides one.
+
+    Example:
+        >>> hint = ConfigurationHint(env="LOG_LEVEL", default="info")
+        >>> hint.data = "debug"  # override
+    """
+
+    data: CONFIGURATION_TYPES = Field(default=None)
+    env: str | None = Field(default=None)
+    file_path: list[str] | None = Field(default=None)
+    is_number: bool | None = Field(default=False)
+    default: CONFIGURATION_TYPES = Field(default=None)
 
 
 class BaseConfigModel(BaseModel, ABC):
@@ -53,79 +71,6 @@ class BaseConfigModel(BaseModel, ABC):
     """
 
     model_config = ConfigDict(extra="allow", frozen=True, validate_default=True)
-
-
-class SettingsLoader(BaseSettings):
-    """Base settings class with prioritized multi-source loading.
-
-    Automatically discovers and loads configuration from environment
-    variables, YAML files, and .env files with a defined priority order.
-
-    Subclass this to define your connector's configuration schema.
-
-    Example:
-        >>> class MySettings(SettingsLoader):
-        ...     model_config = SettingsConfigDict(yaml_file="config.yml")
-        ...     api_url: str
-        ...     timeout: int = 30
-    """
-
-    model_config = SettingsConfigDict(
-        frozen=True,
-        extra="allow",
-        env_nested_delimiter="_",
-        env_nested_max_split=1,
-        enable_decoding=False,
-    )
-
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls: type[BaseSettings],
-        init_settings: PydanticBaseSettingsSource,
-        env_settings: PydanticBaseSettingsSource,
-        dotenv_settings: PydanticBaseSettingsSource,
-        file_secret_settings: PydanticBaseSettingsSource,
-    ) -> tuple[PydanticBaseSettingsSource, ...]:
-        """Configure source resolution order.
-
-        Resolution priority:
-            1. Environment variables (always checked first)
-            2. YAML file (if config.yml exists)
-            3. .env file (if .env exists and no YAML found)
-            4. Default values (implicit via Pydantic)
-
-        Args:
-            settings_cls: The settings class being configured.
-            init_settings: Init-based settings source.
-            env_settings: Environment variable source.
-            dotenv_settings: .env file source.
-            file_secret_settings: Secrets file source.
-
-        Returns:
-            Tuple of settings sources in priority order.
-        """
-        _main_path = os.curdir
-
-        settings_cls.model_config["env_file"] = f"{_main_path}/../.env"
-
-        if not settings_cls.model_config["yaml_file"]:
-            if Path(f"{_main_path}/config.yml").is_file():
-                settings_cls.model_config["yaml_file"] = f"{_main_path}/config.yml"
-            if Path(f"{_main_path}/../config.yml").is_file():
-                settings_cls.model_config["yaml_file"] = f"{_main_path}/../config.yml"
-
-        if Path(settings_cls.model_config["yaml_file"] or "").is_file():  # type: ignore
-            return (
-                env_settings,
-                YamlConfigSettingsSource(settings_cls),
-            )
-        if Path(settings_cls.model_config["env_file"] or "").is_file():  # type: ignore
-            return (
-                env_settings,
-                DotEnvSettingsSource(settings_cls),
-            )
-        return (env_settings,)
 
 
 # Annotated type aliases for common configuration field patterns
