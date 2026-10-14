@@ -30,10 +30,10 @@ class DaemonProtocol(Protocol):
     """
 
     def start(self) -> None:
-        ...
+        """Run the daemon setup, then its main loop."""
 
     def set_callback(self, callback: Callable[..., Any]) -> None:
-        ...
+        """Configure the callback run by the main loop."""
 
     def get_id(self) -> str | None:
-        ...
+        """Return the daemon instance identifier."""

@@ -1,0 +1,7 @@
+# SDKs hosted in sibling repositories, required by pyoaev while it keeps the
+# deprecation shims of its former daemon helpers. Install together with the
+# local xtm-oaev-sdk, e.g.:
+#   pip install ./libs/xtm-oaev-sdk -r libs/sdk-requirements.txt '.[dev]'
+# Switch to version pins once the SDKs are published on PyPI.
+collectors-sdk @ git+https://github.com/OpenAEV-Platform/collectors.git@feat/303-sdk-init#subdirectory=libs/collectors-sdk
+injectors-sdk @ git+https://github.com/OpenAEV-Platform/injectors.git@feat/303-sdk-init#subdirectory=libs/injectors-sdk

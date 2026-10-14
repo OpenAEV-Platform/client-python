@@ -1,13 +1,13 @@
 from typing import Any, Dict, List
 
-from xtm_oaev_sdk import RequiredOptional
-from xtm_oaev_sdk.seam import common as exc
-
-from pyoaev.apis.inject_expectation.model import (
+from collectors_sdk import (
     DetectionExpectation,
     ExpectationTypeEnum,
     PreventionExpectation,
 )
+from xtm_oaev_sdk import RequiredOptional
+from xtm_oaev_sdk.seam import common as exc
+
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import ListMixin, UpdateMixin
 

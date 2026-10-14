@@ -16,7 +16,7 @@ classifiers = [
 ]
 dependencies = [
     "pydantic (>=2.13.3,<2.14.0)",
-    "pydantic-settings (>=2.14.0,<2.15.0)",
+    "pydantic-settings (>=2.15.0,<2.16.0)",
     "PyYAML (>=6.0,<6.1)",
     "python_json_logger (>=3.3.0,<3.4.0)",
 ]
