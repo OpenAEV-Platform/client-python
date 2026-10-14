@@ -15,8 +15,9 @@ can evolve independently without leaking either:
   versioned (``SEAM_VERSION``).
 - **``daemons``** — the ports of the daemon runtime shared by collectors and
   injectors (lifecycle, heartbeat); closed and versioned (``SEAM_VERSION``).
-- **``signatures``** — the signatures capability's inbound seam
-  (``seam/signatures/seam.py``), versioned ``SEAM_VERSION``.
+- **``signatures``** — the matching vocabulary and policies, the signature
+  ports, and the inbound I/O models (``seam/signatures/seam.py``, versioned
+  ``SEAM_VERSION``).
 - **``port_io``** — the port I/O wire schema crossing the SDK↔platform
   boundary; the seam **owns** the models (``seam/port_io/models.py``),
   versioned ``PORT_IO_CONTRACT_VERSION``.
@@ -30,10 +31,8 @@ implements its ports; the public adapters speak its types and delegate to the
 core. As long as the core keeps answering the seam, the public surface keeps
 working; a seam change is a contract change (``SEAM_VERSION`` bump, changelog).
 
-``common``, ``configuration``, ``contracts``, ``daemons``,
-``seam/signatures/seam.py`` and ``seam/port_io/models.py`` are closed today;
-the other packages still re-export ``_core`` until their capability is
-migrated.
+``common``, ``configuration``, ``contracts``, ``daemons``, ``signatures`` and
+``port_io`` are closed; only ``deprecation`` remains to be layered.
 """
 
 from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr

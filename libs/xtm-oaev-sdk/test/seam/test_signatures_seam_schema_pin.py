@@ -87,15 +87,15 @@ def test_seam_imports_nothing_from_capability():
 
 
 def test_reexports_preserve_identity():
-    """The seam, the port's models module, and the public surface share one object."""
+    """The seam module, the seam package, and the public surface share one object."""
     import xtm_oaev_sdk as sdk
-    import xtm_oaev_sdk._core.signatures.models as models
+    import xtm_oaev_sdk.seam.signatures as seam_package
 
     for name, cls in SEAM_MODELS.items():
         assert (
-            getattr(models, name) is cls
-        ), f"{name}: models.py re-export broke identity"
+            getattr(seam_package, name) is cls
+        ), f"{name}: seam package re-export broke identity"
         assert (
             getattr(sdk, name) is cls
         ), f"{name}: public surface re-export broke identity"
-    assert sdk.InjectorConfig is models.InjectorConfig
+    assert sdk.InjectorConfig is seam_package.InjectorConfig

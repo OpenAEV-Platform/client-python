@@ -211,7 +211,7 @@ def raw_mixed_target_list(value_1, value_2, value_3):
 )
 def resolvable_container_ipv4(request):
     patcher = patch(
-        "xtm_oaev_sdk._core.signatures.signature_manager.SignatureManager.resolve_container_ip",
+        "xtm_oaev_sdk.SignatureManager.resolve_container_ip",
         return_value="172.17.0.2",
     )
     patcher.start()
@@ -227,7 +227,7 @@ def resolvable_container_ipv4(request):
 )
 def resolvable_container_ipv4_explicit(request, source_ipv4):
     patcher = patch(
-        "xtm_oaev_sdk._core.signatures.signature_manager.SignatureManager.resolve_container_ip",
+        "xtm_oaev_sdk.SignatureManager.resolve_container_ip",
         return_value=source_ipv4,
     )
     patcher.start()

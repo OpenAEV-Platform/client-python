@@ -1,71 +1,13 @@
-"""Public surface for the signatures subpackage.
+"""Signatures core: implementations of the signatures seam ports."""
 
-This module re-exports the canonical signature types, models, and manager
-protocols used by the SDK engine signatures package.
-"""
-
-from .ai_marker import build_marker
-from .models import (
-    CloudInjectorConfig,
-    ExecutionDetails,
-    ExecutionSignature,
-    ExpectationSignatureGroup,
-    ExtraSignatureData,
-    InjectorConfig,
-    NetworkInjectorConfig,
-    SignatureCallbackPayload,
-    SignatureOutputStructure,
-    SignaturePayload,
-    SignatureTarget,
-    SignatureValue,
-    TargetSignatures,
-    ToolErrorInfo,
-    ToolOutput,
-    ToolTimeoutInfo,
-    build_network_configs,
-)
-from .signature_manager import (
-    SignatureManager,
-    SignatureManagerProtocol,
-    SignatureTransportProtocol,
-)
-from .signature_match import SignatureMatch
-from .signature_type import SignatureType
-from .types import (
-    ExecutionStatus,
-    InjectExecutionActions,
-    MatchTypes,
-    SignatureExpectationType,
-    SignatureTypes,
-)
+from .addresses import ContainerAddressResolver
+from .engine import SignatureEngine
+from .marker import MarkerBuilder
+from .targets import NetworkTargets
 
 __all__ = [
-    "CloudInjectorConfig",
-    "ExecutionDetails",
-    "ExecutionSignature",
-    "ExecutionStatus",
-    "ExpectationSignatureGroup",
-    "ExtraSignatureData",
-    "InjectExecutionActions",
-    "InjectorConfig",
-    "MatchTypes",
-    "NetworkInjectorConfig",
-    "SignatureCallbackPayload",
-    "SignatureExpectationType",
-    "SignatureManager",
-    "SignatureManagerProtocol",
-    "SignatureMatch",
-    "SignatureOutputStructure",
-    "SignaturePayload",
-    "SignatureTarget",
-    "SignatureTransportProtocol",
-    "SignatureType",
-    "SignatureTypes",
-    "SignatureValue",
-    "TargetSignatures",
-    "ToolErrorInfo",
-    "ToolOutput",
-    "ToolTimeoutInfo",
-    "build_marker",
-    "build_network_configs",
+    "ContainerAddressResolver",
+    "MarkerBuilder",
+    "NetworkTargets",
+    "SignatureEngine",
 ]

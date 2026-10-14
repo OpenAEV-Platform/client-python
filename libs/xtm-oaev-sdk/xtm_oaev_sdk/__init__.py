@@ -11,13 +11,14 @@ Architecture:
     seam/configuration/   Configuration contracts and ports (closed, versioned)
     seam/contracts/       Scenario contracts and ports (closed, versioned)
     seam/daemons/         Daemon runtime ports (closed, versioned)
-    seam/signatures/      Signatures inbound I/O seam (versioned)
+    seam/signatures/      Signature contracts, inbound I/O models and ports (closed)
     seam/port_io/         Port I/O wire schema (versioned, seam-owned)
     seam/deprecation.py   PEP 562 deprecation primitive
     public/common         Common adapters
     public/configuration  Configuration adapters
     public/contracts      Scenario contract adapters
     public/daemons        Daemon runtime adapters (API client injected)
+    public/signatures     Signature manager and helpers adapters
     public/               User-facing re-exports
 
 Port/adapter layering, capability by capability (see ``seam``):

@@ -105,27 +105,8 @@ from xtm_oaev_sdk.public.contracts import (
 # --- Daemons ---
 from xtm_oaev_sdk.public.daemons import BaseDaemon, PingAlive
 
-# --- Seam / compatibility ---
-from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
-
-# --- Port I/O contract (versioned wire schema) ---
-from xtm_oaev_sdk.seam.port_io import (
-    PORT_IO_CONTRACT_VERSION,
-    ExecutionDetails,
-    ExecutionStatus,
-    ExpectationSignatureGroup,
-    InjectExecutionActions,
-    SignatureCallbackPayload,
-    SignatureExpectationType,
-    SignatureOutputStructure,
-    SignaturePayload,
-    SignatureTarget,
-    SignatureValue,
-    TargetSignatures,
-)
-
 # --- Signatures ---
-from xtm_oaev_sdk.seam.signatures import (
+from xtm_oaev_sdk.public.signatures import (
     CloudInjectorConfig,
     ExecutionSignature,
     ExtraSignatureData,
@@ -143,6 +124,25 @@ from xtm_oaev_sdk.seam.signatures import (
     ToolTimeoutInfo,
     build_marker,
     build_network_configs,
+)
+
+# --- Seam / compatibility ---
+from xtm_oaev_sdk.seam.deprecation import make_deprecated_getattr
+
+# --- Port I/O contract (versioned wire schema) ---
+from xtm_oaev_sdk.seam.port_io import (
+    PORT_IO_CONTRACT_VERSION,
+    ExecutionDetails,
+    ExecutionStatus,
+    ExpectationSignatureGroup,
+    InjectExecutionActions,
+    SignatureCallbackPayload,
+    SignatureExpectationType,
+    SignatureOutputStructure,
+    SignaturePayload,
+    SignatureTarget,
+    SignatureValue,
+    TargetSignatures,
 )
 
 __all__ = [

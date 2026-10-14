@@ -1,71 +1,58 @@
-"""Signature feature data models.
+"""Signatures seam: the contract between the public adapters and the core.
 
-The inbound seam (the versioned ``InjectorConfig`` / ``ExecutionSignature`` /
-``ToolOutput`` I/O models) is declared in :mod:`xtm_oaev_sdk.seam.signatures.seam`;
-everything else in this package is the port's interface, re-export surface,
-and the concrete matching-engine layer.
+The inbound I/O models (``seam.py``, versioned :data:`SEAM_VERSION` and
+schema-pinned), the matching vocabulary and policies, and the signature ports.
+The wire models live in :mod:`xtm_oaev_sdk.seam.port_io`. Closed: it imports
+nothing from ``xtm_oaev_sdk._core`` nor ``xtm_oaev_sdk.public``.
 """
 
-from xtm_oaev_sdk._core.signatures import (
-    CloudInjectorConfig,
-    ExecutionDetails,
-    ExecutionSignature,
-    ExecutionStatus,
-    ExpectationSignatureGroup,
+from xtm_oaev_sdk.seam.signatures.models import (
     ExtraSignatureData,
-    InjectExecutionActions,
-    InjectorConfig,
     MatchTypes,
-    NetworkInjectorConfig,
-    SignatureCallbackPayload,
-    SignatureExpectationType,
-    SignatureManager,
-    SignatureManagerProtocol,
     SignatureMatch,
-    SignatureOutputStructure,
-    SignaturePayload,
-    SignatureTarget,
-    SignatureTransportProtocol,
     SignatureType,
     SignatureTypes,
-    SignatureValue,
-    TargetSignatures,
+)
+from xtm_oaev_sdk.seam.signatures.ports import (
+    ContainerAddressPort,
+    MarkerPort,
+    NetworkTargetsPort,
+    SignatureEnginePort,
+    SignatureManagerProtocol,
+    SignatureTransportProtocol,
+)
+from xtm_oaev_sdk.seam.signatures.seam import (
+    SEAM_VERSION,
+    CloudInjectorConfig,
+    ExecutionSignature,
+    InjectorConfig,
+    NetworkInjectorConfig,
     ToolErrorInfo,
     ToolOutput,
     ToolTimeoutInfo,
-    build_marker,
-    build_network_configs,
 )
-from xtm_oaev_sdk.seam.signatures.seam import SEAM_VERSION
 
 __all__ = [
     "SEAM_VERSION",
+    # Inbound I/O models (seam.py)
     "CloudInjectorConfig",
-    "ExecutionDetails",
     "ExecutionSignature",
-    "ExecutionStatus",
-    "ExpectationSignatureGroup",
-    "ExtraSignatureData",
-    "InjectExecutionActions",
     "InjectorConfig",
-    "MatchTypes",
     "NetworkInjectorConfig",
-    "SignatureCallbackPayload",
-    "SignatureExpectationType",
-    "SignatureManager",
-    "SignatureManagerProtocol",
-    "SignatureMatch",
-    "SignatureOutputStructure",
-    "SignaturePayload",
-    "SignatureTarget",
-    "SignatureTransportProtocol",
-    "SignatureType",
-    "SignatureTypes",
-    "SignatureValue",
-    "TargetSignatures",
     "ToolErrorInfo",
     "ToolOutput",
     "ToolTimeoutInfo",
-    "build_marker",
-    "build_network_configs",
+    # Data contracts
+    "ExtraSignatureData",
+    "MatchTypes",
+    "SignatureMatch",
+    "SignatureType",
+    "SignatureTypes",
+    # Ports
+    "ContainerAddressPort",
+    "MarkerPort",
+    "NetworkTargetsPort",
+    "SignatureEnginePort",
+    "SignatureManagerProtocol",
+    "SignatureTransportProtocol",
 ]

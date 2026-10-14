@@ -36,11 +36,11 @@ def context():
 def signature_manager_environment(context, monkeypatch, environment):
     if environment == "Docker":
         monkeypatch.setattr(
-            "xtm_oaev_sdk._core.signatures.signature_manager.socket.gethostbyname",
+            "socket.gethostbyname",
             lambda _: "172.17.0.2",
         )
         monkeypatch.setattr(
-            "xtm_oaev_sdk._core.signatures.signature_manager.subprocess.run",
+            "subprocess.run",
             lambda *args, **kwargs: SimpleNamespace(
                 returncode=0,
                 stdout="172.17.0.2\n",
@@ -48,11 +48,11 @@ def signature_manager_environment(context, monkeypatch, environment):
         )
     elif environment == "Kubernetes":
         monkeypatch.setattr(
-            "xtm_oaev_sdk._core.signatures.signature_manager.socket.gethostbyname",
+            "socket.gethostbyname",
             lambda _: (_ for _ in ()).throw(OSError("socket fail")),
         )
         monkeypatch.setattr(
-            "xtm_oaev_sdk._core.signatures.signature_manager.subprocess.run",
+            "subprocess.run",
             lambda *args, **kwargs: SimpleNamespace(
                 returncode=0,
                 stdout="10.244.0.8\n",
@@ -60,7 +60,7 @@ def signature_manager_environment(context, monkeypatch, environment):
         )
     else:
         monkeypatch.setattr(
-            "xtm_oaev_sdk._core.signatures.signature_manager.socket.gethostbyname",
+            "socket.gethostbyname",
             lambda _: "192.0.2.20",
         )
 
@@ -68,11 +68,11 @@ def signature_manager_environment(context, monkeypatch, environment):
 @given("all IP resolution strategies are mocked to fail")
 def all_ip_resolution_strategies_fail(context, monkeypatch):
     monkeypatch.setattr(
-        "xtm_oaev_sdk._core.signatures.signature_manager.socket.gethostbyname",
+        "socket.gethostbyname",
         lambda _: (_ for _ in ()).throw(OSError("socket fail")),
     )
     monkeypatch.setattr(
-        "xtm_oaev_sdk._core.signatures.signature_manager.subprocess.run",
+        "subprocess.run",
         lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("command fail")),
     )
 
