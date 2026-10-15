@@ -1,9 +1,0 @@
-{
-  "ExecutionDetails": "4cc109aef2950c555a6d0dce2e637e3ff709b86588a08fe0e459c5eb5328f939",
-  "ExpectationSignatureGroup": "8258ae33685d9826dc3b090186c6fa76935353a0fabd12ca9b6974184df251ff",
-  "SignatureOutputStructure": "4291aed5c4a354327c70db42534cd90d38bfbf7b39cc241cacf946bb0b70c066",
-  "SignaturePayload": "5f7451f4640c22c3f51cc1dab1fe0e65ca85d31f67349b2c42151111980d1467",
-  "SignatureTarget": "52a8848d8b60e2f68aaa8769f303ec886beb3b77a9088b98ad783690512e9ea9",
-  "SignatureValue": "dd21d79b3127f06390e5e17120bd6b662c11b04bb45f7db9c8c7848ca33d3d95",
-  "TargetSignatures": "490debc49e8fd5352b6afa91fe018935b17c8a4497c35fcc35ac1ebaf79242df"
-}

@@ -16,9 +16,8 @@ and this module is the only thing both sides may import.
 Any modification to the JSON schema of a model in this module is a
 breaking change for consumers and must bump :data:`SEAM_VERSION`.
 
-The schema-pinning guard (``tests/test_signatures_seam_schema_pin.py``)
-hashes each model's ``model_json_schema()`` against a golden file and
-fails on drift.
+The seam golden (``test/seam/test_seam_golden.py``) fingerprints every public
+object of the seam, this module included, and fails on drift.
 """
 
 from datetime import datetime, timezone

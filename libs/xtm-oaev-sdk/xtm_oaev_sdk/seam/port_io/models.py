@@ -1,6 +1,6 @@
 """The port I/O wire schema — the seam-owned models crossing the SDK↔platform boundary.
 
-These eight pydantic models — together with the three wire-vocabulary enums
+These pydantic models — together with the three wire-vocabulary enums
 they serialise (``SignatureExpectationType``, ``ExecutionStatus``,
 ``InjectExecutionActions``) — are the exact JSON shapes transmitted between
 the SDK's transport port (``SignatureTransportProtocol``) and the
@@ -15,8 +15,8 @@ reverse, so the two sides of the boundary can evolve independently.
 Any modification to the JSON schema of a model in this module is a breaking
 change for consumers and must bump :data:`PORT_IO_CONTRACT_VERSION`.
 
-The schema-pinning guard (``tests/test_port_io_schema_pin.py``) hashes each
-model's ``model_json_schema()`` against a golden file and fails on drift.
+The seam golden (``test/seam/test_seam_golden.py``) fingerprints every public
+object of the seam, this module included, and fails on drift.
 
 The module is **closed**: at runtime it imports only the standard library and
 pydantic. ``ToolOutput`` (from the signatures inbound seam,

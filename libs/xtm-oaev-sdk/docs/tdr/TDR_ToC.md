@@ -32,7 +32,8 @@ xtm-oaev-sdk, collectors-sdk, injectors-sdk and the `pyoaev` shims is expected t
 | TDR | Status | Rule |
 |---|---|---|
 | [A seam change is a versioned contract change](seam-changes-are-versioned-contract-changes.tdr.md) | draft | Any change to a seam contract (field, type, enum member, error, port signature) must bump that seam's version and be recorded in the changelog, and a change reaching the public surface must go through a deprecation shim first. |
-| [Seams crossing a process boundary pin their JSON schemas](cross-process-seams-pin-their-json-schemas.tdr.md) | draft | A seam whose models cross a process boundary must pin their JSON schemas with golden hashes, regenerated only together with a version bump. |
+| [Every seam object is fingerprinted](every-seam-object-is-fingerprinted.tdr.md) | draft | Every public top-level object of every seam module must be fingerprinted in one golden, discovered dynamically, and the golden is regenerated only together with a deliberate seam change and its version bump. |
+| [Seams crossing a process boundary pin their JSON schemas](cross-process-seams-pin-their-json-schemas.tdr.md) | superseded by [every-seam-object-is-fingerprinted](every-seam-object-is-fingerprinted.tdr.md) | A seam whose models cross a process boundary must pin their JSON schemas with golden hashes, regenerated only together with a version bump. |
 
 ## Public API, tests and checks
 

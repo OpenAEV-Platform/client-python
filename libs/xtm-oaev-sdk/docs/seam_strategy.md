@@ -158,10 +158,9 @@ def run(self) -> None:
 
 - Every capability seam exposes `SEAM_VERSION`. `port_io`, a pure
   wire schema, carries `PORT_IO_CONTRACT_VERSION` instead.
-- The seams that cross a process boundary pin their JSON schemas with golden hashes:
-  `seam/signatures/seam.py` (inbound I/O: injector configs, execution
-  signatures, tool output) and `seam/port_io` (`PORT_IO_CONTRACT_VERSION`: the wire
-  payloads sent to the platform). See `test/seam/`.
+- Every public seam object is fingerprinted in a golden: any seam change fails a test
+  until someone regenerates the golden on purpose, version bump included. See `test/seam/` and
+  [every-seam-object-is-fingerprinted](tdr/every-seam-object-is-fingerprinted.tdr.md).
 - Policy: a change to a seam (field, type, enum member, error, port signature) bumps
   its version and lands in the changelog. If it reaches the public surface, the old
   name goes through a deprecation shim first (see [shim_strategy.md](shim_strategy.md)).

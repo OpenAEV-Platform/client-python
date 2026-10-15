@@ -22,9 +22,8 @@ this SDK. The former `pyoaev` paths keep working, each one firing a
   `ContractReferencedCredential`, `build_single_referenced_credential_element`, from
   `pyoaev.credential`). Seam `1.0.0`.
 - `signatures`: `SignatureManager`, `build_network_configs`, `build_marker`, the
-  matching types and the inbound I/O models. Seam `1.0.0`, JSON schemas pinned.
-- `port_io`: the wire models sent to the platform. `PORT_IO_CONTRACT_VERSION` `1.0.0`,
-  JSON schemas pinned.
+  matching types and the inbound I/O models. Seam `1.0.0`.
+- `port_io`: the wire models sent to the platform. `PORT_IO_CONTRACT_VERSION` `1.0.0`.
 - `daemons`: `BaseDaemon` and `PingAlive`. Seam `1.0.0`.
 - `deprecation` (new, not from `pyoaev`): `make_deprecated_getattr`, the PEP 562
   deprecation primitive. Seam `1.0.0`.

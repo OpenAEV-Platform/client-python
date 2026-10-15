@@ -61,77 +61,69 @@ A seam change is a contract change. Treat it like one
 ([seam-changes-are-versioned-contract-changes](docs/tdr/seam-changes-are-versioned-contract-changes.tdr.md)):
 
 1. bump the capability's `SEAM_VERSION` (`PORT_IO_CONTRACT_VERSION` for `seam/port_io`);
-2. for `seam/signatures/seam.py` or `seam/port_io`, update the pinned schemas in the same
-   change, not in a follow-up (see [Pinned seam schemas](#pinned-seam-schemas-testseam));
+2. regenerate the seam golden in the same change, not in a follow-up (see
+   [Seam golden](#seam-golden-testseam));
 3. add an entry to [CHANGELOG.md](CHANGELOG.md);
 4. if a public name changes or disappears, the old one keeps working through a
    deprecation shim (`make_deprecated_getattr`) first.
 
-## Pinned seam schemas (`test/seam`)
+## Seam golden (`test/seam`)
 
-Some seams carry models that leave the process: the inbound signature I/O in
-`seam/signatures/seam.py` (injector configs, execution signatures, tool output) and the
-wire payloads in `seam/port_io`. Another process reads them. Change their schema and the
-other side breaks while every local test stays happily green. `libs/xtm-oaev-sdk/test/seam/`
-pins those schemas: touch one and a test goes red, forcing a deliberate decision
-([cross-process-seams-pin-their-json-schemas](docs/tdr/cross-process-seams-pin-their-json-schemas.tdr.md)).
+The seam is the contract between the public API and the core, and part of it rides the
+wire: payloads sent to the platform, data coming back, the connector manifest. Every
+change to it must be deliberate. `libs/xtm-oaev-sdk/test/seam/` fingerprints every
+public object of every seam module, so any change fails a test until someone signs off
+on it
+([every-seam-object-is-fingerprinted](docs/tdr/every-seam-object-is-fingerprinted.tdr.md)).
 
 ### What is in there
 
 | File | Role |
 |---|---|
-| `fixtures/signatures_seam_schemas.json`, `fixtures/port_io_schemas.json` | The golden files: one SHA-256 per model, computed from its `model_json_schema()` serialized with sorted keys. Hashes only. The schemas themselves are not in there. |
-| `test_signatures_seam_schema_pin.py`, `test_port_io_schema_pin.py` | Recompute every hash and hold it against the golden file. On top of that, they assert the seam version, make sure the seam module imports nothing from the SDK internals, and (signatures) that the package root re-exports the very same objects. |
-| `generate_signatures_seam_golden.py`, `generate_port_io_golden.py` | Overwrite the golden file with the hashes of the current models. No check. No confirmation. |
+| `generate_seam_golden.py` | Finds the seam on its own: every `*.py` file under `xtm_oaev_sdk/seam/`, every public top-level definition (class, function, constant, type alias). It fingerprints each one, then rewrites the golden: changed fingerprints updated, new objects added, deleted objects removed. It prints what moved, and warns when a capability changed but its version did not. |
+| `fixtures/seam_golden.json` | The golden: one entry per object, `"<module>.<name>": {"kind", "sha256"}`. |
+| `test_seam_golden.py` | Recomputes the fingerprints and fails on any object added, removed or changed. It also checks that the package root re-exports the seam's own objects. |
+| `test_seam_closed.py` | Checks that `port_io` imports only the signatures seam, and that the signatures seam imports nothing from the SDK. |
 
-The other seams carry a `SEAM_VERSION` and no pinned schema. Their models never leave
-the process, so there is no other side to break.
+No list to maintain. The next run picks up any new seam object.
 
-### When it fails
+### What a fingerprint covers
 
-The moment `model_json_schema()` changes for a pinned model, for any reason:
-
-- a field is added, removed, renamed or retyped, or its default changes;
-- a `Field` description changes, or the docstring of a model or enum. Yes, the
-  docstring: it becomes the schema `description`;
-- a pydantic upgrade renders the schema differently, even though no model changed.
+The sha256 of the definition's normalized AST. Formatting, comments and docstrings do
+not count. So it moves with fields, defaults, enum members, method signatures,
+validators and constant values. Pydantic models add their validation and serialization
+JSON schemas on top, model and field descriptions included. Those reach the wire, so
+rewording a pydantic model's docstring is a change.
 
 ### Updating it on purpose
 
 From the repository root:
 
-1. make the model change;
-2. bump the version: `SEAM_VERSION` in `seam/signatures/seam.py` or
-   `PORT_IO_CONTRACT_VERSION` in `seam/port_io/models.py`, plus the expected value in
-   `test_seam_version_is_pinned` or `test_port_io_contract_version_is_pinned`;
-3. regenerate the golden file:
+1. make the seam change;
+2. bump the capability's `SEAM_VERSION` (`PORT_IO_CONTRACT_VERSION` for `seam/port_io`);
+3. regenerate the golden:
 
    ```bash
-   python libs/xtm-oaev-sdk/test/seam/generate_signatures_seam_golden.py
-   python libs/xtm-oaev-sdk/test/seam/generate_port_io_golden.py
+   python libs/xtm-oaev-sdk/test/seam/generate_seam_golden.py
    ```
 
 4. run `python -m pytest libs/xtm-oaev-sdk/test/seam`;
-5. commit the model, the version, the test and the golden file together, with a
+5. commit the seam change, the version bump and the golden in one go, with a
    [CHANGELOG.md](CHANGELOG.md) entry.
-
-Pinning a new model? Add it to the model dictionary of the test *and* of its generator.
-Each keeps its own copy, and forgetting one is the trap.
 
 ### Seeing what changed
 
-The golden files only hold hashes, so a failure tells you *that* a schema moved, never
-*how*. To see it, dump the schema on your branch and on the base commit (a
-`git worktree` does the job), then diff the two:
+A failure names every object that moved, as `<module>.<name>`. `git diff` that
+definition: the code diff is the change. A pydantic model can move with no code change
+at all (a pydantic upgrade, a referenced type). Then compare its schema on both commits:
 
 ```bash
 python -c "import json; from xtm_oaev_sdk.seam.port_io import ExecutionDetails as M; print(json.dumps(M.model_json_schema(), indent=2, sort_keys=True))"
 ```
 
-NEVER regenerate a golden file just to turn a red test green, and NEVER edit a hash by
-hand. That silences the one alarm this directory exists for. If a hash moved without any
-model change (a pydantic upgrade, say), compare the dumped schemas and ask before deciding
-whether the wire contract really changed.
+NEVER regenerate the golden just to turn a red test green. NEVER edit a hash by hand. If
+a fingerprint moved with no seam change, find out why before you decide whether the
+contract really changed.
 
 ## Moving code out of pyoaev
 

@@ -35,13 +35,10 @@ build on this SDK from their own repositories.
    goes in its `public/<capability>.py` `__all__` and in `public/__init__.py`.
 7. A seam change (field, type, enum member, error, port signature) is a contract change:
    bump that capability's `SEAM_VERSION` (`PORT_IO_CONTRACT_VERSION` for `seam/port_io`)
-   and add an entry to `libs/xtm-oaev-sdk/CHANGELOG.md`. For `seam/signatures/seam.py` or
-   `seam/port_io`, also update the expected version in the matching
-   `test/seam/test_*_schema_pin.py` and regenerate the pinned schemas in the same change:
-   `python libs/xtm-oaev-sdk/test/seam/generate_signatures_seam_golden.py` and
-   `python libs/xtm-oaev-sdk/test/seam/generate_port_io_golden.py`. NEVER regenerate them
-   to make a failing pin pass without a deliberate seam change; follow
-   `libs/xtm-oaev-sdk/CONTRIBUTING.md`, "Pinned seam schemas".
+   and add an entry to `libs/xtm-oaev-sdk/CHANGELOG.md`. Then regenerate the seam golden
+   in the same change: `python libs/xtm-oaev-sdk/test/seam/generate_seam_golden.py`.
+   NEVER regenerate it to make a failing `test/seam/test_seam_golden.py` pass without a
+   deliberate seam change; follow `libs/xtm-oaev-sdk/CONTRIBUTING.md`, "Seam golden".
 8. NEVER regenerate `test/fixtures/legacy_surface.json` from the working tree: it records
    the released `pyoaev`. NEVER rewrite the legacy tests moved under
    `libs/xtm-oaev-sdk/test/<capability>/shim/`.
@@ -56,8 +53,8 @@ dependencies or refactors beyond the task.
 - changing a seam contract or a `SEAM_VERSION`;
 - renaming or removing a public name, or removing a `pyoaev` shim;
 - adding or changing a dependency in any `pyproject.toml` or in `libs/sdk-requirements.txt`;
-- editing `test/fixtures/legacy_surface.json`, the golden schema fixtures under
-  `libs/xtm-oaev-sdk/test/seam/fixtures/`, or CI configuration;
+- editing `test/fixtures/legacy_surface.json`, the seam golden
+  `libs/xtm-oaev-sdk/test/seam/fixtures/seam_golden.json`, or CI configuration;
 - deleting any file.
 
 ## Done when

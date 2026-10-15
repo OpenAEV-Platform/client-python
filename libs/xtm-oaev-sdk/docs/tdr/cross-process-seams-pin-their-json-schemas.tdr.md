@@ -1,12 +1,12 @@
 # Seams crossing a process boundary pin their JSON schemas
 ---
 scope: [xtm-oaev-sdk, signatures, port_io, testing, versioning]
-status: draft
-superseded_by:
+status: superseded
+superseded_by: every-seam-object-is-fingerprinted
 supersedes:
 Aliases:
 Creation Date: 2026/10/14 16:25:31
-Modification Date: 2026/10/14 21:39:05
+Modification Date: 2026/10/15 08:36:35
 ---
 
 ## ELI5
@@ -71,4 +71,4 @@ What we learned while forging this TDR:
 
 ## **Resources**
 - [Schema pin tests](../../test/seam/)
-- [Contributing: pinned seam schemas](../../CONTRIBUTING.md#pinned-seam-schemas-testseam)
+- [Contributing: seam golden, which replaced these pins](../../CONTRIBUTING.md#seam-golden-testseam)
