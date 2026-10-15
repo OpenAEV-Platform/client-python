@@ -1,12 +1,12 @@
 # Every seam object is fingerprinted
 ---
-scope: [xtm-oaev-sdk, seam, testing, versioning]
+scope: [xtm-oaev-sdk, collectors-sdk, injectors-sdk, seam, testing, versioning]
 status: draft
 superseded_by:
 supersedes: cross-process-seams-pin-their-json-schemas
 Aliases:
 Creation Date: 2026/10/15 08:36:35
-Modification Date: 2026/10/15 08:36:35
+Modification Date: 2026/10/15 08:49:12
 ---
 
 ## ELI5
@@ -42,6 +42,7 @@ version and save the new fingerprint.
 - It rewrites `test/seam/fixtures/seam_golden.json`: changed fingerprints updated, new objects added, deleted ones removed. It prints what moved, and warns when a capability changed but its version did not.
 - `test/seam/test_seam_golden.py` recomputes the fingerprints and fails on anything added, removed or changed, and names every object. It also checks that the package root re-exports the seam's own objects.
 - `test/seam/test_seam_closed.py` keeps the two closed-import checks: `port_io` imports only the signatures seam, and the signatures seam imports nothing from the SDK.
+- collectors-sdk and injectors-sdk carry the same generator and golden test under their own `test/seam/`, run from their `libs/<sdk>` directory.
 - The step-by-step procedure lives in `CONTRIBUTING.md`, "Seam golden".
 
 ---

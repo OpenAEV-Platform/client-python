@@ -87,6 +87,9 @@ on it
 
 No list to maintain. The next run picks up any new seam object.
 
+collectors-sdk and injectors-sdk carry the same golden under their own `test/seam/`. There,
+run the generator from `libs/<sdk>`: `python test/seam/generate_seam_golden.py`.
+
 ### What a fingerprint covers
 
 The sha256 of the definition's normalized AST. Formatting, comments and docstrings do
