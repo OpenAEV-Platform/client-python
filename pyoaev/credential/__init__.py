@@ -1,15 +1,26 @@
-from .types import CredentialType
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
 
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
+"""
 
-def build_single_referenced_credential_element(provider_name: str):
-    from .utils import (
-        build_single_referenced_credential_element as _build_single_referenced_credential_element,
-    )
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
-    return _build_single_referenced_credential_element(provider_name)
-
-
-__all__ = [
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
     "CredentialType",
     "build_single_referenced_credential_element",
 ]
+
+__getattr__ = _make_deprecated_getattr(
+    {
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {name}' instead.",
+                getattr(_sdk, name),
+            )
+            for name in __all__
+        },
+    },
+    module_name=__name__,
+)

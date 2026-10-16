@@ -5,16 +5,17 @@ import logging
 import time
 from typing import Any
 
+import xtm_oaev_sdk as exc
 from pydantic import ValidationError
-
-from pyoaev import exceptions as exc
-from pyoaev.base import RESTManager, RESTObject
-from pyoaev.exceptions import SignatureTransmissionError
-from pyoaev.signatures.models import (
+from xtm_oaev_sdk import (
     ExecutionDetails,
     SignatureCallbackPayload,
     SignatureOutputStructure,
+    SignatureTransmissionError,
 )
+
+from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 
 
 class Signature(RESTObject):
@@ -207,7 +208,7 @@ class SignatureApiManager(RESTManager):
         SignatureCallbackPayload.model_validate(envelope)
         return envelope
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def callback(
         self, inject_id: str, data: dict[str, Any], **kwargs: Any
     ) -> dict[str, Any]:
@@ -243,7 +244,7 @@ class SignatureApiManager(RESTManager):
         Raises:
             SignatureTransmissionError: 4xx error or all retries exhausted.
         """
-        from pyoaev.exceptions import OpenAEVError
+        from xtm_oaev_sdk import OpenAEVError
 
         effective_logger = logger if logger is not None else self._logger
         last_error: Exception | None = None

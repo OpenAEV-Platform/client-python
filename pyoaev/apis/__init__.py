@@ -1,3 +1,6 @@
+import collectors_sdk as _collectors_sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
 from .ai_target import *  # noqa: F401,F403
 from .attack_pattern import *  # noqa: F401,F403
 from .collector import *  # noqa: F401,F403
@@ -20,4 +23,22 @@ from .team import *  # noqa: F401,F403
 from .user import *  # noqa: F401,F403
 from .vulnerability import *  # noqa: F401,F403
 
-__all__ = [name for name in dir() if not name.startswith("_")]
+# The expectation models moved to collectors_sdk; their legacy names stay in
+# ``__all__`` and are served by the PEP 562 __getattr__ below, with a warning.
+_MOVED_MODELS = ["DetectionExpectation", "ExpectationTypeEnum", "PreventionExpectation"]
+
+__all__ = [  # noqa: F822 (moved names are served by the PEP 562 __getattr__ below)
+    *[name for name in dir() if not name.startswith("_")],
+    *_MOVED_MODELS,
+]
+
+__getattr__ = _make_deprecated_getattr(
+    {
+        name: (
+            f"Use 'from collectors_sdk import {name}' instead.",
+            getattr(_collectors_sdk, name),
+        )
+        for name in _MOVED_MODELS
+    },
+    module_name=__name__,
+)

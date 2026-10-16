@@ -15,9 +15,10 @@ from typing import (
     get_type_hints,
 )
 
-from pyoaev.exceptions import OpenAEVParsingError
+from xtm_oaev_sdk import OpenAEVParsingError
 
-from . import utils
+from pyoaev.utils import EncodedId
+
 from .client import OpenAEV, OpenAEVList
 
 __all__ = [
@@ -215,7 +216,7 @@ class RESTObject:
         path"""
         obj_id = self.get_id()
         if isinstance(obj_id, str):
-            obj_id = utils.EncodedId(obj_id)
+            obj_id = EncodedId(obj_id)
         return obj_id
 
 
@@ -316,12 +317,12 @@ class RESTManager:
         if self._parent is None or not self._from_parent_attrs:
             return path
 
-        data: Dict[str, Optional[utils.EncodedId]] = {}
+        data: Dict[str, Optional[EncodedId]] = {}
         for self_attr, parent_attr in self._from_parent_attrs.items():
             if not hasattr(self._parent, parent_attr):
                 data[self_attr] = None
                 continue
-            data[self_attr] = utils.EncodedId(getattr(self._parent, parent_attr))
+            data[self_attr] = EncodedId(getattr(self._parent, parent_attr))
         self._parent_attrs = data
         return path.format(**data)
 

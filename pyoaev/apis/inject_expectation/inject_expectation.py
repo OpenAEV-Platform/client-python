@@ -1,12 +1,12 @@
+import warnings as _warnings
 from typing import Any, Dict, List
 
-from pyoaev import exceptions as exc
-from pyoaev.apis.inject_expectation.model import (
-    DetectionExpectation,
-    ExpectationTypeEnum,
-    PreventionExpectation,
-)
+import collectors_sdk as _collectors_sdk
+import xtm_oaev_sdk as exc
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.mixins import ListMixin, UpdateMixin
 from pyoaev.utils import RequiredOptional
 
@@ -20,7 +20,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
     _obj_cls = InjectExpectation
     _update_attrs = RequiredOptional(required=("collector_id", "result", "is_success"))
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def expectations_assets_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -40,7 +40,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         )
         return result
 
-    @exc.on_http_error(exc.OpenAEVListError)
+    @on_http_error(exc.OpenAEVListError)
     def ai_expectations_for_source(
         self, source_id: str, **kwargs: Any
     ) -> List[Dict[str, Any]]:
@@ -86,35 +86,22 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
 
         :return: a list of expectation objects
         :rtype: list[DetectionExpectation|PreventionExpectation]
-        """
-        # TODO: we should implement a more clever mechanism to obtain
-        #   specialised Expectation instances rather than just if/elseing
-        #   through this list of possibilities.
-        expectations = []
-        for expectation_dict in self.expectations_assets_for_source(
-            source_id=source_id, **kwargs
-        ):
-            if (
-                expectation_dict["inject_expectation_type"]
-                == ExpectationTypeEnum.Detection.value
-            ):
-                expectations.append(
-                    DetectionExpectation(**expectation_dict, api_client=self)
-                )
-            elif (
-                expectation_dict["inject_expectation_type"]
-                == ExpectationTypeEnum.Prevention.value
-            ):
-                expectations.append(
-                    PreventionExpectation(**expectation_dict, api_client=self)
-                )
-            else:
-                expectations.append(
-                    PreventionExpectation(**expectation_dict, api_client=self)
-                )
-        return expectations
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+        .. deprecated::
+            Building the expectation models is the collector runtime's job: use
+            ``collectors_sdk.expectations_models_for_source(api.inject_expectation,
+            source_id)`` instead.
+        """
+        _warnings.warn(
+            "expectations_models_for_source is deprecated. Use 'from collectors_sdk "
+            "import expectations_models_for_source' and call "
+            "expectations_models_for_source(api.inject_expectation, source_id) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _collectors_sdk.expectations_models_for_source(self, source_id, **kwargs)
+
+    @on_http_error(exc.OpenAEVUpdateError)
     def prevention_expectations_for_source(
         self, source_id: str, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -122,7 +109,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         result = self.openaev.http_get(path, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def detection_expectations_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -136,7 +123,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         )
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def update(
         self,
         inject_expectation_id: str,
@@ -147,7 +134,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         result = self.openaev.http_put(path, post_data=inject_expectation, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def bulk_update(
         self,
         inject_expectation_input_by_id: Dict[str, Dict[str, Any]],
@@ -157,3 +144,19 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
         self.openaev.http_put(
             path, post_data={"inputs": inject_expectation_input_by_id}, **kwargs
         )
+
+
+# The expectation models moved to collectors_sdk; their legacy names here
+# resolve to the identical objects and emit a DeprecationWarning on access.
+_MOVED_MODELS = ["DetectionExpectation", "ExpectationTypeEnum", "PreventionExpectation"]
+
+__getattr__ = _make_deprecated_getattr(
+    {
+        name: (
+            f"Use 'from collectors_sdk import {name}' instead.",
+            getattr(_collectors_sdk, name),
+        )
+        for name in _MOVED_MODELS
+    },
+    module_name=__name__,
+)

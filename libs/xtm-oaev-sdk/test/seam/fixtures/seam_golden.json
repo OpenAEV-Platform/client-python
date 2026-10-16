@@ -1,0 +1,462 @@
+{
+  "xtm_oaev_sdk.seam.common.SEAM_VERSION": {
+    "kind": "assignment",
+    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+  },
+  "xtm_oaev_sdk.seam.common.asset_types.AssetCategory": {
+    "kind": "class",
+    "sha256": "cb67f3d2a86d93fbb49632b69aac7774a1e31e3db05caf133dd91b5690d0c038"
+  },
+  "xtm_oaev_sdk.seam.common.asset_types.AssetCriticality": {
+    "kind": "class",
+    "sha256": "d3dea966125525447d49a427bc2d367bdcc5aec55fc56b991e587796f5fe4da5"
+  },
+  "xtm_oaev_sdk.seam.common.asset_types.AssetSubCategory": {
+    "kind": "class",
+    "sha256": "231d692d0185a13b417635bc42a83a1b7ee5a9cbf459e9fedc34327c400db920"
+  },
+  "xtm_oaev_sdk.seam.common.asset_types.CloudProvider": {
+    "kind": "class",
+    "sha256": "c2a4fbf4b7164d34f0b8a2bf7504d1dcbc802e1e0313e9759d758b068fe5e6d6"
+  },
+  "xtm_oaev_sdk.seam.common.errors.ConfigurationError": {
+    "kind": "class",
+    "sha256": "125c52aa906fe42d596f504d38ada75f770e485fffaac96d30acbca1b048737f"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVAuthenticationError": {
+    "kind": "class",
+    "sha256": "b4d32e039bd713e2e07514a31e70985e8be126b15f95f5d354fd2c2747c10942"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVCreateError": {
+    "kind": "class",
+    "sha256": "dd175bda1f009adb5aa6f34dc89e7cf93deac5ded93bf8602bedb8ad85c779e1"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVDeleteError": {
+    "kind": "class",
+    "sha256": "8a47c256d3a07a25812a7fe3779593ae805be299fbebd46dfe598d060953039e"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVError": {
+    "kind": "class",
+    "sha256": "f3c868a0b346592a84a66b71427732e5ff010efd7d9b2ef11f777da0914aded5"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVGetError": {
+    "kind": "class",
+    "sha256": "7464137d3c19d05ab07fc37335458d5921bbb1aad37f509ddcb1b11b7386ede7"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVHeadError": {
+    "kind": "class",
+    "sha256": "6c8d650e59878e26c39db48bbb81d62aba25dcfa7ddd6220bd2313dbcad61894"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVHttpError": {
+    "kind": "class",
+    "sha256": "5e161b4cacac55feef064b5f83697684906ca2b374d7e7444c1b1513eeabef50"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVListError": {
+    "kind": "class",
+    "sha256": "76f81f2f44676b5fc8b8e2f09a51cd0101ed422ef0fa282694e974446bd5c293"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVParsingError": {
+    "kind": "class",
+    "sha256": "3ed6ea9145afa9ff953356e88a51fe31e7ec07ec3f3e0a04101ccac3892c7f5c"
+  },
+  "xtm_oaev_sdk.seam.common.errors.OpenAEVUpdateError": {
+    "kind": "class",
+    "sha256": "87d0e9ab82f0ddabf054815332454a3e58e09e431b78f4f13efaf1e70d6e0c0c"
+  },
+  "xtm_oaev_sdk.seam.common.errors.RedirectError": {
+    "kind": "class",
+    "sha256": "2d2529e12ab4453fd29a4600c66583dc3490715f61039b6bb89b9a3455407d58"
+  },
+  "xtm_oaev_sdk.seam.common.errors.SignatureTransmissionError": {
+    "kind": "class",
+    "sha256": "9543fea4fe7a04030a363ec7539fc05b63327b5608af454aa55f4ee722e1be6c"
+  },
+  "xtm_oaev_sdk.seam.common.ports.CertificatesPort": {
+    "kind": "class",
+    "sha256": "99ac2da214d3b0882f5d47d9d4212edf5965efc5006fd4b1758c3a8242686885"
+  },
+  "xtm_oaev_sdk.seam.common.ports.JsonEncodingPort": {
+    "kind": "class",
+    "sha256": "c5592e4eb2c586c13e1a8ae633b1d18557c895bc2e0067e5d1957200e7ee0f35"
+  },
+  "xtm_oaev_sdk.seam.common.ports.LoggingPort": {
+    "kind": "class",
+    "sha256": "31d0542014237114be994ae7c2b9023e2dd65a2c9c3758fc7fb0c638e23b19a2"
+  },
+  "xtm_oaev_sdk.seam.common.protocols.AppLoggerProtocol": {
+    "kind": "class",
+    "sha256": "98410e8645499cef7ecf8d51fbf81613e1cdb9bb2ac19e345512c38d22eef273"
+  },
+  "xtm_oaev_sdk.seam.common.protocols.BaseClient": {
+    "kind": "class",
+    "sha256": "9727fa9446d2be988fa26c983aaf23f65128fd86a6b8fd742ee2fd4c03b99120"
+  },
+  "xtm_oaev_sdk.seam.common.protocols.DaemonProtocol": {
+    "kind": "class",
+    "sha256": "6e04f94e2ba40fa1b883e3cc8350d55f35c201fdfa5daf7a3ea8c17c8e66cab9"
+  },
+  "xtm_oaev_sdk.seam.common.security_domains.SecurityDomains": {
+    "kind": "class",
+    "sha256": "8a27be9c4fd908e1cdab182e559ef8d4689410a405d11b424d3fb0f23995db30"
+  },
+  "xtm_oaev_sdk.seam.configuration.SEAM_VERSION": {
+    "kind": "assignment",
+    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.BaseConfigModel": {
+    "kind": "pydantic model",
+    "sha256": "2744c173dd64c929eba8ba559e138e56cc76a5638c3d74705f3924ef156d651f"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.CONFIGURATION_TYPES": {
+    "kind": "assignment",
+    "sha256": "3a094919b672c6be37a56a9d698b39f75c372815e9e6703c32ee799aec21175c"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.ConfigLoaderCollector": {
+    "kind": "pydantic model",
+    "sha256": "b791f4b65fc00537c117e0664a894867e8f34b4a8abec4f8eabea3a16e062431"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.ConfigLoaderOAEV": {
+    "kind": "pydantic model",
+    "sha256": "066ed8c10d20abfe63042ec2be39c0cae23f9a15088681dc48d9a8a003925a62"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.ConfigurationHint": {
+    "kind": "pydantic model",
+    "sha256": "59e06102d55627f0c3e41c04116cbaa5f9a0269df750be9a56c9ed1121660c1d"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.HttpUrlToString": {
+    "kind": "assignment",
+    "sha256": "7ce246816b036a5b93ecc244dfddec85adf28f3d53562c92052225071323dc96"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.LogLevelToLower": {
+    "kind": "assignment",
+    "sha256": "969e62cd77ce3f1aa7df05a3d2b8dd5c4a9a74dcd6bb5b31bcac5ff4386348d7"
+  },
+  "xtm_oaev_sdk.seam.configuration.models.TimedeltaInSeconds": {
+    "kind": "assignment",
+    "sha256": "fdc6122dbc50a989af4baed5b798f25143eeb2c9d4c7e0d6b5189079d19e5ef4"
+  },
+  "xtm_oaev_sdk.seam.configuration.ports.ConfigurationProtocol": {
+    "kind": "class",
+    "sha256": "43a6d1c58de96eeb8a268e62983d1c0d04c3ec5ca60bc7db3cf6440f1b5e2ef5"
+  },
+  "xtm_oaev_sdk.seam.configuration.ports.ConfigurationResolverPort": {
+    "kind": "class",
+    "sha256": "c36adb803d996956a4a88fefcd3468f9a2e67dec149eb3170cff4d6e5532c8f9"
+  },
+  "xtm_oaev_sdk.seam.configuration.ports.ConfigurationSourcesPort": {
+    "kind": "class",
+    "sha256": "7951e9dfa860e4c8d2553c9ca55cf46d59ce41435aa64aa8c0773245251ca161"
+  },
+  "xtm_oaev_sdk.seam.configuration.ports.ConnectorSchemaPort": {
+    "kind": "class",
+    "sha256": "9ba35717945700beeaa45407c628283098b2ed983858af8a9ffefa5ad78cce8e"
+  },
+  "xtm_oaev_sdk.seam.configuration.ports.SettingsSourcesPort": {
+    "kind": "class",
+    "sha256": "67681b5861788fdcf12585371293b814ef5a32418dbee64f28934ef919c24ecf"
+  },
+  "xtm_oaev_sdk.seam.configuration.ports.TruthinessPort": {
+    "kind": "class",
+    "sha256": "3c5238b25e5c46bbde80ec4843a624776521e65e323ec018eb41531a8ef63535"
+  },
+  "xtm_oaev_sdk.seam.contracts.SEAM_VERSION": {
+    "kind": "assignment",
+    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractAiTarget": {
+    "kind": "class",
+    "sha256": "bec76a7237ac27571146a586dfc1867275978925020cb495e92c487bfb3dbc82"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractAsset": {
+    "kind": "class",
+    "sha256": "4118fa0f218b9fa9ad13cb46f54cd42708826b9b8597c681f1f423846781aae0"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractAssetGroup": {
+    "kind": "class",
+    "sha256": "e68cdc9fd005c8d71e3399b8dd0cdfb82f4d06e32f6a6dbcb46971266942bbb7"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractAttachment": {
+    "kind": "class",
+    "sha256": "cb454a9aef9ac29dffc69eca75a577fce9160222f273a21ced23431e80ed62e9"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractCardinality": {
+    "kind": "class",
+    "sha256": "2c81f89d9e843a1a0171f3a4bd3646595d4ce398e5bd9a9361aa4d9bf94e17e7"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractCardinalityElement": {
+    "kind": "class",
+    "sha256": "1c6592f1e5664ad6ead85276e6987dd081896f59ae86ced5e6ab8ce1220987ee"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractCheckbox": {
+    "kind": "class",
+    "sha256": "9dd31fc0a96c97e790fface784a338b58682e02d8f9cbba9a32a44f33fc1f4d2"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractConfig": {
+    "kind": "class",
+    "sha256": "0186912bf55cc89902df1a42041c2b57e3b033cdfe79f7bf7ce4e043b7f35281"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractData": {
+    "kind": "class",
+    "sha256": "8abb76a14b43660f67ecad3a47ab6026b3785bfa832d8b6c5969ad209d024112"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractElement": {
+    "kind": "class",
+    "sha256": "43fa42de3e2c120636e4f4ae800952f11d0a75b2bf7f9db4b3afb129609031b6"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractExpectationType": {
+    "kind": "class",
+    "sha256": "cdbf56a38b1b4cff63229ad6fdb5939b07ffbc7e292112fbcb77206f173b3dc3"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractExpectations": {
+    "kind": "class",
+    "sha256": "81f1e6aa56166766600d43854360c6b565ba88c7b38c1c7c9aba1c55a440a768"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractFieldKey": {
+    "kind": "class",
+    "sha256": "3aa5cdebc64b0e09fa18950aa7c1bff2f1fad4cbfd4ac106a200cf01a453c7ae"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractFieldType": {
+    "kind": "class",
+    "sha256": "3efc706f2a68aa7fb006df594a5708ee018e9d615bbd572d96f7a64f65c0fbb7"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractOutputElement": {
+    "kind": "class",
+    "sha256": "903e0d46c2f0ccfbe550f0cd067d212f67905f208940fc06f8638ee4854d5a97"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractOutputType": {
+    "kind": "class",
+    "sha256": "52604db256eb23b5d7dc0a564a5e41f7e4b3e764ad89af0d97162471ca8be3d2"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractPayload": {
+    "kind": "class",
+    "sha256": "a424a20ef31a74cdce9c3b3b585b0d46a408c1dabdc4d70a53e88a5a830dab63"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractReferencedCredential": {
+    "kind": "class",
+    "sha256": "cfadf2858d353ad60b2ab963ed8dbc98054dec687862cbaf70efe3acf3f00ea2"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractSelect": {
+    "kind": "class",
+    "sha256": "1ff539b29b70b4090f175b11e7cf42f5476643a32937531301c27b8af2eba3ee"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractTeam": {
+    "kind": "class",
+    "sha256": "47b63fd6ca940482b964b0ecedb182de60a249a5fbf9310642745f7b1148b214"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractText": {
+    "kind": "class",
+    "sha256": "9e8170048f9340f1e3178ffe60e428c8574bca27148357856dbe5303fc89df15"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractTextArea": {
+    "kind": "class",
+    "sha256": "dc9d182716bf85bad565b2b7d0a9025e2869701f6e7dfb14b83009685771967e"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractTuple": {
+    "kind": "class",
+    "sha256": "a89fdb4ccf80bbbf87b19e3d330978bb995657d82e02c72fa814f57bfaa7eed6"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.ContractVariable": {
+    "kind": "class",
+    "sha256": "46522f5a0c908d7376b8ffa389d87113a972848467711a46cdc4dc5d6262d49e"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.CredentialType": {
+    "kind": "class",
+    "sha256": "7e29de5fbd972fab40d3525275d4c93fbb54347869c1a5efe24b6737f2719890"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.Domain": {
+    "kind": "class",
+    "sha256": "26fd50e1160ff864f4ac1404a08e1594a99c5df39d3f482c0c6492de3a08f223"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.Expectation": {
+    "kind": "class",
+    "sha256": "8de1930e714539c664d53e0fee6e37ee8c2af6fe72502181db9c0cc6bd75046d"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.LinkedFieldModel": {
+    "kind": "class",
+    "sha256": "73c3eec7ba6d4182212b9d9e09cee3b11cc437b3a8d8997b84c54fad8731d234"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.PrimitiveType": {
+    "kind": "class",
+    "sha256": "741b00f6883baea168f1ea19c705eba1e1e9f001e02a95a3570c471eafe2c020"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.SecurityPlatformType": {
+    "kind": "class",
+    "sha256": "8d9bdf6573fa6c32cae8784b83bef9cd19532db2238ef45cc65b6ad9078d5988"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.SupportedLanguage": {
+    "kind": "class",
+    "sha256": "a367cd2ecbe05dc4c118940ab719dabf0128dfacd8fbf18ec162bcd3b4677592"
+  },
+  "xtm_oaev_sdk.seam.contracts.models.VariableType": {
+    "kind": "class",
+    "sha256": "22dc85d597bba70a70742f392b5d621514da4d23662f116b00f33808c8262593"
+  },
+  "xtm_oaev_sdk.seam.contracts.ports.ContractAssemblyPort": {
+    "kind": "class",
+    "sha256": "0bd7a273151c8726d905138f48a45239d9d86e776cc82686465607a6a0d6fe5e"
+  },
+  "xtm_oaev_sdk.seam.contracts.ports.ContractBuilderProtocol": {
+    "kind": "class",
+    "sha256": "c64343786d3ce2d454cb8966b36ec7a3afecc359ef954191fa9ca5ec22af76ff"
+  },
+  "xtm_oaev_sdk.seam.contracts.ports.ContractCredentialsPort": {
+    "kind": "class",
+    "sha256": "d2320f0e0d1a601d423d7478a7106758061a83a99644bebfa91edd7f197e1687"
+  },
+  "xtm_oaev_sdk.seam.contracts.ports.ContractSerializerPort": {
+    "kind": "class",
+    "sha256": "0366d67e6b581aac3fdc5f6dfeb4e7eba65a21da98a1fc89a0add1c192cb3327"
+  },
+  "xtm_oaev_sdk.seam.contracts.ports.ContractVariablesPort": {
+    "kind": "class",
+    "sha256": "a3845ad0c166456174e25d299cff4a16cae2117ce13bd10174fb1c843f183886"
+  },
+  "xtm_oaev_sdk.seam.daemons.SEAM_VERSION": {
+    "kind": "assignment",
+    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+  },
+  "xtm_oaev_sdk.seam.daemons.ports.DaemonRuntimePort": {
+    "kind": "class",
+    "sha256": "057f096c283a09b2cb560b9d39de886df4f237c20c438ce02acab991523c2e2f"
+  },
+  "xtm_oaev_sdk.seam.daemons.ports.HeartbeatPort": {
+    "kind": "class",
+    "sha256": "1e42dda89a11a88eead8163c170c27d5136996820d4d1fc3464bd6dfed7fc242"
+  },
+  "xtm_oaev_sdk.seam.deprecation.SEAM_VERSION": {
+    "kind": "assignment",
+    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+  },
+  "xtm_oaev_sdk.seam.deprecation.ports.DeprecatedNames": {
+    "kind": "assignment",
+    "sha256": "0fa67de53de219b64454162f3fea7f07bed0504929cc8520bba25a5a7794d0b0"
+  },
+  "xtm_oaev_sdk.seam.deprecation.ports.DeprecationPort": {
+    "kind": "class",
+    "sha256": "c0631fd4c1bfa509bce632c1c815865d504293e100b8798981df36567bad5c3b"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.ExecutionDetails": {
+    "kind": "pydantic model",
+    "sha256": "4d9546d2033c3d68bc31a688481bc580fb876fa1f984495bd8d1ac4bb8c6ce15"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.ExecutionStatus": {
+    "kind": "class",
+    "sha256": "1ac92fe06592d1ef55703df64941baf70b75c646d138e4f7698abe02bba50af0"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.ExpectationSignatureGroup": {
+    "kind": "pydantic model",
+    "sha256": "1349c78c33892854ef77030364dd310f1dd98ebf23688b97267a046bd5926a8c"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.InjectExecutionActions": {
+    "kind": "class",
+    "sha256": "45eaf82367b11a87617ec5563c1109b2ec9050fd5c58f70a7c5875c4352f9eb1"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.PORT_IO_CONTRACT_VERSION": {
+    "kind": "assignment",
+    "sha256": "4b3aa3a5b079ff1222ce2bb723750e882555bc2c857097f589066dcae2398d0a"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.SignatureCallbackPayload": {
+    "kind": "pydantic model",
+    "sha256": "c9bc7d84b064b595fd1cb7000d43d47246cb1026b89b2607e4870443e17dde61"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.SignatureExpectationType": {
+    "kind": "class",
+    "sha256": "d66c56b5404fbb512cb3d29ff52dcef0cb0a984fdfab1492f59185854c8117e3"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.SignatureOutputStructure": {
+    "kind": "pydantic model",
+    "sha256": "81f15a75c0b933604f13462c1721c2698e46acfdd170e3d629516f7f68946f5d"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.SignaturePayload": {
+    "kind": "pydantic model",
+    "sha256": "88f1171c10351454a081797da8dd3331d4fcda745b1b88654d7a2fbb50c41eab"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.SignatureTarget": {
+    "kind": "pydantic model",
+    "sha256": "f1d7d41f96daaaf60fe0a4fe6ae31e702c69f22080e096e867a632299ce033a5"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.SignatureValue": {
+    "kind": "pydantic model",
+    "sha256": "84f20eb4416d5279034c1c56108f5c28d52d2a9842e8d14cbde288f084f73cc1"
+  },
+  "xtm_oaev_sdk.seam.port_io.models.TargetSignatures": {
+    "kind": "pydantic model",
+    "sha256": "59c1618a317ff3f4390d3c0531e815168dce910204987062c9e044c6466b908d"
+  },
+  "xtm_oaev_sdk.seam.signatures.models.ExtraSignatureData": {
+    "kind": "pydantic model",
+    "sha256": "b69dd6b7476302eff126622e5d662fc297ca964c0484e6f948589cd1450ae4c5"
+  },
+  "xtm_oaev_sdk.seam.signatures.models.MatchTypes": {
+    "kind": "class",
+    "sha256": "99eb73ffc33a3163857a2fa3d5ca00d8c56184ea98984fedf7a173fc197eb306"
+  },
+  "xtm_oaev_sdk.seam.signatures.models.SignatureMatch": {
+    "kind": "class",
+    "sha256": "99908bfec243c4fb233ffeca62108abb0929ad8f0fbac1ce8eb434779fa0fc16"
+  },
+  "xtm_oaev_sdk.seam.signatures.models.SignatureType": {
+    "kind": "class",
+    "sha256": "1eb1fba1a1470c6a2dd8d453ce6b318e2f9db20627c1ba4f6d36ef3c4266605a"
+  },
+  "xtm_oaev_sdk.seam.signatures.models.SignatureTypes": {
+    "kind": "class",
+    "sha256": "46b9692d876bb8344229523d0fa65e46f4c59d521ebc24c47994a39a950756ae"
+  },
+  "xtm_oaev_sdk.seam.signatures.ports.ContainerAddressPort": {
+    "kind": "class",
+    "sha256": "7fc3b66bf6cbf6aa3ee01c2d6273acabd35a5e1fe75d542709a91c22fb6f8f07"
+  },
+  "xtm_oaev_sdk.seam.signatures.ports.MarkerPort": {
+    "kind": "class",
+    "sha256": "a6b4deafa934f4cf37987788f84b17df4dd69cffc8a9e7cf356682d735188ef1"
+  },
+  "xtm_oaev_sdk.seam.signatures.ports.NetworkTargetsPort": {
+    "kind": "class",
+    "sha256": "9b60ef67d3ecd1370ad20d52a31a0b500bada8ed098e9d863249e421f3f77f74"
+  },
+  "xtm_oaev_sdk.seam.signatures.ports.SignatureEnginePort": {
+    "kind": "class",
+    "sha256": "fdd1998986921f3c8d4b40d1a08f4897c10cee4b39b0d7186e0044b4841ea166"
+  },
+  "xtm_oaev_sdk.seam.signatures.ports.SignatureManagerProtocol": {
+    "kind": "class",
+    "sha256": "7254b834dd9f952a5c248eb3039f7ccc9f88ec92e8279b211bf5968b14bfe513"
+  },
+  "xtm_oaev_sdk.seam.signatures.ports.SignatureTransportProtocol": {
+    "kind": "class",
+    "sha256": "0bb363c3e37df931c589bbeb5b5febdb40910e35768c39b2d5e8a039829e8bb8"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.CloudInjectorConfig": {
+    "kind": "pydantic model",
+    "sha256": "6dfe3660acd0b99ec29b1898a88501ba75fc83d11e6c967ac130a77d6950a980"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.ExecutionSignature": {
+    "kind": "pydantic model",
+    "sha256": "75fcceb51cf8dd3c0c3e2b7eb65f8b0644b08ec6e7b8d012d5624250600553ed"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.InjectorConfig": {
+    "kind": "assignment",
+    "sha256": "dd77ee2c6e42ebacd37e4177bc5d10df3b0321f279ef57b3dfd7a31fd934f100"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.NetworkInjectorConfig": {
+    "kind": "pydantic model",
+    "sha256": "ceafda27b94d3b0043d34965dc5a927f8b8a1b833d0b2269140a04dbac797d89"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.SEAM_VERSION": {
+    "kind": "assignment",
+    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.ToolErrorInfo": {
+    "kind": "pydantic model",
+    "sha256": "27a3d760a76e74e0a556293741de45032384c3df107c1b33504c2b0003018f53"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.ToolOutput": {
+    "kind": "pydantic model",
+    "sha256": "25d4fc1fa9f7e6bfc358a1104fd7e0fb620a232d70a1c3d8fcc65e6a79c88c9d"
+  },
+  "xtm_oaev_sdk.seam.signatures.seam.ToolTimeoutInfo": {
+    "kind": "pydantic model",
+    "sha256": "57f73a9a8003e3907ef8e81120a31c2d2a7efb99d85c0effee699b133b05a44a"
+  }
+}

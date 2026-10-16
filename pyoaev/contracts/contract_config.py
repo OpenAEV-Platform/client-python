@@ -1,462 +1,61 @@
-import json
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, List, Optional
-
-from pyoaev import utils
-from pyoaev.contracts.contract_utils import ContractCardinality, ContractVariable
-from pyoaev.contracts.variable_helper import VariableHelper
-from pyoaev.credential.types import CredentialType
-
-
-class SupportedLanguage(str, Enum):
-    fr: str = "fr"
-    en: str = "en"
-
-
-class ContractFieldType(str, Enum):
-    Text: str = "text"
-    Number: str = "number"
-    Tuple: str = "tuple"
-    Checkbox: str = "checkbox"
-    Textarea: str = "textarea"
-    Select: str = "select"
-    Article: str = "article"
-    Challenge: str = "challenge"
-    DependencySelect: str = "dependency-select"
-    Attachment: str = "attachment"
-    Team: str = "team"
-    Expectation: str = "expectation"
-    Asset: str = "asset"
-    AssetGroup: str = "asset-group"
-    AiTarget: str = "ai-target"
-    Payload: str = "payload"
-    CredentialReference: str = "credential-reference"
-
-
-class ContractFieldKey(str, Enum):
-    Asset: str = "assets"
-    AssetGroup: str = "asset_groups"
-    CredentialReference: str = "credential_reference"
-
-
-class ContractOutputType(str, Enum):
-    Text: str = "text"
-    ActionOutput: str = "action_output"
-    Number: str = "number"
-    Port: str = "port"
-    PortsScan: str = "portscan"
-    IPv4: str = "ipv4"
-    IPv6: str = "ipv6"
-    CVE: str = "cve"
-    Asset: str = "asset"
-    Credentials: str = "credentials"
-    Username: str = "username"
-    Share: str = "share"
-    File: str = "file"
-    AdminUsername: str = "admin_username"
-    Group: str = "group"
-    Computer: str = "computer"
-    PasswordPolicy: str = "password_policy"
-    Delegation: str = "delegation"
-    Sid: str = "sid"
-    Vulnerability: str = "vulnerability"
-    AccountWithPasswordNotRequired: str = "account_with_password_not_required"
-    ExpectationSignature: str = "expectation_signature"
-    AsreproastableAccount: str = "asreproastable_account"
-    KerberoastableAccount: str = "kerberoastable_account"
-
-
-class PrimitiveType(str, Enum):
-    """The semantic type of a contract argument's value, independent of how the
-    field renders in the UI (see ``ContractFieldType``) and independent of
-    chaining specifically — an argument can carry a ``PrimitiveType`` and be
-    filled by hand, exactly as it can be auto-linked from a prior step's
-    matching output. Mirrors ``io.openaev.database.model.PrimitiveType``
-    (the openaev platform's own enum) label-for-label; every value here must
-    stay in sync with it.
-    """
-
-    AccountWithPasswordNotRequired: str = "account_with_password_not_required"
-    ActionOutput: str = "action_output"
-    AdminUsername: str = "admin_username"
-    AsreproastableAccount: str = "asreproastable_account"
-    AssetGroupId: str = "asset_group_id"
-    AssetId: str = "asset_id"
-    ComputerName: str = "computer_name"
-    CVE: str = "cve"
-    DelegationAccount: str = "delegation_account"
-    Document: str = "document"
-    Domain: str = "domain"
-    FileName: str = "file_name"
-    FilePath: str = "file_path"
-    GroupName: str = "group_name"
-    Hash: str = "hash"
-    Host: str = "host"
-    IPv4: str = "ipv4"
-    IPv6: str = "ipv6"
-    IpSubnet: str = "ip_subnet"
-    KerberoastableAccount: str = "kerberoastable_account"
-    Key: str = "key"
-    Number: str = "number"
-    Password: str = "password"
-    Permissions: str = "permissions"
-    Port: str = "port"
-    Service: str = "service"
-    Severity: str = "severity"
-    ShareName: str = "share_name"
-    SID: str = "sid"
-    TargetedAsset: str = "targeted-asset"
-    Text: str = "text"
-    Username: str = "username"
-    Value: str = "value"
-    VulnerabilityName: str = "vulnerability_name"
-    VulnerabilityStatus: str = "vulnerability_status"
-
-
-class ExpectationType(str, Enum):
-    text: str = "TEXT"
-    document: str = "DOCUMENT"
-    article: str = "ARTICLE"
-    challenge: str = "CHALLENGE"
-    manual: str = "MANUAL"
-    prevention: str = "PREVENTION"
-    detection: str = "DETECTION"
-    vulnerability: str = "VULNERABILITY"
-
-
-class SecurityPlatformType(str, Enum):
-    """Categories of security platform expected to fulfil a technical expectation.
-
-    When an expectation declares one or more of these, the platform focuses the
-    technical (DETECTION / PREVENTION / VULNERABILITY) result on collectors of
-    those types only (instead of every connected security platform). An empty
-    list means "any security platform".
-    """
-
-    EDR: str = "EDR"
-    XDR: str = "XDR"
-    SIEM: str = "SIEM"
-    SOAR: str = "SOAR"
-    NDR: str = "NDR"
-    ISPM: str = "ISPM"
-    LLM_FIREWALL: str = "LLM_FIREWALL"
-    AI_GATEWAY: str = "AI_GATEWAY"
-
-
-@dataclass
-class Expectation:
-    expectation_type: ExpectationType
-    expectation_name: str
-    expectation_description: str
-    expectation_score: int
-    expectation_expectation_group: bool
-    expectation_is_predefined: bool = False
-    expectation_is_multi_selectable: bool = False
-    # Security platform types expected to fulfil this expectation. Empty = any
-    # platform (unchanged behaviour). Typically set for technical expectations
-    # (DETECTION / PREVENTION / VULNERABILITY), left empty for MANUAL ones.
-    expectation_expected_security_platform_types: List[SecurityPlatformType] = field(
-        default_factory=list
-    )
-
-
-@dataclass
-class LinkedFieldModel:
-    key: str
-    type: ContractFieldType
-
-
-@dataclass
-class ContractElement(ABC):
-    key: str
-    label: str
-    type: str = field(default="", init=False)
-    mandatoryGroups: List[str] = field(default_factory=list)
-    mandatoryConditionFields: List[str] = field(default_factory=list)
-    mandatoryConditionValues: Dict[str, any] = field(default_factory=list)
-    visibleConditionFields: List[str] = field(default_factory=list)
-    visibleConditionValues: Dict[str, any] = field(default_factory=list)
-    linkedFields: List[str] = field(default_factory=list)
-    mandatory: bool = False
-    readOnly: bool = False
-    # The argument's chaining/semantic type (``PrimitiveType``), e.g. "username"
-    # or "host" — matches the platform's own ``argumentType`` field
-    # (``io.openaev.database.model.ContractElement``) label-for-label so a
-    # contract pushed from here needs no translation on the other end. Left
-    # unset (``None``) for fields with no established type: the platform
-    # normalizes a missing/null/empty value to ``PrimitiveType.Text`` on its
-    # own, so omitting this is always safe and never a breaking change for
-    # existing contracts.
-    argumentType: Optional[PrimitiveType] = None
-
-    @property
-    @abstractmethod
-    def get_type(self) -> str:
-        pass
-
-    def __post_init__(self):
-        self.type = self.get_type
-
-
-@dataclass
-class ContractCardinalityElement(ContractElement, ABC):
-    cardinality: str = ContractCardinality.One
-    defaultValue: List[str] = field(default_factory=list)
-
-
-@dataclass
-class ContractOutputElement(ABC):
-    type: str
-    field: str
-    labels: List[str]
-    isFindingCompatible: bool
-    isMultiple: bool
-
-
-@dataclass
-class ContractConfig:
-    type: str
-    expose: bool
-    label: dict[SupportedLanguage, str]
-    color_dark: str
-    color_light: str
-
-
-@dataclass
-class Domain:
-    domain_id: str
-    domain_name: str
-    domain_color: str
-    domain_created_at: str
-    domain_updated_at: str
-
-
-@dataclass
-class Contract:
-    contract_id: str
-    label: dict[SupportedLanguage, str]
-    fields: List[ContractElement]
-    outputs: List[ContractOutputElement]
-    config: ContractConfig
-    manual: bool
-    variables: List[ContractVariable] = field(
-        default_factory=lambda: (
-            [
-                VariableHelper.user_variable(),
-                VariableHelper.exercise_variable(),
-                VariableHelper.team_variable(),
-            ]
-            + VariableHelper.uri_variables()
-        )
-    )
-    contract_attack_patterns_external_ids: List[str] = field(default_factory=list)
-    contract_vulnerability_external_ids: List[str] = field(default_factory=list)
-    is_atomic_testing: bool = True
-    platforms: List[str] = field(default_factory=list)
-    external_id: str = None
-    domains: List[Domain] = None
-
-    def add_attack_pattern(self, var: str):
-        self.contract_attack_patterns_external_ids.append(var)
-
-    def add_vulnerability(self, var: str):
-        self.contract_vulnerability_external_ids.append(var)
-
-    def add_variable(self, var: ContractVariable):
-        self.variables.append(var)
-
-    def to_contract_add_input(self, source_id: str):
-        return {
-            "contract_id": self.contract_id,
-            "external_contract_id": self.external_id,
-            "injector_id": source_id,
-            "contract_manual": self.manual,
-            "contract_labels": self.label,
-            "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
-            "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
-            "is_atomic_testing": self.is_atomic_testing,
-            "contract_platforms": self.platforms,
-            "contract_domains": self.domains,
-        }
-
-    def to_contract_update_input(self):
-        return {
-            "contract_manual": self.manual,
-            "contract_labels": self.label,
-            "contract_attack_patterns_external_ids": self.contract_attack_patterns_external_ids,
-            "contract_vulnerability_external_ids": self.contract_vulnerability_external_ids,
-            "contract_content": json.dumps(self, cls=utils.EnhancedJSONEncoder),
-            "is_atomic_testing": self.is_atomic_testing,
-            "contract_platforms": self.platforms,
-            "contract_domains": self.domains,
-        }
-
-
-@dataclass
-class ContractTeam(ContractCardinalityElement):
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Team.value
-
-
-@dataclass
-class ContractText(ContractCardinalityElement):
-    defaultValue: str = ""
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Text.value
-
-
-def prepare_contracts(contracts):
-    return list(
-        map(
-            lambda c: {
-                "contract_id": c.contract_id,
-                "contract_labels": c.label,
-                "contract_attack_patterns_external_ids": c.contract_attack_patterns_external_ids,
-                "contract_content": json.dumps(c, cls=utils.EnhancedJSONEncoder),
-                "contract_platforms": c.platforms,
-                "contract_domains": c.domains,
-            },
-            contracts,
-        )
-    )
-
-
-@dataclass
-class ContractTuple(ContractCardinalityElement):
-    def __post_init__(self):
-        super().__post_init__()
-        self.cardinality = ContractCardinality.Multiple
-
-    attachmentKey: str = None
-    contractAttachment: bool = attachmentKey is not None
-    tupleFilePrefix: str = "file :: "
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Tuple.value
-
-
-@dataclass
-class ContractTextArea(ContractCardinalityElement):
-    defaultValue: str = ""
-    richText: bool = False
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Textarea.value
-
-
-@dataclass
-class ContractCheckbox(ContractElement):
-    defaultValue: bool = False
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Checkbox.value
-
-
-@dataclass
-class ContractAttachment(ContractCardinalityElement):
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Attachment.value
-
-
-@dataclass
-class ContractReferencedCredential(ContractElement):
-    key: str = field(default=ContractFieldKey.CredentialReference.value, init=False)
-    label: str = "Select a credential reference"
-    mandatory: bool = False
-    credential_reference_type: Optional[CredentialType] = None
-    multiple: bool = True
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.CredentialReference.value
-
-
-@dataclass
-class ContractExpectations(ContractCardinalityElement):
-    cardinality: str = ContractCardinality.Multiple
-    # Full set the user may choose from in the "add expectation" picker.
-    availableExpectations: List[Expectation] = field(default_factory=list)
-    # Subset pre-filled by default when the inject / atomic testing is created.
-    # The OpenAEV platform reads this field-level array (not the per-expectation
-    # flag) to pre-populate expectations, so it must be emitted in the contract.
-    # None means "not provided": the list is then derived from the expectations
-    # flagged expectation_is_predefined=True. Pass an explicit list (possibly
-    # empty) to override the derivation.
-    predefinedExpectations: Optional[List[Expectation]] = None
-
-    def __post_init__(self):
-        super().__post_init__()
-        # When the caller did not pass an explicit predefined list, derive it from
-        # the expectations flagged predefined in the available set. This keeps the
-        # ergonomic single-list API (flag each Expectation with
-        # expectation_is_predefined=True) working end-to-end on the platform.
-        if self.predefinedExpectations is None:
-            self.predefinedExpectations = [
-                expectation
-                for expectation in self.availableExpectations
-                if expectation.expectation_is_predefined
-            ]
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Expectation.value
-
-
-@dataclass
-class ContractSelect(ContractCardinalityElement):
-    choices: dict[str, str] = None
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Select.value
-
-
-@dataclass
-class ContractAsset(ContractCardinalityElement):
-    key: str = field(default=ContractFieldKey.Asset.value, init=False)
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Asset.value
-
-
-@dataclass
-class ContractAssetGroup(ContractCardinalityElement):
-    key: str = field(default=ContractFieldKey.AssetGroup.value, init=False)
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.AssetGroup.value
-
-
-@dataclass
-class ContractAiTarget(ContractCardinalityElement):
-    """Selector for a pre-configured AiTarget asset (LLM endpoint / AI agent under test).
-
-    Renders in the UI as an entity autocomplete (backed by the platform ``/ai_targets``
-    options endpoint), analogous to the asset / asset group pickers. The selected value is
-    the AI target's ``asset_id`` (AI targets are AI_TARGET-category assets, see
-    ``AiTarget._id_attr``), resolved by the executing injector at run time. Unlike
-    ``ContractAsset`` the key is free-form so a contract can name the field as it wishes.
-    """
-
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.AiTarget.value
-
-
-@dataclass
-class ContractPayload(ContractCardinalityElement):
-    @property
-    def get_type(self) -> str:
-        return ContractFieldType.Payload.value
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
+
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
+``ExpectationType`` was renamed ``ContractExpectationType``.
+"""
+
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "SupportedLanguage",
+    "ContractFieldType",
+    "ContractFieldKey",
+    "ContractOutputType",
+    "PrimitiveType",
+    "ExpectationType",
+    "SecurityPlatformType",
+    "Expectation",
+    "LinkedFieldModel",
+    "ContractElement",
+    "ContractCardinalityElement",
+    "ContractOutputElement",
+    "ContractConfig",
+    "Domain",
+    "Contract",
+    "ContractTeam",
+    "ContractText",
+    "prepare_contracts",
+    "ContractTuple",
+    "ContractTextArea",
+    "ContractCheckbox",
+    "ContractAttachment",
+    "ContractExpectations",
+    "ContractSelect",
+    "ContractAsset",
+    "ContractAssetGroup",
+    "ContractAiTarget",
+    "ContractPayload",
+    "ContractReferencedCredential",
+    "CredentialType",
+    "EnhancedJSONEncoder",
+    "ContractCardinality",
+    "ContractVariable",
+    "VariableHelper",
+]
+
+_RENAMED = {"ExpectationType": "ContractExpectationType"}
+
+__getattr__ = _make_deprecated_getattr(
+    {
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {_RENAMED.get(name, name)}' instead.",
+                getattr(_sdk, _RENAMED.get(name, name)),
+            )
+            for name in __all__
+        },
+    },
+    module_name=__name__,
+)

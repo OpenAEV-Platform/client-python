@@ -1,7 +1,9 @@
 from typing import Any, Dict
 
-from pyoaev import exceptions as exc
+import xtm_oaev_sdk as exc
+
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.mixins import CreateMixin, ListMixin, UpdateMixin
 from pyoaev.utils import RequiredOptional
 
@@ -24,7 +26,7 @@ class UserManager(CreateMixin, ListMixin, UpdateMixin, RESTManager):
         ),
     )
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def upsert(self, user: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/upsert"
         result = self.openaev.http_post(path, post_data=user, **kwargs)

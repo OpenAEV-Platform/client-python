@@ -1,16 +1,25 @@
-"""Credential reference types shared with the OpenAEV platform.
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
 
-This enum is the Python mirror of the OpenAEV backend credential-type enum
-used by credential secret references. Values must stay label-for-label in sync
-with the platform so contracts can declare credential references without any
-translation layer.
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
 """
 
-from enum import Enum
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "CredentialType",
+]
 
-class CredentialType(str, Enum):
-    IDENTITY = "IDENTITY"
-    CLOUD_AWS = "CLOUD_AWS"
-    CLOUD_AZURE = "CLOUD_AZURE"
-    CLOUD_GCP = "CLOUD_GCP"
+__getattr__ = _make_deprecated_getattr(
+    {
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {name}' instead.",
+                getattr(_sdk, name),
+            )
+            for name in __all__
+        },
+    },
+    module_name=__name__,
+)
