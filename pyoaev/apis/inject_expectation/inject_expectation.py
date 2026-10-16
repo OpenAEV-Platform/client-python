@@ -1,4 +1,7 @@
+import logging
 from typing import Any, Dict, List
+
+from pydantic import ValidationError
 
 from pyoaev import exceptions as exc
 from pyoaev.apis.inject_expectation.model import (
@@ -9,6 +12,8 @@ from pyoaev.apis.inject_expectation.model import (
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import ListMixin, UpdateMixin
 from pyoaev.utils import RequiredOptional
+
+logger = logging.getLogger(__name__)
 
 
 class InjectExpectation(RESTObject):
@@ -98,19 +103,21 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
                 expectation_dict["inject_expectation_type"]
                 == ExpectationTypeEnum.Detection.value
             ):
-                expectations.append(
-                    DetectionExpectation(**expectation_dict, api_client=self)
-                )
-            elif (
-                expectation_dict["inject_expectation_type"]
-                == ExpectationTypeEnum.Prevention.value
-            ):
-                expectations.append(
-                    PreventionExpectation(**expectation_dict, api_client=self)
-                )
+                expectation_class = DetectionExpectation
             else:
+                expectation_class = PreventionExpectation
+            # One invalid expectation (e.g. an unknown signature type) must not
+            # hide the valid ones from the collector.
+            try:
                 expectations.append(
-                    PreventionExpectation(**expectation_dict, api_client=self)
+                    expectation_class(**expectation_dict, api_client=self)
+                )
+            except ValidationError as err:
+                logger.warning(
+                    "Skipping expectation %s, it does not match the %s model: %s",
+                    expectation_dict.get("inject_expectation_id"),
+                    expectation_class.__name__,
+                    err,
                 )
         return expectations
 
