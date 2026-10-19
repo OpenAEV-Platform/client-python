@@ -369,12 +369,12 @@ class ContractAttachment(ContractCardinalityElement):
 
 
 @dataclass
-class ContractReferencedCredential(ContractElement):
+class ContractReferencedCredential(ContractCardinalityElement):
     key: str = field(default=ContractFieldKey.CredentialReference.value, init=False)
     label: str = "Select a credential reference"
     mandatory: bool = False
     credential_reference_type: Optional[CredentialType] = None
-    multiple: bool = True
+    cardinality: str = ContractCardinality.Multiple
 
     @property
     def get_type(self) -> str:
