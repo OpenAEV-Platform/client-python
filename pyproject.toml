@@ -25,6 +25,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 dependencies = [
+    "certifi (>=2026.10.19)",
     "pika (>=1.4.4,<1.5.0)",
     "python_json_logger (>=3.3.0,<3.4.0)",
     "PyYAML (>=6.0,<6.1)",
