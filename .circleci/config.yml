@@ -10,6 +10,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: update pip
+          command: pip3 install -U pip certifi
+      - run:
           name: install dependencies
           command: pip3 install --user .[dev]
       - run:
@@ -32,6 +35,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: update pip
+          command: pip3 install -U pip certifi
+      - run:
           name: install dependencies
           command: pip3 install --user '.[dev]'
       - run:
@@ -45,6 +51,9 @@ jobs:
       - checkout
       - run: apk update && apk upgrade && apk --no-cache add bash
       - run:
+          name: update pip
+          command: pip3 install -U pip certifi
+      - run:
           name: flake8
           command: flake8 --ignore=E,W ~/repo
       - slack/notify:
@@ -57,6 +66,9 @@ jobs:
       - image: cimg/python:3.13
     steps:
       - checkout
+      - run:
+          name: update pip
+          command: pip3 install -U pip certifi
       - run:
           name: install dependencies
           command: >
@@ -90,6 +102,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/openaev-client
+      - run:
+          name: update pip
+          command: pip3 install -U pip certifi
       - run:
           name: install dependencies
           command: pip3 install --user .
