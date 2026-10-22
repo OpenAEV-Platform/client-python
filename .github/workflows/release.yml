@@ -37,6 +37,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: 3.11
+      - name: update pip
+        run: |
+          pip install -U pip certifi
       - name: Install dependencies
         run: |
           git config --global url."https://x-access-token:${GH_TOKEN}@github.com".insteadOf https://github.com
