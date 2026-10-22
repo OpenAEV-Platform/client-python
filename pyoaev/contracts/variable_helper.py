@@ -1,124 +1,49 @@
-from pyoaev.contracts.contract_utils import (
-    ContractCardinality,
-    ContractVariable,
-    VariableType,
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
+
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
+The module constants (``USER``, ``EXERCISE``, ...) are not part of the SDK
+public surface; they keep their values here and warn.
+"""
+
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
+
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "VariableHelper",
+    "ContractCardinality",
+    "ContractVariable",
+    "VariableType",
+]
+
+_CONSTANTS = {
+    "USER": "user",
+    "EXERCISE": "exercise",
+    "TEAMS": "teams",
+    "COMCHECK": "comcheck",
+    "PLAYER_URI": "player_uri",
+    "CHALLENGES_URI": "challenges_uri",
+    "SCOREBOARD_URI": "scoreboard_uri",
+    "LESSONS_URI": "lessons_uri",
+}
+
+__getattr__ = _make_deprecated_getattr(
+    {
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {name}' instead.",
+                getattr(_sdk, name),
+            )
+            for name in __all__
+        },
+        **{
+            name: (
+                f"'{name}' is deprecated and has no public replacement in "
+                "xtm_oaev_sdk; use the VariableHelper built-in variables instead.",
+                value,
+            )
+            for name, value in _CONSTANTS.items()
+        },
+    },
+    module_name=__name__,
 )
-
-USER = "user"
-EXERCISE = "exercise"
-TEAMS = "teams"
-COMCHECK = "comcheck"
-PLAYER_URI = "player_uri"
-CHALLENGES_URI = "challenges_uri"
-SCOREBOARD_URI = "scoreboard_uri"
-LESSONS_URI = "lessons_uri"
-
-
-class VariableHelper:
-    @staticmethod
-    def user_variable():
-        return ContractVariable(
-            key=USER,
-            label="User that will receive the injection",
-            type=VariableType.String,
-            cardinality=ContractCardinality.One,
-            children=[
-                ContractVariable(
-                    key=USER + ".id",
-                    label="Id of the user in the platform",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-                ContractVariable(
-                    key=USER + ".email",
-                    label="Email of the user",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-                ContractVariable(
-                    key=USER + ".firstname",
-                    label="Firstname of the user",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-                ContractVariable(
-                    key=USER + ".lastname",
-                    label="Lastname of the user",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-                ContractVariable(
-                    key=USER + ".lang",
-                    label="Lang of the user",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-            ],
-        )
-
-    @staticmethod
-    def exercise_variable():
-        return ContractVariable(
-            key=EXERCISE,
-            label="Exercise of the current injection",
-            type=VariableType.Object,
-            cardinality=ContractCardinality.One,
-            children=[
-                ContractVariable(
-                    key=EXERCISE + ".id",
-                    label="Id of the exercise in the platform",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-                ContractVariable(
-                    key=EXERCISE + ".name",
-                    label="Name of the exercise",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-                ContractVariable(
-                    key=EXERCISE + ".description",
-                    label="Description of the exercise",
-                    type=VariableType.String,
-                    cardinality=ContractCardinality.One,
-                ),
-            ],
-        )
-
-    @staticmethod
-    def team_variable():
-        return ContractVariable(
-            key=TEAMS,
-            label="List of team name for the injection",
-            type=VariableType.String,
-            cardinality=ContractCardinality.Multiple,
-        )
-
-    @staticmethod
-    def uri_variables():
-        return [
-            ContractVariable(
-                key=PLAYER_URI,
-                label="Player interface platform link",
-                type=VariableType.String,
-                cardinality=ContractCardinality.One,
-            ),
-            ContractVariable(
-                key=CHALLENGES_URI,
-                label="Challenges interface platform link",
-                type=VariableType.String,
-                cardinality=ContractCardinality.One,
-            ),
-            ContractVariable(
-                key=SCOREBOARD_URI,
-                label="Scoreboard interface platform link",
-                type=VariableType.String,
-                cardinality=ContractCardinality.One,
-            ),
-            ContractVariable(
-                key=LESSONS_URI,
-                label="Lessons learned interface platform link",
-                type=VariableType.String,
-                cardinality=ContractCardinality.One,
-            ),
-        ]

@@ -3,9 +3,11 @@ from urllib import parse
 from uuid import UUID
 
 import requests
+import xtm_oaev_sdk as exceptions
 
-from pyoaev import exceptions, utils
+from pyoaev import utils
 from pyoaev._version import __version__  # noqa: F401
+from pyoaev.utils import copy_dict
 
 REDIRECT_MSG = (
     "pyoaev detected a {status_code} ({reason!r}) redirection. You must update "
@@ -170,17 +172,17 @@ class OpenAEV:
         # parse user-provided URL params to ensure we don't add our own duplicates
         parsed = parse.urlparse(raw_url)
         params = parse.parse_qs(parsed.query)
-        utils.copy_dict(src=query_data, dest=params)
+        copy_dict(src=query_data, dest=params)
 
         url = parse.urlunparse(parsed._replace(query=""))
 
         if "query_parameters" in kwargs:
-            utils.copy_dict(src=kwargs["query_parameters"], dest=params)
+            copy_dict(src=kwargs["query_parameters"], dest=params)
             for arg in ("per_page", "page"):
                 if arg in kwargs:
                     params[arg] = kwargs[arg]
         else:
-            utils.copy_dict(src=kwargs, dest=params)
+            copy_dict(src=kwargs, dest=params)
 
         opts = self._get_session_opts()
 

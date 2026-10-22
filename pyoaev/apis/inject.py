@@ -1,7 +1,9 @@
 from typing import Any, Dict
 
-from pyoaev import exceptions as exc
+import xtm_oaev_sdk as exc
+
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 
 
 class Inject(RESTObject):
@@ -12,7 +14,7 @@ class InjectManager(RESTManager):
     _path = "/injects"
     _obj_cls = Inject
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def execution_callback(
         self, inject_id: str, data: Dict[str, Any], **kwargs: Any
     ) -> Dict[str, Any]:
@@ -20,7 +22,7 @@ class InjectManager(RESTManager):
         result = self.openaev.http_post(path, post_data=data, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def execution_reception(
         self, inject_id: str, data: Dict[str, Any], **kwargs: Any
     ) -> Dict[str, Any]:

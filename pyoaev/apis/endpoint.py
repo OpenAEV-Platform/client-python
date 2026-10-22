@@ -1,8 +1,10 @@
 from typing import Any, Dict
 
-from pyoaev import exceptions as exc
+import xtm_oaev_sdk as exc
+
 from pyoaev.apis.inputs.search import SearchPaginationInput
 from pyoaev.base import RESTManager, RESTObject
+from pyoaev.exceptions import on_http_error
 from pyoaev.utils import RequiredOptional
 
 
@@ -40,19 +42,19 @@ class EndpointManager(RESTManager):
         ),
     )
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def get(self, asset_id: str, **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/" + asset_id
         result = self.openaev.http_get(path, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def upsert(self, endpoint: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         path = f"{self.path}/agentless/upsert"
         result = self.openaev.http_post(path, post_data=endpoint, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVUpdateError)
+    @on_http_error(exc.OpenAEVUpdateError)
     def searchTargets(
         self, input: SearchPaginationInput, **kwargs: Any
     ) -> Dict[str, Any]:

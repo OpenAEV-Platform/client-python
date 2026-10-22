@@ -1,15 +1,20 @@
-"""Deterministic per-inject canary marker shared by the AI red-team injector and the AI defense
-collectors.
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
 
-The marker is derived purely from the inject (and optional agent) id, so the injector that sends the
-attack and the collector that validates an AI defense response compute the same value independently,
-without the platform having to store it. It is emitted by the injector (request header + in-prompt
-token) and matched by collectors against guardrail / firewall logs.
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
 """
 
-import hashlib
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "build_marker",
+]
 
-def build_marker(inject_id: str, agent_id: str = "") -> str:
-    seed = f"{inject_id}:{agent_id}".encode("utf-8")
-    return "oaev" + hashlib.sha256(seed).hexdigest()[:16]
+__getattr__ = _make_deprecated_getattr(
+    {
+        name: (f"Use 'from xtm_oaev_sdk import {name}' instead.", getattr(_sdk, name))
+        for name in __all__
+    },
+    module_name=__name__,
+)

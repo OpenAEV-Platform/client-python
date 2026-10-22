@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run:
           name: install dependencies
-          command: pip3 install --user .[dev]
+          command: pip3 install --user ./libs/xtm-oaev-sdk -r libs/sdk-requirements.txt .[dev]
       - run:
           name: confirm black version
           command: black --version
@@ -33,7 +33,7 @@ jobs:
       - checkout
       - run:
           name: install dependencies
-          command: pip3 install --user '.[dev]'
+          command: pip3 install --user ./libs/xtm-oaev-sdk -r libs/sdk-requirements.txt '.[dev]'
       - run:
           name: run tests
           command: python -m pytest
@@ -60,7 +60,7 @@ jobs:
       - run:
           name: install dependencies
           command: >
-            pip3 install --user .[dev]
+            pip3 install --user ./libs/xtm-oaev-sdk -r libs/sdk-requirements.txt .[dev]
       - run:
           name: check version
           command: |
@@ -92,7 +92,7 @@ jobs:
           at: ~/openaev-client
       - run:
           name: install dependencies
-          command: pip3 install --user .
+          command: pip3 install --user ./libs/xtm-oaev-sdk -r libs/sdk-requirements.txt .
       - run:
           name: install twine
           command: pip3 install twine

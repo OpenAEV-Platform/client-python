@@ -1,41 +1,27 @@
-"""Helpers centralizing how injectors declare credential-reference fields.
+"""DEPRECATED: moved to :mod:`xtm_oaev_sdk`.
 
-Injectors can call ``build_single_referenced_credential_element`` instead of
-re-implementing provider-to-credential-type mapping in each project. This keeps
-contract generation consistent across the Python ecosystem and aligns the
-serialized contract payload with the OpenAEV platform's expected values.
+Backward-compatibility shim: every name below resolves to the *identical*
+xtm_oaev_sdk object and emits a :class:`DeprecationWarning` on access.
 """
 
-from typing import Optional
+import xtm_oaev_sdk as _sdk
+from xtm_oaev_sdk import make_deprecated_getattr as _make_deprecated_getattr
 
-from pyoaev.contracts.contract_config import ContractReferencedCredential
-from pyoaev.credential.types import CredentialType
+__all__ = [  # noqa: F822 (names are served by the PEP 562 __getattr__ below)
+    "ContractReferencedCredential",
+    "CredentialType",
+    "build_single_referenced_credential_element",
+]
 
-_PROVIDER_TO_CREDENTIAL_TYPE = {
-    "aws": CredentialType.CLOUD_AWS,
-    "eks": CredentialType.CLOUD_AWS,
-    "azure": CredentialType.CLOUD_AZURE,
-    "gcp": CredentialType.CLOUD_GCP,
-}
-
-
-def _resolve_credential_type(provider_name: str) -> Optional[CredentialType]:
-    normalized_provider = provider_name.casefold()
-    return _PROVIDER_TO_CREDENTIAL_TYPE.get(normalized_provider)
-
-
-def build_single_referenced_credential_element(
-    provider_name: str,
-) -> ContractReferencedCredential:
-    """Build a credential-reference field for a provider-specific contract
-    with ``multiple`` value at ``False``.
-
-    This is the centralized entry point injectors should use when they need the
-    OpenAEV inject form to ask for one referenced credential. The helper keeps
-    provider-to-``CredentialType`` mapping consistent across injector projects.
-    """
-
-    return ContractReferencedCredential(
-        credential_reference_type=_resolve_credential_type(provider_name),
-        multiple=False,
-    )
+__getattr__ = _make_deprecated_getattr(
+    {
+        **{
+            name: (
+                f"Use 'from xtm_oaev_sdk import {name}' instead.",
+                getattr(_sdk, name),
+            )
+            for name in __all__
+        },
+    },
+    module_name=__name__,
+)
