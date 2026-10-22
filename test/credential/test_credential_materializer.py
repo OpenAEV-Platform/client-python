@@ -146,9 +146,18 @@ class AwsMaterializerTest(MaterializerTestCase):
             self.assertEqual(credential.secret_type, SecretType.AWS_ASSUME_ROLE)
             self.assertEqual(
                 set(env),
-                {"AWS_PROFILE", "AWS_SHARED_CREDENTIALS_FILE", "AWS_CONFIG_FILE"},
+                {
+                    "AWS_PROFILE",
+                    "AWS_SHARED_CREDENTIALS_FILE",
+                    "AWS_CONFIG_FILE",
+                    "AWS_REGION",
+                    "AWS_DEFAULT_REGION",
+                },
             )
             self.assertEqual(env["AWS_PROFILE"], "srt-target")
+            # Stratus ignores a region set in the profile only.
+            self.assertEqual(env["AWS_REGION"], "us-east-1")
+            self.assertEqual(env["AWS_DEFAULT_REGION"], "us-east-1")
             self.assertEqual(
                 credential.files,
                 [

@@ -141,7 +141,10 @@ def _aws_access_key(
 def _aws_assume_role(
     secret: AwsAssumeRoleSecret, workspace: _Workspace
 ) -> Dict[str, str]:
-    env = {"AWS_PROFILE": AWS_TARGET_PROFILE}
+    env = {
+        **_aws_region_env(secret.aws_default_region),
+        "AWS_PROFILE": AWS_TARGET_PROFILE,
+    }
     profile: Dict[str, Optional[str]] = {"role_arn": secret.aws_role_arn}
     if secret.aws_source_identity_type == AwsSourceIdentityType.INSTANCE_DEFAULT:
         profile["credential_source"] = "Ec2InstanceMetadata"
