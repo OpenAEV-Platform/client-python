@@ -9,6 +9,7 @@ serialized contract payload with the OpenAEV platform's expected values.
 from typing import Optional
 
 from pyoaev.contracts.contract_config import ContractReferencedCredential
+from pyoaev.contracts.contract_utils import ContractCardinality
 from pyoaev.credential.types import CredentialType
 
 _PROVIDER_TO_CREDENTIAL_TYPE = {
@@ -28,7 +29,7 @@ def build_single_referenced_credential_element(
     provider_name: str,
 ) -> ContractReferencedCredential:
     """Build a credential-reference field for a provider-specific contract
-    with ``multiple`` value at ``False``.
+    with ``cardinality`` value at ``ContractCardinality.One``.
 
     This is the centralized entry point injectors should use when they need the
     OpenAEV inject form to ask for one referenced credential. The helper keeps
@@ -37,5 +38,5 @@ def build_single_referenced_credential_element(
 
     return ContractReferencedCredential(
         credential_reference_type=_resolve_credential_type(provider_name),
-        multiple=False,
+        cardinality=ContractCardinality.One,
     )
