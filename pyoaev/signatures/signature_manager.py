@@ -25,9 +25,27 @@ from pyoaev.signatures.models import (
     TargetSignatures,
     ToolOutput,
 )
+from pyoaev.signatures.types import SignatureTypes
 
 if TYPE_CHECKING:
     from pyoaev.client import OpenAEV
+
+logger = logging.getLogger(__name__)
+
+# ExecutionSignature fields whose name differs from the signature type the platform
+# and collectors expect. The cloud fields already use the canonical names.
+EXECUTION_SIGNATURE_TYPES = {
+    "start_time": SignatureTypes.SIG_TYPE_START_DATE.value,
+    "end_time": SignatureTypes.SIG_TYPE_END_DATE.value,
+    "source_ipv4": SignatureTypes.SIG_TYPE_SOURCE_IPV4_ADDRESS.value,
+    "source_ipv6": SignatureTypes.SIG_TYPE_SOURCE_IPV6_ADDRESS.value,
+    "target_ipv4": SignatureTypes.SIG_TYPE_TARGET_IPV4_ADDRESS.value,
+    "target_ipv6": SignatureTypes.SIG_TYPE_TARGET_IPV6_ADDRESS.value,
+    "target_hostname": SignatureTypes.SIG_TYPE_TARGET_HOSTNAME_ADDRESS.value,
+}
+SIGNATURE_TYPE_VALUES = frozenset(
+    signature_type.value for signature_type in SignatureTypes
+)
 
 
 class SignatureManager:
@@ -165,19 +183,29 @@ class SignatureManager:
             into the base post_signatures.
 
         Returns:
-            A payload dict ready for send_signatures.
+            A payload dict ready for send_signatures. Signature types are the canonical
+            ``SignatureTypes`` values (e.g. ``start_time`` is sent as ``start_date``);
+            keys that are not a ``SignatureTypes`` value, and non-scalar values, are
+            left out because collectors cannot parse them.
         """
         if not isinstance(execution_signatures, list):
             execution_signatures = [execution_signatures]
         if isinstance(targets_meta, dict):
             targets_meta = [targets_meta] * len(execution_signatures)
 
+        skipped: set[str] = set()
         targets = []
         for signature, target in zip(execution_signatures, targets_meta):
             signature_values = []
             for expectation_type in expectation_types:
-                signature_data = signature.model_dump(exclude_none=True)
-                signature_data.update(extra_signatures.get_extra(expectation_type))
+                signature_data = SignatureManager._canonical_signatures(
+                    signature.model_dump(exclude_none=True), skipped
+                )
+                signature_data.update(
+                    SignatureManager._canonical_signatures(
+                        extra_signatures.get_extra(expectation_type), skipped
+                    )
+                )
                 values = [
                     SignatureValue(signature_type=key, signature_value=value)
                     for key, value in signature_data.items()
@@ -199,7 +227,36 @@ class SignatureManager:
                 )
             )
 
+        if skipped:
+            logger.warning(
+                "Signatures left out of the payload, not a known signature type "
+                "or not a single value: %s",
+                ", ".join(sorted(skipped)),
+            )
         return SignaturePayload(targets=targets).model_dump()
+
+    @staticmethod
+    def _canonical_signatures(
+        signature_data: dict[str, Any], skipped: set[str]
+    ) -> dict[str, Any]:
+        """Rename signature keys to their ``SignatureTypes`` value and drop the rest.
+
+        Collectors parse each signature as a ``SignatureTypes`` and a string, and the
+        platform discards empty and non-scalar values, so unknown keys and ``None``,
+        list or dict values are added to ``skipped`` instead.
+        """
+        canonical = {}
+        for key, value in signature_data.items():
+            signature_type = EXECUTION_SIGNATURE_TYPES.get(key, key)
+            if (
+                signature_type not in SIGNATURE_TYPE_VALUES
+                or value is None
+                or isinstance(value, (list, dict))
+            ):
+                skipped.add(key)
+                continue
+            canonical[signature_type] = value
+        return canonical
 
     def send_signatures(
         self,
