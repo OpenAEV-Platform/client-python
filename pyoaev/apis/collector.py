@@ -25,6 +25,10 @@ class CollectorManager(GetMixin, ListMixin, CreateMixin, UpdateMixin, RESTManage
             # Source-declared author override for the collector's payloads and
             # contracts. When absent, the platform uses the collector name.
             "collector_author",
+            # Expectation types the collector can answer, e.g.
+            # ["DETECTION", "PREVENTION", "LOGGING"]. When absent, the platform
+            # assumes DETECTION and PREVENTION.
+            "collector_supported_expectation_types",
         ),
     )
 

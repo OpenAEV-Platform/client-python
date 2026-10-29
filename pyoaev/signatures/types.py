@@ -4,6 +4,7 @@ from enum import Enum
 class ExpectationType(str, Enum):
     DETECTION = "DETECTION"
     PREVENTION = "PREVENTION"
+    LOGGING = "LOGGING"
     VULNERABILITY = "VULNERABILITY"
 
 
