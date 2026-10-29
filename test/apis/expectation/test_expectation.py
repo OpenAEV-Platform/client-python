@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from pyoaev.apis.inject_expectation.model import (
     DetectionExpectation,
+    LoggingExpectation,
     PreventionExpectation,
 )
 from pyoaev.signatures.signature_type import SignatureType
@@ -14,6 +15,41 @@ def create_mock_api_client():
 
 
 class TestExpectation(unittest.TestCase):
+    def test_when_logging_model_when_success_update_labels_correct(self):
+        inject_expectation_id = uuid4()
+        sender_id = uuid4()
+        api_client = create_mock_api_client()
+        model = LoggingExpectation(
+            **{
+                "inject_expectation_id": inject_expectation_id,
+                "inject_expectation_signatures": [],
+            },
+            api_client=api_client,
+        )
+
+        model.update(success=True, sender_id=sender_id, metadata={})
+
+        api_client.update.assert_called_once_with(
+            inject_expectation_id,
+            inject_expectation={
+                "collector_id": sender_id,
+                "result": "Logged",
+                "is_success": True,
+                "metadata": {},
+            },
+        )
+
+    def test_when_logging_model_failure_label_is_not_logged(self):
+        model = LoggingExpectation(
+            **{
+                "inject_expectation_id": uuid4(),
+                "inject_expectation_signatures": [],
+            },
+            api_client=create_mock_api_client(),
+        )
+
+        self.assertEqual("Not Logged", model.failure_label)
+
     def test_when_detection_model_when_success_update_labels_correct(self):
         inject_expectation_id = uuid4()
         sender_id = uuid4()

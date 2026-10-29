@@ -21,6 +21,11 @@ class InjectExpectationTraceManager(CreateMixin, RESTManager):
             "inject_expectation_trace_alert_link",
             "inject_expectation_trace_date",
         ),
+        optional=(
+            # Signal that matched, for a LOGGING expectation: "marker",
+            # "source_ip" or "target_ip". Left out for the other types.
+            "inject_expectation_trace_match_type",
+        ),
     )
 
     @exc.on_http_error(exc.OpenAEVUpdateError)

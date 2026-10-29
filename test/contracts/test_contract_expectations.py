@@ -164,6 +164,24 @@ class TestContractExpectations(unittest.TestCase):
             ],
         )
 
+    def test_logging_expectation_serializes_as_logging(self):
+        field = ContractExpectations(
+            key="expectations",
+            label="Expectations",
+            availableExpectations=[
+                _expectation(ExpectationType.logging, "Logging", True),
+            ],
+        )
+
+        data = _serialize(field)
+
+        self.assertEqual(
+            "LOGGING", data["availableExpectations"][0]["expectation_type"]
+        )
+        self.assertEqual(
+            "LOGGING", data["predefinedExpectations"][0]["expectation_type"]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

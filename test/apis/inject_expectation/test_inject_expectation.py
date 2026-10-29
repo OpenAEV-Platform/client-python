@@ -4,6 +4,7 @@ from uuid import uuid4
 from pyoaev import OpenAEV
 from pyoaev.apis.inject_expectation.model import (
     DetectionExpectation,
+    LoggingExpectation,
     PreventionExpectation,
 )
 from pyoaev.exceptions import OpenAEVHttpError, OpenAEVListError, OpenAEVParsingError
@@ -70,6 +71,82 @@ class TestAiExpectationsForSource(TestCase):
                 api_client.inject_expectation.ai_expectations_for_source("collector-1")
 
 
+class TestLoggingExpectationsForSource(TestCase):
+    @mock.patch("requests.Session.request")
+    def test_returns_list_of_expectations_from_the_logging_route(self, mock_request):
+        expectations = [
+            {"inject_expectation_id": "exp-1"},
+            {"inject_expectation_id": "exp-2"},
+        ]
+        mock_request.return_value = make_json_response(expectations)
+        api_client = OpenAEV("url", "token")
+
+        result = api_client.inject_expectation.logging_expectations_for_source(
+            "collector-1"
+        )
+
+        mock_request.assert_called_once()
+        _, kwargs = mock_request.call_args
+        self.assertEqual(kwargs["method"], "get")
+        self.assertEqual(
+            kwargs["url"], "url/api/injects/expectations/logging/collector-1"
+        )
+        self.assertEqual(result, expectations)
+
+    @mock.patch("requests.Session.request")
+    def test_raises_parsing_error_when_not_a_list(self, mock_request):
+        mock_request.return_value = make_json_response({"unexpected": "shape"})
+        api_client = OpenAEV("url", "token")
+
+        with self.assertRaises(OpenAEVParsingError):
+            api_client.inject_expectation.logging_expectations_for_source("collector-1")
+
+    @mock.patch("requests.Session.request")
+    def test_raises_parsing_error_when_elements_not_dicts(self, mock_request):
+        mock_request.return_value = make_json_response(["not", "a", "dict"])
+        api_client = OpenAEV("url", "token")
+
+        with self.assertRaises(OpenAEVParsingError):
+            api_client.inject_expectation.logging_expectations_for_source("collector-1")
+
+    def test_older_platform_404_returns_empty_list_and_warns_once(self):
+        api_client = OpenAEV("url", "token")
+
+        with mock.patch.object(
+            OpenAEV,
+            "http_get",
+            side_effect=OpenAEVHttpError("Not Found", response_code=404),
+        ):
+            with self.assertLogs(
+                "pyoaev.apis.inject_expectation.inject_expectation", level="DEBUG"
+            ) as logs:
+                first = api_client.inject_expectation.logging_expectations_for_source(
+                    "collector-1"
+                )
+                second = api_client.inject_expectation.logging_expectations_for_source(
+                    "collector-1"
+                )
+
+        self.assertEqual([], first)
+        self.assertEqual([], second)
+        warnings = [r for r in logs.records if r.levelname == "WARNING"]
+        self.assertEqual(1, len(warnings))
+        self.assertIn("/logging/collector-1", warnings[0].getMessage())
+
+    def test_other_http_errors_are_mapped_to_list_error(self):
+        api_client = OpenAEV("url", "token")
+
+        with mock.patch.object(
+            OpenAEV,
+            "http_get",
+            side_effect=OpenAEVHttpError("boom", response_code=500),
+        ):
+            with self.assertRaises(OpenAEVListError):
+                api_client.inject_expectation.logging_expectations_for_source(
+                    "collector-1"
+                )
+
+
 def make_expectation(expectation_type, signatures):
     return {
         "inject_expectation_id": str(uuid4()),
@@ -99,14 +176,32 @@ class TestExpectationsModelsForSource(TestCase):
             [
                 make_expectation("DETECTION", signatures),
                 make_expectation("PREVENTION", signatures),
-                make_expectation("VULNERABILITY", signatures),
             ]
         )
 
         self.assertEqual(
-            [DetectionExpectation, PreventionExpectation, PreventionExpectation],
+            [DetectionExpectation, PreventionExpectation],
             [type(model) for model in models],
         )
+
+    def test_other_expectation_types_are_skipped_not_built_as_prevention(self):
+        signatures = [{"type": "process_name", "value": "obas-implant.exe"}]
+        detection = make_expectation("DETECTION", signatures)
+        unknown = [
+            make_expectation(expectation_type, signatures)
+            for expectation_type in ("VULNERABILITY", "LOGGING", "FOO")
+        ]
+
+        with self.assertLogs(
+            "pyoaev.apis.inject_expectation.inject_expectation", level="WARNING"
+        ) as logs:
+            models = self.models_for([detection, *unknown])
+
+        self.assertEqual([DetectionExpectation], [type(model) for model in models])
+        self.assertEqual(3, len(logs.records))
+        for expectation, output in zip(unknown, logs.output):
+            self.assertIn(expectation["inject_expectation_id"], output)
+            self.assertIn(expectation["inject_expectation_type"], output)
 
     def test_an_invalid_expectation_does_not_hide_the_valid_ones(self):
         # Regression for client-python#352: signature types sent by SignatureManager
@@ -160,6 +255,84 @@ class TestExpectationsModelsForSource(TestCase):
 
         self.assertEqual(1, len(models))
         self.assertEqual([], models[0].inject_expectation_signatures)
+
+
+class TestLoggingExpectationModelsForSource(TestCase):
+    def setUp(self):
+        self.api_client = OpenAEV("url", "token")
+
+    def models_for(self, expectations):
+        with mock.patch.object(
+            self.api_client.inject_expectation,
+            "logging_expectations_for_source",
+            return_value=expectations,
+        ):
+            return self.api_client.inject_expectation.logging_expectation_models_for_source(
+                "collector-1"
+            )
+
+    def test_builds_logging_expectations_with_logging_labels(self):
+        models = self.models_for(
+            [
+                make_expectation(
+                    "LOGGING",
+                    [{"type": "parent_process_name", "value": "oaev-implant-1"}],
+                )
+            ]
+        )
+
+        self.assertEqual([LoggingExpectation], [type(model) for model in models])
+        self.assertEqual("Logged", models[0].success_label)
+        self.assertEqual("Not Logged", models[0].failure_label)
+
+    def test_other_expectation_types_are_skipped(self):
+        logging_expectation = make_expectation("LOGGING", [])
+        detection = make_expectation("DETECTION", [])
+
+        with self.assertLogs(
+            "pyoaev.apis.inject_expectation.inject_expectation", level="WARNING"
+        ) as logs:
+            models = self.models_for([detection, logging_expectation])
+
+        self.assertEqual(
+            [logging_expectation["inject_expectation_id"]],
+            [str(model.inject_expectation_id) for model in models],
+        )
+        self.assertEqual(1, len(logs.records))
+        self.assertIn(detection["inject_expectation_id"], logs.output[0])
+
+    def test_an_invalid_expectation_is_skipped_with_a_warning(self):
+        valid = make_expectation(
+            "LOGGING", [{"type": "source_ipv4_address", "value": "10.0.0.5"}]
+        )
+        invalid = make_expectation("LOGGING", [{"type": "start_time", "value": "x"}])
+
+        with self.assertLogs(
+            "pyoaev.apis.inject_expectation.inject_expectation", level="WARNING"
+        ) as logs:
+            models = self.models_for([invalid, valid])
+
+        self.assertEqual(
+            [valid["inject_expectation_id"]],
+            [str(model.inject_expectation_id) for model in models],
+        )
+        self.assertEqual(1, len(logs.records))
+        self.assertIn("LoggingExpectation", logs.output[0])
+
+    def test_older_platform_returns_no_model(self):
+        with mock.patch.object(
+            OpenAEV,
+            "http_get",
+            side_effect=OpenAEVHttpError("Not Found", response_code=404),
+        ):
+            with self.assertLogs(
+                "pyoaev.apis.inject_expectation.inject_expectation", level="WARNING"
+            ):
+                models = self.api_client.inject_expectation.logging_expectation_models_for_source(
+                    "collector-1"
+                )
+
+        self.assertEqual([], models)
 
 
 if __name__ == "__main__":

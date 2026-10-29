@@ -80,18 +80,26 @@ class ExtraSignatureData(BaseModel):
 
     detection: dict[str, JsonValue] = Field(default_factory=dict)
     prevention: dict[str, JsonValue] = Field(default_factory=dict)
+    logging: dict[str, JsonValue] = Field(default_factory=dict)
     vulnerability: dict[str, JsonValue] = Field(default_factory=dict)
 
     def get_extra(self, expectation_type: str) -> dict[str, JsonValue]:
+        """Returns the extra signatures of an expectation type, or ``{}``
+        when it has none.
+
+        Injectors pass every expectation type of the inject, LOGGING included,
+        so getting the extras never raises. Note that ``ExpectationSignatureGroup``
+        still rejects a type outside ``ExpectationType``.
+        """
         if expectation_type.lower() == "detection":
             return self.detection
         if expectation_type.lower() == "prevention":
             return self.prevention
+        if expectation_type.lower() == "logging":
+            return self.logging
         if expectation_type.lower() == "vulnerability":
             return self.vulnerability
-        raise ValueError(
-            f"Expectation type should be one of the available parameters: {list(self.model_fields.keys())}"
-        )
+        return {}
 
 
 class SignatureTarget(BaseModel):

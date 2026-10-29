@@ -1,5 +1,6 @@
 import sched
 import time
+from typing import Any
 
 from pyoaev import Configuration
 from pyoaev.daemons import BaseDaemon
@@ -10,6 +11,35 @@ DEFAULT_PERIOD_SECONDS = 60
 # Neutral grey used for tags auto-created alongside the security platform,
 # consistent with the tag colors already used across collectors.
 DEFAULT_PLATFORM_TAG_COLOR = "#6b7280"
+
+# Expectation types declared by a collector that does not choose its own.
+DEFAULT_SUPPORTED_EXPECTATION_TYPES = ["DETECTION", "PREVENTION"]
+# Expectation types a collector can declare. Listed explicitly: ExpectationTypeEnum
+# maps any unknown value to Other, so it cannot be used to validate them.
+DECLARABLE_EXPECTATION_TYPES = ("DETECTION", "PREVENTION", "LOGGING", "VULNERABILITY")
+
+
+def _validate_expectation_types(expectation_types: list[str]) -> list[str]:
+    """Returns the expectation types without duplicates, in their order.
+
+    :raises ValueError: if the list is empty or holds a value that is not an
+        uppercase declarable expectation type
+    """
+    if isinstance(expectation_types, str) or not expectation_types:
+        raise ValueError(
+            "Supported expectation types must be a non-empty list, "
+            f"got {expectation_types!r}"
+        )
+    validated = []
+    for expectation_type in expectation_types:
+        if expectation_type not in DECLARABLE_EXPECTATION_TYPES:
+            raise ValueError(
+                f"Unsupported expectation type {expectation_type!r}, "
+                f"expected one of {', '.join(DECLARABLE_EXPECTATION_TYPES)}"
+            )
+        if expectation_type not in validated:
+            validated.append(expectation_type)
+    return validated
 
 
 class CollectorDaemon(BaseDaemon):
@@ -28,6 +58,14 @@ class CollectorDaemon(BaseDaemon):
     read-only card is not empty in the UI.
     `collector_platform_tags` (optional): list of tag names (or a
     comma-separated string) applied to the auto-created security platform.
+
+    :param supported_expectation_types: expectation types the collector can
+        answer, sent to the platform at registration and on every ping, e.g.
+        ``["DETECTION", "PREVENTION", "LOGGING"]``. Defaults to DETECTION and
+        PREVENTION: a collector only receives LOGGING expectations once it
+        declares LOGGING. Use :meth:`update_supported_expectation_types` to
+        change it at runtime.
+    :type supported_expectation_types: list[str], optional
     """
 
     def __init__(
@@ -37,11 +75,19 @@ class CollectorDaemon(BaseDaemon):
         logger=None,
         api_client=None,
         collector_type=None,
+        supported_expectation_types: list[str] | None = None,
     ):
         super().__init__(configuration, callback, logger, api_client)
         if collector_type is None:
             raise ValueError("Must define a value for collector type")
         self.collector_type = collector_type
+        self._supported_expectation_types = _validate_expectation_types(
+            DEFAULT_SUPPORTED_EXPECTATION_TYPES
+            if supported_expectation_types is None
+            else supported_expectation_types
+        )
+        # Registration payload, re-sent by PingAlive; set by _setup.
+        self._registration_config: dict[str, Any] | None = None
 
     def _setup(self):
         if self._configuration.get("collector_period") is None:
@@ -84,12 +130,40 @@ class CollectorDaemon(BaseDaemon):
                 # Optional author override; None lets the platform fall back to
                 # the collector name.
                 "collector_author": self._configuration.get("collector_author"),
+                "collector_supported_expectation_types": list(
+                    self._supported_expectation_types
+                ),
             }
         with open(icon_path, "rb") as icon_file_handle:
             collector_icon = (icon_name, icon_file_handle, "image/png")
             self.api.collector.create(config, collector_icon)
 
+        self._registration_config = config
         PingAlive(self.api, config, self.logger, "collector").start()
+
+    def update_supported_expectation_types(
+        self, supported_expectation_types: list[str]
+    ) -> None:
+        """Changes the expectation types declared to the platform.
+
+        Once the collector is registered, the next ping (within 40 seconds)
+        carries the new list. For example, a collector withdraws LOGGING when
+        its log source becomes unusable, so the platform stops waiting for its
+        LOGGING results.
+
+        :param supported_expectation_types: the new list, e.g. ``["DETECTION", "PREVENTION"]``
+        :type supported_expectation_types: list[str]
+        :raises ValueError: if the list is invalid; the declared list is then unchanged
+        """
+        validated = _validate_expectation_types(supported_expectation_types)
+        self._supported_expectation_types = validated
+        if self._registration_config is not None:
+            # Assign a new list, never change it in place: the PingAlive thread
+            # may be serializing the current one.
+            self._registration_config["collector_supported_expectation_types"] = list(
+                validated
+            )
+        self.logger.info(f"Supported expectation types: {', '.join(validated)}")
 
     def __upsert_platform_tags(self, tag_names) -> list:
         """Upserts the configured security platform tags and returns their ids.

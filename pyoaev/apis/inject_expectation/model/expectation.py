@@ -14,6 +14,7 @@ class ExpectationTypeEnum(str, Enum):
 
     Detection = "DETECTION"
     Prevention = "PREVENTION"
+    Logging = "LOGGING"
     Vulnerability = "VULNERABILITY"
     Other = "other"
 
@@ -181,3 +182,16 @@ class PreventionExpectation(Expectation):
 
     success_label: str = "Prevented"
     failure_label: str = "Not Prevented"
+
+
+class LoggingExpectation(Expectation):
+    """An expectation that is specific to Logging, i.e. that is used
+    by OpenAEV to assert that an inject's execution was recorded by the
+    log sources of a security platform, whether it raised an alert or not.
+
+    Collectors only report successes for this type: "Not Logged" is written
+    by the platform when the expectation expires.
+    """
+
+    success_label: str = "Logged"
+    failure_label: str = "Not Logged"
