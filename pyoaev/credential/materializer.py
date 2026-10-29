@@ -13,7 +13,7 @@ import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, Iterator, List, Optional
+from typing import Callable, Dict, Iterator, List, Optional, Union
 
 from pyoaev.credential.errors import (
     CredentialErrorCode,
@@ -125,6 +125,13 @@ def _aws_region_env(region: Optional[str]) -> Dict[str, str]:
     return {"AWS_REGION": region, "AWS_DEFAULT_REGION": region}
 
 
+def _aws_endpoint_env(endpoint_url: Optional[str]) -> Dict[str, str]:
+    # Sovereign or mocked cloud: the same endpoint serves the STS calls.
+    if not endpoint_url:
+        return {}
+    return {"AWS_ENDPOINT_URL": endpoint_url, "AWS_ENDPOINT_URL_STS": endpoint_url}
+
+
 def _aws_access_key(
     secret: AwsAccessKeySecret, workspace: _Workspace
 ) -> Dict[str, str]:
@@ -132,6 +139,7 @@ def _aws_access_key(
         **_aws_region_env(secret.aws_default_region),
         "AWS_ACCESS_KEY_ID": secret.aws_access_key_id,
         "AWS_SECRET_ACCESS_KEY": secret.aws_secret_access_key,
+        **_aws_endpoint_env(secret.aws_endpoint_url),
     }
     if secret.aws_session_token:
         env["AWS_SESSION_TOKEN"] = secret.aws_session_token
@@ -144,6 +152,7 @@ def _aws_assume_role(
     env = {
         **_aws_region_env(secret.aws_default_region),
         "AWS_PROFILE": AWS_TARGET_PROFILE,
+        **_aws_endpoint_env(secret.aws_endpoint_url),
     }
     profile: Dict[str, Optional[str]] = {"role_arn": secret.aws_role_arn}
     if secret.aws_source_identity_type == AwsSourceIdentityType.INSTANCE_DEFAULT:
@@ -181,6 +190,36 @@ def _azure_authority_host(environment: str) -> str:
         raise _UnsupportedAzureEnvironmentError() from None
 
 
+def _azure_sovereign_env(
+    secret: Union[AzureServicePrincipalSecret, AzureManagedIdentitySecret],
+    workspace: _Workspace,
+) -> Dict[str, str]:
+    """Authority host and trusted CA of the credential, shared by both methods.
+
+    ``REQUESTS_CA_BUNDLE`` (Python SDK) and ``SSL_CERT_FILE`` (Go, stratus
+    ignores the former) replace the default trust store of their client: the
+    certificate must contain every CA needed by the authority host.
+    """
+    # The environment is always validated, even when the host is overridden.
+    env = {"AZURE_AUTHORITY_HOST": _azure_authority_host(secret.azure_environment)}
+    if secret.azure_authority_host_uri:
+        # The Go SDK requires the trailing slash.
+        authority_host = secret.azure_authority_host_uri
+        if not authority_host.endswith("/"):
+            authority_host += "/"
+        env["AZURE_AUTHORITY_HOST"] = authority_host
+        env["AZURE_POD_IDENTITY_AUTHORITY_HOST"] = authority_host
+    if secret.azure_requests_certificate:
+        bundle = str(
+            workspace.write(
+                secret.azure_requests_certificate, prefix="azure-ca-", suffix=".pem"
+            )
+        )
+        env["REQUESTS_CA_BUNDLE"] = bundle
+        env["SSL_CERT_FILE"] = bundle
+    return env
+
+
 def _azure_service_principal(
     secret: AzureServicePrincipalSecret, workspace: _Workspace
 ) -> Dict[str, str]:
@@ -188,7 +227,7 @@ def _azure_service_principal(
         "AZURE_CLIENT_ID": secret.azure_client_id,
         "AZURE_CLIENT_SECRET": secret.azure_client_secret,
         "AZURE_TENANT_ID": secret.azure_tenant_id,
-        "AZURE_AUTHORITY_HOST": _azure_authority_host(secret.azure_environment),
+        **_azure_sovereign_env(secret, workspace),
     }
     if secret.azure_subscription_id:
         env["AZURE_SUBSCRIPTION_ID"] = secret.azure_subscription_id
@@ -198,7 +237,7 @@ def _azure_service_principal(
 def _azure_managed_identity(
     secret: AzureManagedIdentitySecret, workspace: _Workspace
 ) -> Dict[str, str]:
-    env = {"AZURE_AUTHORITY_HOST": _azure_authority_host(secret.azure_environment)}
+    env = _azure_sovereign_env(secret, workspace)
     # Without a client id, the system-assigned identity is used.
     if secret.azure_client_id:
         env["AZURE_CLIENT_ID"] = secret.azure_client_id
@@ -225,7 +264,12 @@ def _gcp_service_account(
     credentials_file = workspace.write(
         secret.gcp_private_key_json, prefix="gcp-credentials-", suffix=".json"
     )
-    return _gcp_env(credentials_file, secret.gcp_scope, secret.gcp_project_id)
+    env = _gcp_env(credentials_file, secret.gcp_scope, secret.gcp_project_id)
+    if secret.gcp_custom_resource_manager_uri:
+        env["GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT"] = (
+            secret.gcp_custom_resource_manager_uri
+        )
+    return env
 
 
 def _gcp_oauth2(secret: GcpOAuth2Secret, workspace: _Workspace) -> Dict[str, str]:
@@ -241,7 +285,14 @@ def _gcp_oauth2(secret: GcpOAuth2Secret, workspace: _Workspace) -> Dict[str, str
         prefix="gcp-credentials-",
         suffix=".json",
     )
-    return _gcp_env(credentials_file, secret.gcp_scope, secret.gcp_project_id)
+    env = _gcp_env(credentials_file, secret.gcp_scope, secret.gcp_project_id)
+    if secret.gcp_custom_token_uri:
+        env["GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE"] = secret.gcp_custom_token_uri
+    if secret.gcp_custom_iam_uri:
+        env["GOOGLE_IAM_CUSTOM_ENDPOINT"] = secret.gcp_custom_iam_uri
+    if secret.gcp_custom_oauth_access_token:
+        env["GOOGLE_OAUTH_ACCESS_TOKEN"] = secret.gcp_custom_oauth_access_token
+    return env
 
 
 _MATERIALIZERS: Dict[SecretType, Callable[..., Dict[str, str]]] = {

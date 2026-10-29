@@ -85,6 +85,8 @@ class AwsAccessKeySecret(ResolvedSecret):
     aws_secret_access_key: str = _secret()
     aws_default_region: Optional[str] = None
     aws_session_token: Optional[str] = _secret(default=None)
+    aws_account_id: Optional[str] = None
+    aws_endpoint_url: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -99,6 +101,8 @@ class AwsAssumeRoleSecret(ResolvedSecret):
     aws_external_id: Optional[str] = _secret(default=None)
     aws_source_profile_access_key_id: Optional[str] = _secret(default=None)
     aws_source_profile_secret_access_key: Optional[str] = _secret(default=None)
+    aws_account_id: Optional[str] = None
+    aws_endpoint_url: Optional[str] = None
 
     def __post_init__(self) -> None:
         # A static source identity cannot assume the role without its keys.
@@ -119,6 +123,11 @@ class AzureServicePrincipalSecret(ResolvedSecret):
     azure_client_secret: str = _secret()
     azure_tenant_id: str
     azure_subscription_id: Optional[str] = None
+    azure_authority_host_uri: Optional[str] = None
+    # Java ``byte[]``, sent base64 encoded by the platform.
+    azure_requests_certificate: Optional[bytes] = _parsed_with(
+        _decode_base64, repr=False, default=None
+    )
 
 
 @dataclass(frozen=True)
@@ -128,6 +137,11 @@ class AzureManagedIdentitySecret(ResolvedSecret):
     azure_environment: str
     azure_client_id: Optional[str] = None
     azure_subscription_id: Optional[str] = None
+    azure_authority_host_uri: Optional[str] = None
+    # Java ``byte[]``, sent base64 encoded by the platform.
+    azure_requests_certificate: Optional[bytes] = _parsed_with(
+        _decode_base64, repr=False, default=None
+    )
 
 
 @dataclass(frozen=True)
@@ -138,6 +152,7 @@ class GcpServiceAccountSecret(ResolvedSecret):
     # Java ``byte[]``, sent base64 encoded by the platform.
     gcp_private_key_json: bytes = _parsed_with(_decode_base64, repr=False)
     gcp_project_id: Optional[str] = None
+    gcp_custom_resource_manager_uri: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -149,6 +164,9 @@ class GcpOAuth2Secret(ResolvedSecret):
     gcp_oauth_client_secret: str = _secret()
     gcp_oauth_refresh_token: str = _secret()
     gcp_project_id: Optional[str] = None
+    gcp_custom_token_uri: Optional[str] = None
+    gcp_custom_iam_uri: Optional[str] = None
+    gcp_custom_oauth_access_token: Optional[str] = _secret(default=None)
 
 
 _RESOLVED_SECRET_CLASSES: Dict[SecretType, Type[ResolvedSecret]] = {

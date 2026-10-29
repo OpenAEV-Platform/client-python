@@ -4,6 +4,7 @@ import os
 import stat
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest import mock
 
@@ -28,6 +29,9 @@ from pyoaev.credential import (
 )
 
 SECRET = "super-secret-value"
+ACCESS_TOKEN = "custom-oauth-access-token"
+AWS_ENDPOINT_URL = "http://mock-aws:4566"
+CERTIFICATE = b"-----BEGIN CERTIFICATE-----\nMIIBsovereign\n-----END CERTIFICATE-----\n"
 GCP_KEY_JSON = b'{"type": "service_account", "private_key": "super-secret-value"}'
 
 AWS_ACCESS_KEY = AwsAccessKeySecret(
@@ -317,6 +321,206 @@ class GcpMaterializerTest(MaterializerTestCase):
 
         with self.materialize(resolved) as credential:
             self.assertNotIn("GOOGLE_PROJECT", credential.env)
+
+
+class SovereignCloudMaterializerTest(MaterializerTestCase):
+    def test_aws_endpoint_url_sets_both_variables(self):
+        for resolved in (
+            replace(AWS_ACCESS_KEY, aws_endpoint_url=AWS_ENDPOINT_URL),
+            replace(AWS_ASSUME_ROLE_STATIC, aws_endpoint_url=AWS_ENDPOINT_URL),
+            replace(AWS_ASSUME_ROLE_INSTANCE, aws_endpoint_url=AWS_ENDPOINT_URL),
+        ):
+            with self.subTest(secret_type=resolved.secret_type):
+                with self.materialize(resolved) as credential:
+                    self.assertEqual(
+                        credential.env["AWS_ENDPOINT_URL"], AWS_ENDPOINT_URL
+                    )
+                    self.assertEqual(
+                        credential.env["AWS_ENDPOINT_URL_STS"], AWS_ENDPOINT_URL
+                    )
+
+    def test_aws_account_id_has_no_environment_variable(self):
+        for resolved in (AWS_ACCESS_KEY, AWS_ASSUME_ROLE_STATIC):
+            with self.subTest(secret_type=resolved.secret_type):
+                with self.materialize(
+                    replace(resolved, aws_account_id="123456789012")
+                ) as credential:
+                    with self.materialize(resolved) as reference:
+                        self.assertEqual(credential.env.keys(), reference.env.keys())
+                    self.assertNotIn("123456789012", credential.env.values())
+
+    def test_gcp_oauth2_overrides(self):
+        resolved = replace(
+            GCP_OAUTH2,
+            gcp_custom_token_uri="http://mock-gcp/token",
+            gcp_custom_iam_uri="http://mock-gcp/iam",
+            gcp_custom_oauth_access_token=ACCESS_TOKEN,
+        )
+
+        with self.materialize(resolved) as credential:
+            env = credential.env
+            self.assertEqual(
+                env["GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE"], "http://mock-gcp/token"
+            )
+            self.assertEqual(env["GOOGLE_IAM_CUSTOM_ENDPOINT"], "http://mock-gcp/iam")
+            self.assertEqual(env["GOOGLE_OAUTH_ACCESS_TOKEN"], ACCESS_TOKEN)
+            self.assertNotIn("GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT", env)
+            self.assertNotIn(ACCESS_TOKEN, repr(credential))
+
+    def test_gcp_oauth2_overrides_are_independent(self):
+        resolved = replace(GCP_OAUTH2, gcp_custom_iam_uri="http://mock-gcp/iam")
+
+        with self.materialize(resolved) as credential:
+            self.assertEqual(
+                set(credential.env) - set(self._env(GCP_OAUTH2)),
+                {"GOOGLE_IAM_CUSTOM_ENDPOINT"},
+            )
+
+    def test_gcp_service_account_resource_manager_override(self):
+        resolved = replace(
+            GCP_SERVICE_ACCOUNT, gcp_custom_resource_manager_uri="http://mock-gcp/rm"
+        )
+
+        with self.materialize(resolved) as credential:
+            self.assertEqual(
+                credential.env["GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT"],
+                "http://mock-gcp/rm",
+            )
+            self.assertEqual(
+                set(credential.env) - set(self._env(GCP_SERVICE_ACCOUNT)),
+                {"GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT"},
+            )
+
+    def test_azure_authority_host_overrides_the_environment_one(self):
+        for resolved in (AZURE_SERVICE_PRINCIPAL, AZURE_MANAGED_IDENTITY):
+            for authority_host in ("https://mock-azure", "https://mock-azure/"):
+                with self.subTest(
+                    secret_type=resolved.secret_type, authority_host=authority_host
+                ):
+                    with self.materialize(
+                        replace(resolved, azure_authority_host_uri=authority_host)
+                    ) as credential:
+                        self.assertEqual(
+                            credential.env["AZURE_AUTHORITY_HOST"],
+                            "https://mock-azure/",
+                        )
+                        self.assertEqual(
+                            credential.env["AZURE_POD_IDENTITY_AUTHORITY_HOST"],
+                            "https://mock-azure/",
+                        )
+
+    def test_azure_unsupported_environment_still_fails_with_an_authority_host(self):
+        resolved = AzureManagedIdentitySecret(
+            azure_environment="AzureGermanCloud",
+            azure_authority_host_uri="https://mock-azure/",
+        )
+
+        with self.assertRaises(CredentialResolutionError) as context:
+            with self.materialize(resolved):
+                self.fail("must not be reached")
+
+        self.assertIs(
+            context.exception.code, CredentialErrorCode.CREDENTIAL_INCOMPATIBLE
+        )
+
+    def test_azure_certificate_is_written_and_referenced_by_both_variables(self):
+        for resolved in (AZURE_SERVICE_PRINCIPAL, AZURE_MANAGED_IDENTITY):
+            with self.subTest(secret_type=resolved.secret_type):
+                with self.materialize(
+                    replace(resolved, azure_requests_certificate=CERTIFICATE)
+                ) as credential:
+                    env = credential.env
+                    self.assertEqual(env["REQUESTS_CA_BUNDLE"], env["SSL_CERT_FILE"])
+                    certificate_file = Path(env["SSL_CERT_FILE"])
+                    self.assertEqual(credential.files, [certificate_file])
+                    self.assertTrue(certificate_file.name.startswith("azure-ca-"))
+                    self.assertEqual(certificate_file.suffix, ".pem")
+                    self.assertEqual(certificate_file.read_bytes(), CERTIFICATE)
+                    # Only the path travels in the environment.
+                    self.assertNotIn(CERTIFICATE.decode(), env.values())
+                    self.assertNotIn(CERTIFICATE.decode(), repr(credential))
+
+    @unittest.skipIf(os.name == "nt", "POSIX permissions only")
+    def test_azure_certificate_posix_permissions(self):
+        with self.materialize(
+            replace(AZURE_SERVICE_PRINCIPAL, azure_requests_certificate=CERTIFICATE)
+        ) as credential:
+            path = credential.files[0]
+            self.assertEqual(stat.S_IMODE(path.parent.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+
+    def test_azure_certificate_is_removed_after_the_block(self):
+        resolved = replace(
+            AZURE_SERVICE_PRINCIPAL, azure_requests_certificate=CERTIFICATE
+        )
+
+        with self.materialize(resolved) as credential:
+            files = credential.files
+
+        self.assertEqual(len(files), 1)
+        self.assertFalse(files[0].exists())
+        self.assert_root_is_empty()
+
+    def test_azure_certificate_is_removed_when_the_body_raises(self):
+        resolved = replace(
+            AZURE_MANAGED_IDENTITY, azure_requests_certificate=CERTIFICATE
+        )
+
+        with self.assertRaises(RuntimeError):
+            with self.materialize(resolved) as credential:
+                files = credential.files
+                raise RuntimeError("execution failed")
+
+        self.assertFalse(files[0].exists())
+        self.assert_root_is_empty()
+
+    def test_azure_certificate_removal_failure_is_reported(self):
+        resolved = replace(
+            AZURE_SERVICE_PRINCIPAL, azure_requests_certificate=CERTIFICATE
+        )
+
+        with mock.patch("pyoaev.credential.materializer.shutil.rmtree"):
+            with self.assertRaises(CredentialCleanupError) as context:
+                with self.materialize(resolved) as credential:
+                    directory = credential.files[0].parent
+
+        self.assertNotIn(CERTIFICATE.decode(), str(context.exception))
+        for path in directory.iterdir():
+            path.unlink()
+        directory.rmdir()
+
+    def test_azure_without_sovereign_fields_is_unchanged(self):
+        for resolved in (AZURE_SERVICE_PRINCIPAL, AZURE_MANAGED_IDENTITY):
+            with self.subTest(secret_type=resolved.secret_type):
+                with self.materialize(resolved) as credential:
+                    for name in (
+                        "AZURE_POD_IDENTITY_AUTHORITY_HOST",
+                        "REQUESTS_CA_BUNDLE",
+                        "SSL_CERT_FILE",
+                    ):
+                        self.assertNotIn(name, credential.env)
+                    self.assertEqual(credential.files, [])
+
+    def test_absent_overrides_leave_the_environment_unchanged(self):
+        for resolved in ALL_CLOUD_SECRETS:
+            with self.subTest(secret_type=resolved.secret_type):
+                env = self._env(resolved)
+                for name in (
+                    "AWS_ENDPOINT_URL",
+                    "AWS_ENDPOINT_URL_STS",
+                    "GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE",
+                    "GOOGLE_IAM_CUSTOM_ENDPOINT",
+                    "GOOGLE_OAUTH_ACCESS_TOKEN",
+                    "GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
+                    "AZURE_POD_IDENTITY_AUTHORITY_HOST",
+                    "REQUESTS_CA_BUNDLE",
+                    "SSL_CERT_FILE",
+                ):
+                    self.assertNotIn(name, env)
+
+    def _env(self, resolved):
+        with self.materialize(resolved) as credential:
+            return dict(credential.env)
 
 
 class MaterializerLifecycleTest(MaterializerTestCase):
