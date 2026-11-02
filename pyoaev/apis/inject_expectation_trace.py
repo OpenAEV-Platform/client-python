@@ -1,9 +1,23 @@
+from enum import Enum
 from typing import Any, Dict, List
 
 from pyoaev import exceptions as exc
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import CreateMixin
 from pyoaev.utils import RequiredOptional
+
+
+class TraceMatchType(str, Enum):
+    """Signal that matched a LOGGING expectation, sent as
+    inject_expectation_trace_match_type.
+
+    The platform drops an unknown value without error, so collectors should
+    use these members rather than raw strings.
+    """
+
+    MARKER = "marker"
+    SOURCE_IP = "source_ip"
+    TARGET_IP = "target_ip"
 
 
 class InjectExpectationTrace(RESTObject):
@@ -20,6 +34,11 @@ class InjectExpectationTraceManager(CreateMixin, RESTManager):
             "inject_expectation_trace_alert_name",
             "inject_expectation_trace_alert_link",
             "inject_expectation_trace_date",
+        ),
+        optional=(
+            # Signal that matched, for a LOGGING expectation: a TraceMatchType.
+            # Left out for the other types.
+            "inject_expectation_trace_match_type",
         ),
     )
 

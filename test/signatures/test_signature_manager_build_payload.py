@@ -230,6 +230,61 @@ class TestBuildPayloadExtraSignatures(unittest.TestCase):
             )
 
 
+class TestBuildPayloadLoggingExpectation(unittest.TestCase):
+    """Injectors pass every expectation type of the inject: LOGGING must get its
+    own group and never make the Detection and Prevention signatures fail."""
+
+    def test_logging_gets_a_group_with_the_same_base_signatures(self):
+        payload = SignatureManager.build_payload(
+            _network_signature(target_ipv4="192.0.2.11"),
+            [TARGET],
+            ["DETECTION", "PREVENTION", "LOGGING"],
+        )
+
+        groups = payload["targets"][0]["signature_values"]
+        self.assertEqual(
+            ["DETECTION", "PREVENTION", "LOGGING"],
+            [group["expectation_type"] for group in groups],
+        )
+        self.assertEqual(
+            _values(payload, group_index=0), _values(payload, group_index=2)
+        )
+        self.assertEqual(
+            _values(payload, group_index=1), _values(payload, group_index=2)
+        )
+
+    def test_logging_extras_only_apply_to_the_logging_group(self):
+        extra = ExtraSignatureData(logging={"process_name": "nmap"})
+
+        payload = SignatureManager.build_payload(
+            _network_signature(target_ipv4="192.0.2.11"),
+            [TARGET],
+            ["DETECTION", "LOGGING"],
+            extra,
+        )
+
+        self.assertNotIn("process_name", _values(payload, group_index=0))
+        self.assertEqual("nmap", _values(payload, group_index=1)["process_name"])
+
+
+class TestExtraSignatureDataGetExtra(unittest.TestCase):
+    def test_logging_without_extras_is_empty(self):
+        extra = ExtraSignatureData(detection={"process_name": "nmap"})
+
+        self.assertEqual({}, extra.get_extra("LOGGING"))
+
+    def test_unknown_type_is_empty_instead_of_raising(self):
+        extra = ExtraSignatureData(detection={"process_name": "nmap"})
+
+        self.assertEqual({}, extra.get_extra("FOO"))
+
+    def test_known_types_are_case_insensitive(self):
+        extra = ExtraSignatureData(logging={"process_name": "nmap"})
+
+        self.assertEqual({"process_name": "nmap"}, extra.get_extra("logging"))
+        self.assertEqual({"process_name": "nmap"}, extra.get_extra("LOGGING"))
+
+
 class TestBuildPayloadIsParsedByCollectors(unittest.TestCase):
     """Regression for client-python#352: a collector must be able to parse the
     expectation signatures the platform stores from this payload."""
