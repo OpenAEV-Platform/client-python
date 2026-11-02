@@ -72,9 +72,14 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
     def expectations_assets_for_source(
         self, source_id: str, expiration_time: int = None, **kwargs: Any
     ) -> List[Dict[str, Any]]:
+        """Returns the DETECTION and PREVENTION expectations on assets not yet
+        filled for the given source.
+
+        :raises OpenAEVParsingError: if the server does not return a JSON list of dicts
+        """
         path = f"{self.path}/assets/" + source_id
         # The route returns a JSON list; http_get is annotated Union[Dict, Response].
-        result: Any = self.openaev.http_get(
+        raw: Any = self.openaev.http_get(
             path,
             query_data=(
                 {"expiration_time": expiration_time}
@@ -87,7 +92,7 @@ class InjectExpectationManager(ListMixin, UpdateMixin, RESTManager):
             ),
             **kwargs,
         )
-        return result
+        return _as_list_of_dicts(raw, path, "asset expectations", "asset expectation")
 
     @exc.on_http_error(exc.OpenAEVListError)
     def ai_expectations_for_source(

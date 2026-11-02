@@ -24,6 +24,41 @@ def make_json_response(payload):
     return MockResponse()
 
 
+class TestExpectationsAssetsForSource(TestCase):
+    @mock.patch("requests.Session.request")
+    def test_returns_list_of_expectations(self, mock_request):
+        expectations = [{"inject_expectation_id": "exp-1"}]
+        mock_request.return_value = make_json_response(expectations)
+        api_client = OpenAEV("url", "token")
+
+        result = api_client.inject_expectation.expectations_assets_for_source(
+            "collector-1"
+        )
+
+        _, kwargs = mock_request.call_args
+        self.assertEqual(
+            kwargs["url"], "url/api/injects/expectations/assets/collector-1"
+        )
+        self.assertEqual(result, expectations)
+
+    @mock.patch("requests.Session.request")
+    def test_raises_parsing_error_when_not_a_list(self, mock_request):
+        mock_request.return_value = make_json_response({"unexpected": "shape"})
+        api_client = OpenAEV("url", "token")
+
+        with self.assertRaises(OpenAEVParsingError):
+            api_client.inject_expectation.expectations_assets_for_source("collector-1")
+
+    @mock.patch("requests.Session.request")
+    def test_models_raise_parsing_error_when_elements_not_dicts(self, mock_request):
+        # Before, a malformed element failed later with an AttributeError.
+        mock_request.return_value = make_json_response(["not", "a", "dict"])
+        api_client = OpenAEV("url", "token")
+
+        with self.assertRaises(OpenAEVParsingError):
+            api_client.inject_expectation.expectations_models_for_source("collector-1")
+
+
 class TestAiExpectationsForSource(TestCase):
     @mock.patch("requests.Session.request")
     def test_returns_list_of_expectations(self, mock_request):
