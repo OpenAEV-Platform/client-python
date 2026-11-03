@@ -126,7 +126,8 @@ def _aws_region_env(region: Optional[str]) -> Dict[str, str]:
 
 
 def _aws_endpoint_env(endpoint_url: Optional[str]) -> Dict[str, str]:
-    # Sovereign or mocked cloud: the same endpoint serves the STS calls.
+    # Single host for every service: fits a mocked cloud or a proxy. A real
+    # AWS partition (GovCloud, China) is reached through its region alone.
     if not endpoint_url:
         return {}
     return {"AWS_ENDPOINT_URL": endpoint_url, "AWS_ENDPOINT_URL_STS": endpoint_url}
@@ -199,6 +200,11 @@ def _azure_sovereign_env(
     ``REQUESTS_CA_BUNDLE`` (Python SDK) and ``SSL_CERT_FILE`` (Go, stratus
     ignores the former) replace the default trust store of their client: the
     certificate must contain every CA needed by the authority host.
+
+    ``AZURE_POD_IDENTITY_AUTHORITY_HOST`` is deliberately not set: despite its
+    name, azure-identity uses it as the managed identity (IMDS) endpoint, not
+    as the Entra authority. Pointing it to a login server would break the
+    managed identity token requests.
     """
     # The environment is always validated, even when the host is overridden.
     env = {"AZURE_AUTHORITY_HOST": _azure_authority_host(secret.azure_environment)}
@@ -208,7 +214,6 @@ def _azure_sovereign_env(
         if not authority_host.endswith("/"):
             authority_host += "/"
         env["AZURE_AUTHORITY_HOST"] = authority_host
-        env["AZURE_POD_IDENTITY_AUTHORITY_HOST"] = authority_host
     if secret.azure_requests_certificate:
         bundle = str(
             workspace.write(
@@ -254,7 +259,9 @@ def _gcp_env(
         "GOOGLE_CLOUD_UNIVERSE_DOMAIN": scope,
     }
     if project_id:
+        # Stratus and Terraform read the former, Prowler the latter.
         env["GOOGLE_PROJECT"] = project_id
+        env["GOOGLE_CLOUD_PROJECT"] = project_id
     return env
 
 
@@ -291,7 +298,10 @@ def _gcp_oauth2(secret: GcpOAuth2Secret, workspace: _Workspace) -> Dict[str, str
     if secret.gcp_custom_iam_uri:
         env["GOOGLE_IAM_CUSTOM_ENDPOINT"] = secret.gcp_custom_iam_uri
     if secret.gcp_custom_oauth_access_token:
+        # Terraform (stratus) reads the former, Prowler and gcloud the latter.
+        # Prowler then prefers the token over the credentials file.
         env["GOOGLE_OAUTH_ACCESS_TOKEN"] = secret.gcp_custom_oauth_access_token
+        env["CLOUDSDK_AUTH_ACCESS_TOKEN"] = secret.gcp_custom_oauth_access_token
     return env
 
 

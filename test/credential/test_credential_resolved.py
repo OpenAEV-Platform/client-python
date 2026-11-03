@@ -340,6 +340,70 @@ class ParseResolvedSecretTest(unittest.TestCase):
                 self.assertIsNone(context.exception.__cause__)
                 self.assertIsNone(context.exception.__context__)
 
+    def test_azure_certificate_must_be_pem(self):
+        # A DER certificate (.cer/.crt) starts with an ASN.1 sequence byte.
+        der = base64.b64encode(b"\x30\x82\x01\x0a-der-content").decode()
+        for secret_type in (
+            SecretType.AZURE_SERVICE_PRINCIPAL,
+            SecretType.AZURE_MANAGED_IDENTITY,
+        ):
+            with self.subTest(secret_type=secret_type):
+                with self.assertRaises(InvalidResolvedSecretError) as context:
+                    _parse(secret_type, azure_requests_certificate=der)
+
+                self.assertIsNone(context.exception.__cause__)
+                self.assertIsNone(context.exception.__context__)
+
+    def test_invalid_endpoint_urls_are_rejected(self):
+        fields_by_type = {
+            SecretType.AWS_ACCESS_KEY: "aws_endpoint_url",
+            SecretType.AWS_ASSUME_ROLE: "aws_endpoint_url",
+            SecretType.AZURE_SERVICE_PRINCIPAL: "azure_authority_host_uri",
+            SecretType.AZURE_MANAGED_IDENTITY: "azure_authority_host_uri",
+            SecretType.GCP_SERVICE_ACCOUNT: "gcp_custom_resource_manager_uri",
+            SecretType.GCP_OAUTH2: "gcp_custom_token_uri",
+        }
+        invalid_urls = (
+            "https://host ",
+            " https://host",
+            "https://ho st/",
+            "https://host/\n[profile x]",
+            "ftp://host/",
+            "host:4566",
+            "https://",
+            "https://user:password@host/",
+            "https://[::1/",
+        )
+        for secret_type, name in fields_by_type.items():
+            for url in invalid_urls:
+                with self.subTest(secret_type=secret_type, url=url):
+                    with self.assertRaises(InvalidResolvedSecretError) as context:
+                        _parse(secret_type, **{name: url})
+
+                    self.assertIsNone(context.exception.__cause__)
+                    self.assertIsNone(context.exception.__context__)
+                    self.assertNotIn(url, str(context.exception))
+
+    def test_gcp_oauth2_iam_uri_is_validated(self):
+        with self.assertRaises(InvalidResolvedSecretError):
+            _parse(SecretType.GCP_OAUTH2, gcp_custom_iam_uri="https://host ")
+
+    def test_azure_authority_host_must_use_https(self):
+        for secret_type in (
+            SecretType.AZURE_SERVICE_PRINCIPAL,
+            SecretType.AZURE_MANAGED_IDENTITY,
+        ):
+            with self.subTest(secret_type=secret_type):
+                with self.assertRaises(InvalidResolvedSecretError):
+                    _parse(secret_type, azure_authority_host_uri="http://mock-azure/")
+
+    def test_mock_endpoints_may_use_http_and_a_port(self):
+        resolved = _parse(
+            SecretType.AWS_ACCESS_KEY, aws_endpoint_url="http://localhost:4566"
+        )
+
+        self.assertEqual(resolved.aws_endpoint_url, "http://localhost:4566")
+
     def test_repr_and_str_never_expose_the_token_nor_the_certificate(self):
         resolved_secrets = (
             _parse(

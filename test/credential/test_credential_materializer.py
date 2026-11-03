@@ -282,10 +282,12 @@ class GcpMaterializerTest(MaterializerTestCase):
                 {
                     "GOOGLE_APPLICATION_CREDENTIALS",
                     "GOOGLE_PROJECT",
+                    "GOOGLE_CLOUD_PROJECT",
                     "GOOGLE_CLOUD_UNIVERSE_DOMAIN",
                 },
             )
             self.assertEqual(env["GOOGLE_PROJECT"], "project-id")
+            self.assertEqual(env["GOOGLE_CLOUD_PROJECT"], "project-id")
             self.assertEqual(env["GOOGLE_CLOUD_UNIVERSE_DOMAIN"], "googleapis.com")
             credentials_file = Path(env["GOOGLE_APPLICATION_CREDENTIALS"])
             self.assertEqual(credential.files, [credentials_file])
@@ -321,6 +323,7 @@ class GcpMaterializerTest(MaterializerTestCase):
 
         with self.materialize(resolved) as credential:
             self.assertNotIn("GOOGLE_PROJECT", credential.env)
+            self.assertNotIn("GOOGLE_CLOUD_PROJECT", credential.env)
 
 
 class SovereignCloudMaterializerTest(MaterializerTestCase):
@@ -364,6 +367,8 @@ class SovereignCloudMaterializerTest(MaterializerTestCase):
             )
             self.assertEqual(env["GOOGLE_IAM_CUSTOM_ENDPOINT"], "http://mock-gcp/iam")
             self.assertEqual(env["GOOGLE_OAUTH_ACCESS_TOKEN"], ACCESS_TOKEN)
+            # Prowler only reads the token from this one.
+            self.assertEqual(env["CLOUDSDK_AUTH_ACCESS_TOKEN"], ACCESS_TOKEN)
             self.assertNotIn("GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT", env)
             self.assertNotIn(ACCESS_TOKEN, repr(credential))
 
@@ -404,9 +409,9 @@ class SovereignCloudMaterializerTest(MaterializerTestCase):
                             credential.env["AZURE_AUTHORITY_HOST"],
                             "https://mock-azure/",
                         )
-                        self.assertEqual(
-                            credential.env["AZURE_POD_IDENTITY_AUTHORITY_HOST"],
-                            "https://mock-azure/",
+                        # The IMDS endpoint must never point to the authority.
+                        self.assertNotIn(
+                            "AZURE_POD_IDENTITY_AUTHORITY_HOST", credential.env
                         )
 
     def test_azure_unsupported_environment_still_fails_with_an_authority_host(self):
@@ -511,6 +516,7 @@ class SovereignCloudMaterializerTest(MaterializerTestCase):
                     "GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE",
                     "GOOGLE_IAM_CUSTOM_ENDPOINT",
                     "GOOGLE_OAUTH_ACCESS_TOKEN",
+                    "CLOUDSDK_AUTH_ACCESS_TOKEN",
                     "GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
                     "AZURE_POD_IDENTITY_AUTHORITY_HOST",
                     "REQUESTS_CA_BUNDLE",
