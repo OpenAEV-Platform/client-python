@@ -109,7 +109,6 @@ class SignatureTarget(BaseModel):
 
     agent: str | None = None
     asset: str | None = None
-    asset_group: str | None = None
 
 
 class TargetSignatures(BaseModel):
