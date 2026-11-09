@@ -82,6 +82,13 @@ core answering the seam and the public API keeps working. Touch the seam and you
 have changed a contract: `SEAM_VERSION` bump, changelog entry. The full wiring is in
 [docs/seam_strategy.md](docs/seam_strategy.md).
 
+## Dev mode
+
+Run an injector or a collector without the OpenAEV platform: `--dev` reads the platform's own payloads,
+writes every call the platform would have received as one readable JSON list, chains an
+injector into a collector, and records and replays the outside calls offline. See
+[docs/how_to_dev_mode.md](docs/how_to_dev_mode.md).
+
 ## Migrating from pyoaev
 
 Every former `pyoaev` path still works, and each one fires a `DeprecationWarning`
