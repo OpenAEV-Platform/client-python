@@ -58,6 +58,10 @@ version of its seam
   its content, or maps them to the ids a condition compares. It returns
   `ContractViolation` records; the port is `ContractValidationPort`. Its verdicts are
   checked against the cases of the platform's `HealthCheckUtilsTest`. Seam `1.1.0`.
+- `signatures`: `LEGACY_SIGNATURE_TYPES` maps each legacy signature name to its
+  signature type (`start_time` to `start_date`, `source_ipv4` to
+  `source_ipv4_address`, `target_hostname` to `target_hostname_address`, and so on: the
+  pairs of the platform's migration of stored signatures). Seam `1.1.0`.
 
 ### Changed
 
@@ -71,6 +75,12 @@ version of its seam
   configuration leaves out with an unreachable platform (`http://platform.openaev.invalid`);
   whatever the configuration gives still wins, and without `--dev` both stay required.
   Seam `1.1.0`.
+- `signatures`: `SignatureManager.build_payload` sends the signature types instead of
+  the `ExecutionSignature` field names (`start_date`, not `start_time`): the types are
+  what collectors match on. This applies with and without `--dev`. Seam `1.1.0`.
+- `signatures`: `SignatureTypes` reads a legacy name as its signature type
+  (`SignatureTypes("start_time") is SignatureTypes.SIG_TYPE_START_DATE`), so an
+  expectation stored with a legacy name still loads. Seam `1.1.0`.
 
 ## [0.1.0] - Unreleased
 

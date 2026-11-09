@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, JsonValue
 from xtm_oaev_sdk.seam.common import OpenAEVError
 
 __all__ = [
+    "LEGACY_SIGNATURE_TYPES",
     "ExtraSignatureData",
     "MatchTypes",
     "SignatureMatch",
@@ -58,6 +59,29 @@ class SignatureTypes(str, Enum):
     # specific AI inject execution.
     SIG_TYPE_AI_REQUEST_MARKER = "ai_request_marker"
     SIG_TYPE_AI_TARGET_ENDPOINT = "ai_target_endpoint"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "SignatureTypes | None":
+        """Read a legacy name (:data:`LEGACY_SIGNATURE_TYPES`) as its signature type,
+        so expectations stored under it keep loading."""
+        canonical = (
+            LEGACY_SIGNATURE_TYPES.get(value) if isinstance(value, str) else None
+        )
+        return cls(canonical) if canonical else None
+
+
+#: Legacy name -> signature type. Injectors used to send the ``ExecutionSignature``
+#: field names, and the platform stores signatures under the name they arrive with.
+#: The same pairs as the platform's migration of the stored ones.
+LEGACY_SIGNATURE_TYPES: dict[str, str] = {
+    "start_time": SignatureTypes.SIG_TYPE_START_DATE.value,
+    "end_time": SignatureTypes.SIG_TYPE_END_DATE.value,
+    "source_ipv4": SignatureTypes.SIG_TYPE_SOURCE_IPV4_ADDRESS.value,
+    "source_ipv6": SignatureTypes.SIG_TYPE_SOURCE_IPV6_ADDRESS.value,
+    "target_ipv4": SignatureTypes.SIG_TYPE_TARGET_IPV4_ADDRESS.value,
+    "target_ipv6": SignatureTypes.SIG_TYPE_TARGET_IPV6_ADDRESS.value,
+    "target_hostname": SignatureTypes.SIG_TYPE_TARGET_HOSTNAME_ADDRESS.value,
+}
 
 
 class SignatureMatch:

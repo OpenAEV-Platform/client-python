@@ -118,6 +118,7 @@ from xtm_oaev_sdk.public.deprecation import make_deprecated_getattr
 
 # --- Signatures ---
 from xtm_oaev_sdk.public.signatures import (
+    LEGACY_SIGNATURE_TYPES,
     CloudInjectorConfig,
     ExecutionSignature,
     ExtraSignatureData,
@@ -294,6 +295,7 @@ __all__ = [
     "SignatureTarget",
     "SignatureTransportProtocol",
     "SignatureType",
+    "LEGACY_SIGNATURE_TYPES",
     "SignatureTypes",
     "SignatureValue",
     "TargetSignatures",

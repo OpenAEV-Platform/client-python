@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 #: Version of the signatures inbound seam. Bump on any breaking contract change.
-SEAM_VERSION = "1.0.0"
+SEAM_VERSION = "1.1.0"
 
 
 class ToolErrorInfo(BaseModel):

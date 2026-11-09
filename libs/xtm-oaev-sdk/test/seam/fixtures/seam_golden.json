@@ -471,6 +471,10 @@
     "kind": "pydantic model",
     "sha256": "b69dd6b7476302eff126622e5d662fc297ca964c0484e6f948589cd1450ae4c5"
   },
+  "xtm_oaev_sdk.seam.signatures.models.LEGACY_SIGNATURE_TYPES": {
+    "kind": "assignment",
+    "sha256": "51c369feb4b3e8858e54be394617c26af6f08a724d4ee101e76e713fcb97007a"
+  },
   "xtm_oaev_sdk.seam.signatures.models.MatchTypes": {
     "kind": "class",
     "sha256": "99eb73ffc33a3163857a2fa3d5ca00d8c56184ea98984fedf7a173fc197eb306"
@@ -485,7 +489,7 @@
   },
   "xtm_oaev_sdk.seam.signatures.models.SignatureTypes": {
     "kind": "class",
-    "sha256": "46b9692d876bb8344229523d0fa65e46f4c59d521ebc24c47994a39a950756ae"
+    "sha256": "7f2b6bcaa0af1f51c8c0627ce04ce8dea73b07aa43b7a029b74a539ce0bb0cb6"
   },
   "xtm_oaev_sdk.seam.signatures.ports.ContainerAddressPort": {
     "kind": "class",
@@ -529,7 +533,7 @@
   },
   "xtm_oaev_sdk.seam.signatures.seam.SEAM_VERSION": {
     "kind": "assignment",
-    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+    "sha256": "4ea7962865d6821b35941c5f6e578940ab9b3c7328476859f83002b83cd93323"
   },
   "xtm_oaev_sdk.seam.signatures.seam.ToolErrorInfo": {
     "kind": "pydantic model",

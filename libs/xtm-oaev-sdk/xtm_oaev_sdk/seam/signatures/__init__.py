@@ -7,6 +7,7 @@ nothing from ``xtm_oaev_sdk._core`` nor ``xtm_oaev_sdk.public``.
 """
 
 from xtm_oaev_sdk.seam.signatures.models import (
+    LEGACY_SIGNATURE_TYPES,
     ExtraSignatureData,
     MatchTypes,
     SignatureMatch,
@@ -34,6 +35,7 @@ from xtm_oaev_sdk.seam.signatures.seam import (
 
 __all__ = [
     "SEAM_VERSION",
+    "LEGACY_SIGNATURE_TYPES",
     # Inbound I/O models (seam.py)
     "CloudInjectorConfig",
     "ExecutionSignature",
