@@ -11,12 +11,13 @@ Example:
 """
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Iterable, Mapping, Sequence
 
 from xtm_oaev_sdk._core.contracts import (
     BuiltinContractVariables,
     ContractAssembly,
     ContractSerializer,
+    ContractValidation,
     CredentialReferences,
 )
 from xtm_oaev_sdk.seam.contracts import (
@@ -47,8 +48,10 @@ from xtm_oaev_sdk.seam.contracts import (
     ContractText,
     ContractTextArea,
     ContractTuple,
+    ContractValidationPort,
     ContractVariable,
     ContractVariablesPort,
+    ContractViolation,
     CredentialType,
     Domain,
     Expectation,
@@ -85,7 +88,9 @@ __all__ = [
     "ContractText",
     "ContractTextArea",
     "ContractTuple",
+    "ContractValidator",
     "ContractVariable",
+    "ContractViolation",
     "CredentialType",
     "Domain",
     "Expectation",
@@ -103,6 +108,28 @@ _assembly: ContractAssemblyPort = ContractAssembly()
 _variables: ContractVariablesPort = BuiltinContractVariables()
 _serializer: ContractSerializerPort = ContractSerializer()
 _credentials: ContractCredentialsPort = CredentialReferences()
+_validation: ContractValidationPort = ContractValidation()
+
+
+class ContractValidator:
+    """Checks inject content against a contract locally, the way the platform's
+    mandatory-field health checks do, plus select choices and single-value
+    cardinality. Used to reject an inject before running it without the platform.
+    """
+
+    def validate(
+        self,
+        contract: "ContractData | list[ContractElement]",
+        content: dict[str, Any],
+        provided: "Mapping[str, Sequence[str]] | Iterable[str]" = (),
+    ) -> list[ContractViolation]:
+        """Every violation of ``contract`` by ``content``; empty when valid.
+
+        ``provided`` names the fields the inject carries apart from its content
+        (teams, assets, asset groups, credentials): their keys, or a mapping of each key
+        to the ids it carries, which a condition on that field compares.
+        """
+        return _validation.validate(contract, content, provided)
 
 
 class VariableHelper:

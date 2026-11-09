@@ -44,6 +44,14 @@ version of its seam
   (`*_token`, `*_secret`, `*_password`, `*_key`…) and every `SecretStr` of the settings
   model, wherever they were read from. Port `ConfigurationResolverPort.secret_values`.
   Seam `1.1.0`.
+- `contracts`: `ContractValidator` checks inject content against a contract without
+  the platform, by the platform's own health-check rules (`HealthCheckUtils`,
+  `InjectModelHelper`): mandatory fields (a text field with a non-blank default counts
+  as set), mandatory groups and conditionally mandatory fields, plus select choices and
+  single-value cardinality. `provided` names the fields the inject carries apart from
+  its content, or maps them to the ids a condition compares. It returns
+  `ContractViolation` records; the port is `ContractValidationPort`. Its verdicts are
+  checked against the cases of the platform's `HealthCheckUtilsTest`. Seam `1.1.0`.
 
 ### Changed
 

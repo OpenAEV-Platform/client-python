@@ -161,7 +161,7 @@
   },
   "xtm_oaev_sdk.seam.contracts.SEAM_VERSION": {
     "kind": "assignment",
-    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+    "sha256": "4ea7962865d6821b35941c5f6e578940ab9b3c7328476859f83002b83cd93323"
   },
   "xtm_oaev_sdk.seam.contracts.models.ContractAiTarget": {
     "kind": "class",
@@ -259,6 +259,10 @@
     "kind": "class",
     "sha256": "46522f5a0c908d7376b8ffa389d87113a972848467711a46cdc4dc5d6262d49e"
   },
+  "xtm_oaev_sdk.seam.contracts.models.ContractViolation": {
+    "kind": "class",
+    "sha256": "823d0e09fe437e3b604bc9e1715d6de7a38ccb3fc36faabd88e705ab6705079a"
+  },
   "xtm_oaev_sdk.seam.contracts.models.CredentialType": {
     "kind": "class",
     "sha256": "7e29de5fbd972fab40d3525275d4c93fbb54347869c1a5efe24b6737f2719890"
@@ -306,6 +310,10 @@
   "xtm_oaev_sdk.seam.contracts.ports.ContractSerializerPort": {
     "kind": "class",
     "sha256": "0366d67e6b581aac3fdc5f6dfeb4e7eba65a21da98a1fc89a0add1c192cb3327"
+  },
+  "xtm_oaev_sdk.seam.contracts.ports.ContractValidationPort": {
+    "kind": "class",
+    "sha256": "713cd6cceeb2028f3f0d0128243153721950049c1d92d485bb9e961f0775c62c"
   },
   "xtm_oaev_sdk.seam.contracts.ports.ContractVariablesPort": {
     "kind": "class",

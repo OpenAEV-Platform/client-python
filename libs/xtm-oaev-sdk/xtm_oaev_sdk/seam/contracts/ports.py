@@ -5,7 +5,7 @@ The other protocols are the ports the public adapters delegate to; the core
 implements them.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Iterable, Mapping, Protocol, Sequence, runtime_checkable
 
 from xtm_oaev_sdk.seam.contracts.models import (
     ContractData,
@@ -13,6 +13,7 @@ from xtm_oaev_sdk.seam.contracts.models import (
     ContractOutputElement,
     ContractReferencedCredential,
     ContractVariable,
+    ContractViolation,
 )
 
 __all__ = [
@@ -20,6 +21,7 @@ __all__ = [
     "ContractBuilderProtocol",
     "ContractCredentialsPort",
     "ContractSerializerPort",
+    "ContractValidationPort",
     "ContractVariablesPort",
 ]
 
@@ -123,3 +125,19 @@ class ContractCredentialsPort(Protocol):
         self, provider_name: str
     ) -> ContractReferencedCredential:
         """Credential-reference field asking for one credential of the provider's type."""
+
+
+@runtime_checkable
+class ContractValidationPort(Protocol):
+    """Validates inject content against a contract, without the platform."""
+
+    def validate(
+        self,
+        contract: ContractData | Iterable[ContractElement],
+        content: dict[str, Any],
+        provided: Mapping[str, Sequence[str]] | Iterable[str] = (),
+    ) -> list[ContractViolation]:
+        """Every way ``content`` fails ``contract``, by the rules of the platform's
+        health checks. ``provided`` names the fields the inject carries apart from its
+        content (teams, assets, asset groups, credentials), with the ids it carries
+        when given as a mapping."""
