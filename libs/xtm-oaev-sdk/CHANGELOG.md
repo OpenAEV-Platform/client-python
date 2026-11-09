@@ -28,6 +28,22 @@ version of its seam
   read only under their full name, and flags the daemon does not own are left alone,
   since every daemon reads them, dev or not. The port gains
   `DaemonRuntimePort.dev_argument_parser`, `dev_options` and `dev_help`. Seam `1.1.0`.
+- `daemons`: the dev sink, where a daemon in dev mode writes the calls the platform
+  would have received. `dev_sink(out=None, secrets=(), keep=(), to_stderr=False)`
+  checks each call against the payload the platform accepts on its path (a body it
+  would reject raises `OpenAEVHttpError` with `response_code` 400, and nothing is
+  written), redacts the secrets (`***`, JSON text redacted as JSON) except in the
+  `keep` keys, and writes the calls as one JSON list, indented, keys in the payload's
+  order: rewritten whole after each call in `out`, so the file is valid JSON at any
+  time, or written once, on close, to stdout or stderr. It also writes the run's notes
+  and refusals on stderr. `environment_secret_values(environ=None)` lists the values of
+  the secret-named environment variables. Ports `DevSinkPort` and `DevSinkFactoryPort`.
+  Seam `1.1.0`.
+- `configuration`: `Configuration.secret_values()` returns the values that must never
+  be written out, longest first: those of the keys whose name says they hold a secret
+  (`*_token`, `*_secret`, `*_password`, `*_key`…) and every `SecretStr` of the settings
+  model, wherever they were read from. Port `ConfigurationResolverPort.secret_values`.
+  Seam `1.1.0`.
 
 ### Changed
 

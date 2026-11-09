@@ -105,6 +105,16 @@ class ConfigurationResolverPort(Protocol):
     ) -> dict[str, Any]:
         """Connector configuration JSON schema of ``base_model``."""
 
+    def secret_values(
+        self,
+        hints: dict[str, ConfigurationHint],
+        values: dict[str, Any],
+        base_model: Any,
+    ) -> list[str]:
+        """Values that must never be written out, longest first: those of the keys
+        whose name says they hold a secret, and every ``SecretStr`` of
+        ``base_model``."""
+
 
 @runtime_checkable
 class ConnectorSchemaPort(Protocol):

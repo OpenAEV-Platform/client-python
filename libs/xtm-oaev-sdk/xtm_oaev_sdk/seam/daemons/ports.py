@@ -2,13 +2,21 @@
 
 import argparse
 import threading
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Mapping,
+    Protocol,
+    Sequence,
+    runtime_checkable,
+)
 
 from xtm_oaev_sdk.seam.common import BaseClient
 from xtm_oaev_sdk.seam.configuration import ConfigurationProtocol
 from xtm_oaev_sdk.seam.daemons.models import DevOptions
 
-__all__ = ["DaemonRuntimePort", "HeartbeatPort"]
+__all__ = ["DaemonRuntimePort", "DevSinkFactoryPort", "DevSinkPort", "HeartbeatPort"]
 
 
 @runtime_checkable
@@ -77,3 +85,52 @@ class HeartbeatPort(Protocol):
         exit_event: threading.Event,
     ) -> None:
         """Register the daemon every 40 seconds until ``exit_event`` is set."""
+
+
+@runtime_checkable
+class DevSinkPort(Protocol):
+    """Where a daemon in dev mode writes the calls the platform would have received.
+
+    ``calls`` holds each call as recorded, unredacted, for the run to read.
+    """
+
+    calls: list[dict[str, Any]]
+
+    def record(self, method: str, path: str, body: Any) -> None:
+        """Check ``body`` against the payload the platform accepts on ``path``, then
+        write the call, redacted. A body the platform would reject raises an
+        ``OpenAEVHttpError`` with ``response_code`` 400, and nothing is written."""
+
+    def redact(self, value: Any) -> Any:
+        """``value`` with every secret replaced by ``***``, structure kept. JSON text
+        is redacted as JSON, so escaped secrets go too."""
+
+    def note(self, text: str) -> None:
+        """Write ``dev: <text>`` on stderr, redacted."""
+
+    def refuse(self, reason: str) -> int:
+        """Say why the run is refused on stderr, redacted, and return exit code 2."""
+
+    def close(self) -> None:
+        """Write the calls a last time: to the output file, or once to stdout (or
+        stderr) when there is none."""
+
+
+@runtime_checkable
+class DevSinkFactoryPort(Protocol):
+    """Opens dev sinks and finds the secrets they must redact."""
+
+    def open(
+        self,
+        out: str | None,
+        secrets: Sequence[str],
+        keep: Iterable[str],
+        to_stderr: bool,
+    ) -> DevSinkPort:
+        """A sink writing one JSON list to ``out`` (rewritten after each call), or
+        to stdout (stderr when ``to_stderr``) on close. ``secrets`` are redacted from
+        every value but those of the ``keep`` keys."""
+
+    def environment_secrets(self, environ: Mapping[str, str] | None) -> list[str]:
+        """Values of the environment variables (``os.environ`` when ``None``) whose
+        name says they hold a secret."""

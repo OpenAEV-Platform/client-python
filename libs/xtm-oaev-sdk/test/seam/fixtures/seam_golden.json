@@ -141,7 +141,7 @@
   },
   "xtm_oaev_sdk.seam.configuration.ports.ConfigurationResolverPort": {
     "kind": "class",
-    "sha256": "c36adb803d996956a4a88fefcd3468f9a2e67dec149eb3170cff4d6e5532c8f9"
+    "sha256": "8801a34f62d671d808f6da3a9a5e0b5752ca530c99977bf489e45c5559c79be0"
   },
   "xtm_oaev_sdk.seam.configuration.ports.ConfigurationSourcesPort": {
     "kind": "class",
@@ -322,6 +322,14 @@
   "xtm_oaev_sdk.seam.daemons.ports.DaemonRuntimePort": {
     "kind": "class",
     "sha256": "d453ae1407f6d091eb0edfdafdb1621a101754a4f51a96361960f5cb3576d0b3"
+  },
+  "xtm_oaev_sdk.seam.daemons.ports.DevSinkFactoryPort": {
+    "kind": "class",
+    "sha256": "d5928603aa4a14584a946825c0242cdbb865cf3deebd7b10fb4839b0400f6dfb"
+  },
+  "xtm_oaev_sdk.seam.daemons.ports.DevSinkPort": {
+    "kind": "class",
+    "sha256": "7515e11fb1d29f4fc04f5d5e5a6e166320d077cc5c3d81668828ab85bb141e98"
   },
   "xtm_oaev_sdk.seam.daemons.ports.HeartbeatPort": {
     "kind": "class",

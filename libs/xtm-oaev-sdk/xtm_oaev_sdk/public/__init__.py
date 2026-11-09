@@ -101,10 +101,13 @@ from xtm_oaev_sdk.public.contracts import (
 from xtm_oaev_sdk.public.daemons import (
     BaseDaemon,
     DevOptions,
+    DevSinkPort,
     PingAlive,
     dev_argument_parser,
     dev_help,
     dev_options,
+    dev_sink,
+    environment_secret_values,
 )
 
 # --- Seam / compatibility ---
@@ -257,10 +260,13 @@ __all__ = [
     # Daemons
     "BaseDaemon",
     "DevOptions",
+    "DevSinkPort",
     "PingAlive",
     "dev_argument_parser",
     "dev_help",
     "dev_options",
+    "dev_sink",
+    "environment_secret_values",
     # Signatures
     "CloudInjectorConfig",
     "ExecutionDetails",

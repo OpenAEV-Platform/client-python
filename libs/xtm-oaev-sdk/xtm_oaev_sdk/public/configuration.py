@@ -315,6 +315,21 @@ class Configuration:
         """
         _resolver.override(self.__config_hints, config_key, value)
 
+    def secret_values(self) -> list[str]:
+        """Values that must never be written out, longest first.
+
+        The values of the keys whose name says they hold a secret (``*_token``,
+        ``*_secret``, ``*_password``, ``*_key``…) and every ``SecretStr`` of the
+        settings model, wherever they were read from (``config.yml``, environment).
+
+        Returns:
+            The secret values, longest first, so that one containing another is
+            replaced whole.
+        """
+        return _resolver.secret_values(
+            self.__config_hints, self.__config_values, self.__base_model
+        )
+
     def schema(self) -> dict[str, Any]:
         """Generate the connector configuration JSON schema.
 

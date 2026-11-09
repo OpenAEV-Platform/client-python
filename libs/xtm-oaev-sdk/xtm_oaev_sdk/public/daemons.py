@@ -7,24 +7,35 @@ implementation of its port. The API client is injected (``BaseClient``).
 import argparse
 import threading
 from abc import ABC, abstractmethod
+from typing import Iterable, Mapping, Sequence
 
-from xtm_oaev_sdk._core.daemons import DaemonRuntime, Heartbeat
+from xtm_oaev_sdk._core.daemons import DaemonRuntime, DevSinkFactory, Heartbeat
 from xtm_oaev_sdk.public.common import logger
 from xtm_oaev_sdk.public.configuration import Configuration
 from xtm_oaev_sdk.seam.common import BaseClient
-from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort, DevOptions, HeartbeatPort
+from xtm_oaev_sdk.seam.daemons import (
+    DaemonRuntimePort,
+    DevOptions,
+    DevSinkFactoryPort,
+    DevSinkPort,
+    HeartbeatPort,
+)
 
 __all__ = [
     "BaseDaemon",
     "DevOptions",
+    "DevSinkPort",
     "PingAlive",
     "dev_argument_parser",
     "dev_help",
     "dev_options",
+    "dev_sink",
+    "environment_secret_values",
 ]
 
 _runtime: DaemonRuntimePort = DaemonRuntime()
 _heartbeat: HeartbeatPort = Heartbeat()
+_sinks: DevSinkFactoryPort = DevSinkFactory()
 
 
 def dev_options(argv: list[str] | None = None) -> DevOptions:
@@ -55,6 +66,34 @@ def dev_argument_parser(
     :param epilog: what follows the options in the help (exit codes, guide).
     """
     return _runtime.dev_argument_parser(description, epilog)
+
+
+def dev_sink(
+    out: str | None = None,
+    secrets: Sequence[str] = (),
+    keep: Iterable[str] = (),
+    to_stderr: bool = False,
+) -> DevSinkPort:
+    """Opens the sink a daemon in dev mode writes the platform's calls to.
+
+    Each call is checked against the payload the platform accepts, redacted, and kept
+    in one JSON list, indented, keys in the payload's order: rewritten whole after each
+    call in ``out``, so the file is valid JSON at any time, or written once, on close, to
+    stdout (stderr when ``to_stderr``) when there is no ``out``.
+
+    :param out: the output file, stdout or stderr when omitted.
+    :param secrets: the values never to write (``Configuration.secret_values()``,
+        ``environment_secret_values()``).
+    :param keep: the body keys never redacted (ids, statuses, dates).
+    :param to_stderr: write to stderr rather than stdout when there is no ``out``.
+    """
+    return _sinks.open(out, secrets, keep, to_stderr)
+
+
+def environment_secret_values(environ: Mapping[str, str] | None = None) -> list[str]:
+    """Returns the values of the environment variables whose name says they hold a
+    secret (``*_TOKEN``, ``*_SECRET``, ``*_PASSWORD``, ``*_KEY``…)."""
+    return _sinks.environment_secrets(environ)
 
 
 class BaseDaemon(ABC):

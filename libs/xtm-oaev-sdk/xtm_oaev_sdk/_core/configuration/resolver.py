@@ -1,9 +1,11 @@
 """Configuration resolution: override, then env var, then file, then default."""
 
 import os.path
+import re
 from typing import Any
 
 import yaml
+from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings
 from xtm_oaev_sdk._core.configuration.sources import ConfigurationSources
 from xtm_oaev_sdk._core.configuration.truthiness import Truthiness
@@ -15,6 +17,24 @@ from xtm_oaev_sdk.seam.configuration import (
 )
 
 __all__ = ["ConfigurationResolver"]
+
+#: Key names that hold a secret: ``openaev_token``, ``splunkes_password``,
+#: ``crowdstrike_client_secret``, ``shodan_api_key``…
+_SECRET_KEY = re.compile(r"(token|secret|password|passwd|api_key|_key)$", re.I)
+#: Shorter values would redact ordinary words.
+_MIN_SECRET_LENGTH = 4
+
+
+def _secret_fields(model: Any) -> list[str]:
+    if isinstance(model, SecretStr):
+        return [model.get_secret_value()]
+    if isinstance(model, BaseModel):
+        return [
+            secret
+            for name in type(model).model_fields
+            for secret in _secret_fields(getattr(model, name, None))
+        ]
+    return []
 
 
 class ConfigurationResolver:
@@ -68,6 +88,23 @@ class ConfigurationResolver:
             hints[config_key] = ConfigurationHint(data=value)
         else:
             hints[config_key].data = value
+
+    def secret_values(
+        self,
+        hints: dict[str, ConfigurationHint],
+        values: dict[str, Any],
+        base_model: Any,
+    ) -> list[str]:
+        found = {
+            value
+            for key, hint in hints.items()
+            if _SECRET_KEY.search(key)
+            and isinstance(value := self.resolve(hint, values), str)
+        }
+        found.update(_secret_fields(base_model))
+        return sorted(
+            (v for v in found if len(v) >= _MIN_SECRET_LENGTH), key=len, reverse=True
+        )
 
     def generate_schema(
         self, base_model: BaseSettings | None, schema_generator: type
