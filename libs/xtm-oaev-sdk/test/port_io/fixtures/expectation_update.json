@@ -1,0 +1,8 @@
+{
+  "collector_id": "c0ffee-collector",
+  "result": "Detected",
+  "is_success": true,
+  "metadata": {
+    "alertId": "a-42"
+  }
+}

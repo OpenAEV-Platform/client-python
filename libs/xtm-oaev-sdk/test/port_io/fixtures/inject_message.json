@@ -1,0 +1,62 @@
+{
+  "injection": {
+    "inject_id": "8a4f1f0e-2c4b-4f43-9d5e-0b6f5b6f1a01",
+    "inject_title": "Scan the DMZ",
+    "inject_description": "Port scan of the DMZ web servers",
+    "inject_content": {
+      "target_selector": "assets",
+      "expectations": [
+        {
+          "expectation_type": "DETECTION",
+          "expectation_name": "Detection",
+          "expectation_score": 100.0,
+          "expectation_expectation_group": false,
+          "expectation_expiration_time": 21600
+        }
+      ]
+    },
+    "inject_injector_contract": {
+      "injector_contract_id": "5c8b6c3e-tcp-connect",
+      "injector_contract_content": "{\"contract_id\": \"5c8b6c3e-tcp-connect\"}",
+      "convertedContent": {
+        "contract_id": "5c8b6c3e-tcp-connect"
+      },
+      "injector_contract_labels": {
+        "en": "TCP connect scan"
+      }
+    },
+    "inject_documents": [],
+    "inject_status": null
+  },
+  "assets": [
+    {
+      "asset_id": "0d3f7d1a-web-01",
+      "asset_hostname": "web-01",
+      "asset_ips": [
+        "10.0.0.5"
+      ],
+      "asset_seen_ip": "10.0.0.5",
+      "asset_agents": [
+        {
+          "agent_id": "c1b2-agent",
+          "agent_privilege": "admin",
+          "agent_deployment_mode": "service",
+          "agent_executed_by_user": "SYSTEM",
+          "agent_active": true,
+          "agent_last_seen": "2026-11-05T19:59:00Z",
+          "agent_version": "2.1.0"
+        }
+      ]
+    }
+  ],
+  "assetGroups": [
+    {
+      "asset_group_id": "f00d-dmz",
+      "asset_group_name": "DMZ"
+    }
+  ],
+  "attachments": {
+    "credential_references": [],
+    "authorisation_code": null
+  }
+}

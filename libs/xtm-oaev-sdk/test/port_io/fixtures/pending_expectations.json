@@ -1,0 +1,79 @@
+[
+  {
+    "inject_expectation_id": "4e5d-expectation",
+    "inject_expectation_type": "DETECTION",
+    "inject_expectation_name": "Detection",
+    "inject_expectation_description": null,
+    "inject_expectation_score": null,
+    "inject_expectation_expected_score": 100.0,
+    "inject_expiration_time": 21600,
+    "inject_expectation_group": false,
+    "inject_expectation_order": null,
+    "inject_expectation_status": "PENDING",
+    "inject_expectation_created_at": "2026-11-05T20:00:00Z",
+    "inject_expectation_updated_at": "2026-11-05T20:00:00Z",
+    "inject_expectation_signatures": [
+      {
+        "type": "parent_process_name",
+        "value": "oaev-implant-8a4f"
+      },
+      {
+        "type": "start_date",
+        "value": "2026-11-05T20:00:00Z"
+      }
+    ],
+    "inject_expectation_results": [
+      {
+        "inject_expectation_id": "9b9b-result",
+        "sourceId": "c0ffee-collector",
+        "sourceType": "collector",
+        "sourceName": "Splunk ES",
+        "sourceAssetId": null,
+        "sourcePlatform": "SIEM",
+        "date": "2026-11-05T20:01:00Z",
+        "score": 0.0,
+        "result": "Not Detected",
+        "metadata": {},
+        "inject_expectation_result_created_at": "2026-11-05T20:01:00Z",
+        "inject_expectation_result_updated_at": "2026-11-05T20:01:00Z"
+      }
+    ],
+    "inject_expectation_traces": [],
+    "inject_expectation_exercise": null,
+    "inject_expectation_inject": "8a4f1f0e-2c4b-4f43-9d5e-0b6f5b6f1a01",
+    "inject_expectation_user": null,
+    "inject_expectation_team": null,
+    "inject_expectation_agent": "c1b2-agent",
+    "inject_expectation_asset": "0d3f7d1a-web-01",
+    "inject_expectation_asset_group": null,
+    "inject_expectation_article": null,
+    "inject_expectation_challenge": null,
+    "target_id": "c1b2-agent",
+    "inject_expectation_expected_security_platforms": [
+      "SIEM"
+    ],
+    "inject_expectation_collector_missing_at_init": false
+  },
+  {
+    "inject_expectation_id": "7f1a-expectation",
+    "inject_expectation_type": "PREVENTION",
+    "inject_expectation_name": "Prevention",
+    "inject_expectation_expected_score": 100.0,
+    "inject_expiration_time": 21600,
+    "inject_expectation_group": false,
+    "inject_expectation_status": "PENDING",
+    "inject_expectation_created_at": "2026-11-05T20:00:00Z",
+    "inject_expectation_updated_at": "2026-11-05T20:00:00Z",
+    "inject_expectation_signatures": [
+      {
+        "type": "target_ipv4_address",
+        "value": "10.0.0.5"
+      }
+    ],
+    "inject_expectation_results": [],
+    "inject_expectation_traces": [],
+    "inject_expectation_inject": "8a4f1f0e-2c4b-4f43-9d5e-0b6f5b6f1a01",
+    "inject_expectation_asset": "0d3f7d1a-web-01",
+    "target_id": "0d3f7d1a-web-01"
+  }
+]
