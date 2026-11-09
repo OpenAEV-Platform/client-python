@@ -14,6 +14,7 @@ from xtm_oaev_sdk.seam.common.asset_types import (
 )
 from xtm_oaev_sdk.seam.common.errors import (
     ConfigurationError,
+    NeedsPlatformError,
     OpenAEVAuthenticationError,
     OpenAEVCreateError,
     OpenAEVDeleteError,
@@ -40,7 +41,7 @@ from xtm_oaev_sdk.seam.common.protocols import (
 from xtm_oaev_sdk.seam.common.security_domains import SecurityDomains
 
 #: Version of the common seam. Bump on any contract change.
-SEAM_VERSION = "1.0.0"
+SEAM_VERSION = "1.1.0"
 
 __all__ = [
     "SEAM_VERSION",
@@ -52,6 +53,7 @@ __all__ = [
     "OpenAEVError",
     "OpenAEVGetError",
     "OpenAEVHeadError",
+    "NeedsPlatformError",
     "OpenAEVHttpError",
     "OpenAEVListError",
     "OpenAEVParsingError",

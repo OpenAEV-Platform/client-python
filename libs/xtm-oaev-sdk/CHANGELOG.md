@@ -37,8 +37,12 @@ version of its seam
   order: rewritten whole after each call in `out`, so the file is valid JSON at any
   time, or written once, on close, to stdout or stderr. It also writes the run's notes
   and refusals on stderr. `environment_secret_values(environ=None)` lists the values of
-  the secret-named environment variables. Ports `DevSinkPort` and `DevSinkFactoryPort`.
-  Seam `1.1.0`.
+  the secret-named environment variables. A run can `wait_for(condition, timeout)` a
+  call another thread records, the `complete` callback of an inject for one. Ports
+  `DevSinkPort` and `DevSinkFactoryPort`. Seam `1.1.0`.
+- `common`: `NeedsPlatformError`, the `OpenAEVError` of a call only the platform can
+  answer, made by a daemon running without it; `call` names the call refused. Seam
+  `1.1.0`.
 - `configuration`: `Configuration.secret_values()` returns the values that must never
   be written out, longest first: those of the keys whose name says they hold a secret
   (`*_token`, `*_secret`, `*_password`, `*_key`…) and every `SecretStr` of the settings

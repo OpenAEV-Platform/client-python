@@ -105,6 +105,12 @@ class DevSinkPort(Protocol):
         """``value`` with every secret replaced by ``***``, structure kept. JSON text
         is redacted as JSON, so escaped secrets go too."""
 
+    def wait_for(
+        self, condition: Callable[[list[dict[str, Any]]], bool], timeout: float
+    ) -> bool:
+        """Wait until ``condition`` holds for the calls recorded so far, whatever
+        thread records them; ``False`` when ``timeout`` seconds pass first."""
+
     def note(self, text: str) -> None:
         """Write ``dev: <text>`` on stderr, redacted."""
 

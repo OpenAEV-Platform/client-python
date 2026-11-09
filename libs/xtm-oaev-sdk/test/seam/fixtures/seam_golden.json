@@ -1,7 +1,7 @@
 {
   "xtm_oaev_sdk.seam.common.SEAM_VERSION": {
     "kind": "assignment",
-    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+    "sha256": "4ea7962865d6821b35941c5f6e578940ab9b3c7328476859f83002b83cd93323"
   },
   "xtm_oaev_sdk.seam.common.asset_types.AssetCategory": {
     "kind": "class",
@@ -22,6 +22,10 @@
   "xtm_oaev_sdk.seam.common.errors.ConfigurationError": {
     "kind": "class",
     "sha256": "125c52aa906fe42d596f504d38ada75f770e485fffaac96d30acbca1b048737f"
+  },
+  "xtm_oaev_sdk.seam.common.errors.NeedsPlatformError": {
+    "kind": "class",
+    "sha256": "27dc119720d7b3ada586144a3cc4d31adbd6bbd74513e7477a2f635fe19a4b7e"
   },
   "xtm_oaev_sdk.seam.common.errors.OpenAEVAuthenticationError": {
     "kind": "class",
@@ -337,7 +341,7 @@
   },
   "xtm_oaev_sdk.seam.daemons.ports.DevSinkPort": {
     "kind": "class",
-    "sha256": "7515e11fb1d29f4fc04f5d5e5a6e166320d077cc5c3d81668828ab85bb141e98"
+    "sha256": "859d1ce620dea2d9cc644d6b995bac4287ad311e542a4bc82bf8c6496f0f1b69"
   },
   "xtm_oaev_sdk.seam.daemons.ports.HeartbeatPort": {
     "kind": "class",

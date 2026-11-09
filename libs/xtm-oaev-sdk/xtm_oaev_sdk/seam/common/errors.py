@@ -45,6 +45,7 @@ __all__ = [
     "OpenAEVDeleteError",
     "SignatureTransmissionError",
     "ConfigurationError",
+    "NeedsPlatformError",
 ]
 
 
@@ -275,3 +276,15 @@ class ConfigurationError(OpenAEVError):
     """
 
     pass
+
+
+class NeedsPlatformError(OpenAEVError):
+    """A call only the platform can answer, made by a daemon running without it.
+
+    Raised by the dev-mode stand-ins of the platform client (a document download, a
+    target search, a manager they do not offer). ``call`` names the call refused.
+    """
+
+    def __init__(self, call: str) -> None:
+        super().__init__(f"{call} needs the platform: not available in dev mode")
+        self.call = call

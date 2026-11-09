@@ -11,7 +11,7 @@ import re
 import sys
 import tempfile
 import threading
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from pydantic import ValidationError
 from xtm_oaev_sdk.seam.common import OpenAEVHttpError
@@ -153,6 +153,12 @@ class DevSink:
             if self._out:
                 self._write_file()
             self._changed.notify_all()
+
+    def wait_for(
+        self, condition: Callable[[list[dict[str, Any]]], bool], timeout: float
+    ) -> bool:
+        with self._changed:
+            return self._changed.wait_for(lambda: condition(self.calls), timeout)
 
     def note(self, text: str) -> None:
         sys.stderr.write(f"dev: {self.redact(text)}\n")
