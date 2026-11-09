@@ -158,8 +158,19 @@ def test_kept_keys_and_paths_are_never_rewritten(tmp_path: Path) -> None:
             "/api/inject-expectations-traces/bulk",
             {"expectation_traces": [{"inject_expectation_trace_expectation": "4e5d"}]},
         ),
+        (
+            "POST",
+            "/api/inject-expectations-traces",
+            {"inject_expectation_trace_expectation": "4e5d"},
+        ),
     ],
-    ids=["unknown key", "unknown status", "update without collector", "bad trace"],
+    ids=[
+        "unknown key",
+        "unknown status",
+        "update without collector",
+        "bad trace",
+        "bad single trace",
+    ],
 )
 def test_a_body_the_platform_would_reject_is_refused(
     tmp_path: Path, method: str, path: str, body: Any
