@@ -10,6 +10,7 @@ Feature: Dev sink
 import io
 import json
 import sys
+import threading
 from pathlib import Path
 from typing import Any, Callable
 from unittest.mock import patch
@@ -368,3 +369,37 @@ def test_environment_secrets_are_the_values_of_secret_named_variables() -> None:
         "HOME": "/home/dev",
     }
     assert set(reader(environ)) == {"shodan-key-1", "platform-token"}
+
+
+def test_a_run_waits_for_a_call_recorded_from_another_thread(tmp_path: Path) -> None:
+    """It wakes a run waiting for a call as soon as another thread records it.
+
+    Scenario: A run waits for a call recorded from another thread
+      Given the SDK opens dev sinks
+      When a thread records the complete callback while the run waits for it
+      Then the wait ends with the call found
+    """
+    opener = _given_sink_opener()
+    sink = opener(out=str(_given_out(tmp_path)), secrets=[])
+    worker = threading.Timer(
+        0.05, sink.record, args=("POST", CALLBACK, _given_callback())
+    )
+    worker.start()
+    found = sink.wait_for(
+        lambda calls: any(call["path"] == CALLBACK for call in calls), timeout=5
+    )
+    worker.join()
+    assert found is True
+
+
+def test_a_wait_gives_up_after_its_timeout(tmp_path: Path) -> None:
+    """It stops waiting after the timeout when no call satisfies the condition.
+
+    Scenario: A wait gives up after its timeout
+      Given the SDK opens dev sinks
+      When the run waits 0.1 second for a call nobody records
+      Then the wait ends with no call found
+    """
+    opener = _given_sink_opener()
+    sink = opener(out=str(_given_out(tmp_path)), secrets=[])
+    assert sink.wait_for(lambda calls: bool(calls), timeout=0.1) is False
