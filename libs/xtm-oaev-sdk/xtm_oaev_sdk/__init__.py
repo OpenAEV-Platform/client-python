@@ -8,12 +8,14 @@ Architecture:
     _core/daemons/        Daemon runtime (base daemon, heartbeat)
     _core/deprecation/    Deprecation shims (PEP 562 __getattr__)
     _core/signatures/     Signature feature implementation
+    _core/tape/           Call tape: record and replay a daemon's outside calls
     seam/common/          Shared errors, enums, value objects, protocols, ports
     seam/configuration/   Configuration contracts and ports (closed, versioned)
     seam/contracts/       Scenario contracts and ports (closed, versioned)
     seam/daemons/         Daemon runtime ports (closed, versioned)
     seam/signatures/      Signature contracts, inbound I/O models and ports (closed)
     seam/port_io/         Port I/O wire schema (versioned, seam-owned)
+    seam/tape/            Call tape document and port (closed, versioned)
     seam/deprecation/     Deprecation port (closed, versioned)
     public/common         Common adapters
     public/configuration  Configuration adapters
@@ -21,6 +23,7 @@ Architecture:
     public/daemons        Daemon runtime adapters (API client injected)
     public/signatures     Signature manager and helpers adapters
     public/deprecation    PEP 562 deprecation primitive adapter
+    public/tape           Call tape adapter and tape lint
     public/               User-facing re-exports
 
 Port/adapter layering, capability by capability (see ``seam``):

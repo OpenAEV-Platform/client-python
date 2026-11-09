@@ -138,6 +138,21 @@ from xtm_oaev_sdk.public.signatures import (
     build_network_configs,
 )
 
+# --- Call tape ---
+from xtm_oaev_sdk.public.tape import (
+    TAPE_VERSION,
+    CallTape,
+    Tape,
+    TapedBody,
+    TapedCall,
+    TapedCommand,
+    TapedHttpCall,
+    TapedHttpRequest,
+    TapedHttpResponse,
+    TapeMissError,
+    lint_tape,
+)
+
 # --- Port I/O contract (versioned wire schema) ---
 from xtm_oaev_sdk.seam.port_io import (
     PORT_IO_CONTRACT_VERSION,
@@ -304,6 +319,18 @@ __all__ = [
     "ToolTimeoutInfo",
     "build_marker",
     "build_network_configs",
+    # Call tape
+    "CallTape",
+    "TAPE_VERSION",
+    "Tape",
+    "lint_tape",
+    "TapeMissError",
+    "TapedBody",
+    "TapedCall",
+    "TapedCommand",
+    "TapedHttpCall",
+    "TapedHttpRequest",
+    "TapedHttpResponse",
     # Seam / compatibility
     "PORT_IO_CONTRACT_VERSION",
     "AgentOutput",

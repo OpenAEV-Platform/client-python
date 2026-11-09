@@ -58,6 +58,22 @@ version of its seam
   its content, or maps them to the ids a condition compares. It returns
   `ContractViolation` records; the port is `ContractValidationPort`. Its verdicts are
   checked against the cases of the platform's `HealthCheckUtilsTest`. Seam `1.1.0`.
+- `tape` (new): the call tape. `CallTape(path, mode, secrets=(), daemon=None)`
+  records the process's outside calls (HTTP through `http.client`, so `requests`,
+  urllib3 and `urllib.request`; commands through `subprocess.run`) and their answers
+  to a tape, or replays them offline. A tape is one JSON document (`Tape`), indented,
+  a header (`tape_version` `1`, `sdk_version`, `daemon`, `recorded_at`) then the calls,
+  rewritten whole after each call so it is valid JSON at any time. A JSON body is kept
+  as JSON (`TapedBody.json`), a compressed answer decompressed when readable
+  (`TapedHttpResponse.decoded_from`) and replayed without its `Content-Encoding`.
+  Replay matches a call by method, URL and body (JSON by value), answers identical
+  calls in the order recorded then the last one again, and fails a call the tape does
+  not hold with `TapeMissError` (a `ConnectionError`), as it fails any other outbound
+  connection. A tape it cannot read (not JSON, another tape version, a call it does
+  not model) is refused, saying why. Secrets (the given values, secret-named headers,
+  parameters and body fields) stay off the tape, and replay matches a call whatever
+  secret it carries. `lint_tape(path, secrets=())` names each place of a tape holding
+  what looks like a secret. Port `CallTapePort`. Seam `tape` `1.0.0`.
 - `signatures`: `LEGACY_SIGNATURE_TYPES` maps each legacy signature name to its
   signature type (`start_time` to `start_date`, `source_ipv4` to
   `source_ipv4_address`, `target_hostname` to `target_hostname_address`, and so on: the
