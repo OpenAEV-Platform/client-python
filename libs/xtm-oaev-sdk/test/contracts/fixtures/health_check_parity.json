@@ -1,0 +1,460 @@
+{
+  "description": "Inject content verdicts of the platform's own health-check tests, one case per test: the contract fields as the platform serializes them, the content, the targets given apart from the content, and whether the platform finds the inject ready.",
+  "platform_source": "openaev-api/src/test/java/io/openaev/healthcheck/HealthCheckUtilsTest.java (openaev-platform, main)",
+  "cases": [
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_asset_mandatory_and_an_asset_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": true
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": []
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_asset_mandatory_and_no_asset_should_not_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": true
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": []
+      },
+      "ready": false
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_asset_optional_and_an_asset_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": []
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_asset_optional_and_not_asset_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": []
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_groups_and_an_element_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryGroups": [
+            "assets",
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false,
+          "mandatoryGroups": [
+            "assets",
+            "asset_groups"
+          ]
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": []
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_groups_and_full_elements_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryGroups": [
+            "assets",
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false,
+          "mandatoryGroups": [
+            "assets",
+            "asset_groups"
+          ]
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": [
+          "assetGroupId"
+        ]
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_groups_and_no_element_should_not_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryGroups": [
+            "assets",
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false,
+          "mandatoryGroups": [
+            "assets",
+            "asset_groups"
+          ]
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": []
+      },
+      "ready": false
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_on_condition_and_no_element_should_not_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": []
+      },
+      "ready": false
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_on_condition_and_element_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": []
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_on_condition_and_condition_element_should_not_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": [
+          "assetGroupId"
+        ]
+      },
+      "ready": false
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_an_injector_contract_with_mandatory_on_condition_and_all_elements_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ]
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": [
+          "assetGroupId"
+        ]
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_mandatory_on_condition_with_specific_value_when_condition_matches_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ],
+          "mandatoryConditionValues": {
+            "asset_groups": "assetGroupId"
+          }
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": [
+          "assetGroupId"
+        ]
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_mandatory_on_condition_with_specific_values_when_condition_matches_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ],
+          "mandatoryConditionValues": {
+            "asset_groups": [
+              "assetGroupId",
+              "assetGroupId2"
+            ]
+          }
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [
+          "assetId"
+        ],
+        "asset_groups": [
+          "assetGroupId2"
+        ]
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_mandatory_on_condition_with_specific_value_when_condition_not_matches_should_not_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ],
+          "mandatoryConditionValues": {
+            "asset_groups": "assetGroupId"
+          }
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": [
+          "assetGroupId"
+        ]
+      },
+      "ready": false
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_mandatory_on_condition_with_not_specific_value_when_condition_not_matches_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ],
+          "mandatoryConditionValues": {
+            "asset_groups": "assetGroupId"
+          }
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": [
+          "assetGroupId2"
+        ]
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_mandatory_on_condition_with_not_specific_values_when_condition_not_matches_should_be_ready",
+      "fields": [
+        {
+          "key": "assets",
+          "type": "asset",
+          "mandatory": false,
+          "mandatoryConditionFields": [
+            "asset_groups"
+          ],
+          "mandatoryConditionValues": {
+            "asset_groups": [
+              "assetGroupId",
+              "assetGroupId3"
+            ]
+          }
+        },
+        {
+          "key": "asset_groups",
+          "type": "asset-group",
+          "mandatory": false
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": [
+          "assetGroupId2"
+        ]
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_text_field_with_default_value_and_no_content_should_be_ready",
+      "fields": [
+        {
+          "key": "title",
+          "type": "text",
+          "mandatory": true,
+          "defaultValue": "Default title"
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": []
+      },
+      "ready": true
+    },
+    {
+      "source": "HealthCheckUtilsTest.given_text_field_without_default_value_and_no_content_should_not_be_ready",
+      "fields": [
+        {
+          "key": "title",
+          "type": "text",
+          "mandatory": true,
+          "defaultValue": ""
+        }
+      ],
+      "content": {},
+      "provided": {
+        "assets": [],
+        "asset_groups": []
+      },
+      "ready": false
+    }
+  ]
+}
