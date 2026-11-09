@@ -362,24 +362,24 @@ class SovereignCloudMaterializerTest(MaterializerTestCase):
 
         with self.materialize(resolved) as credential:
             env = credential.env
-            self.assertEqual(
-                env["GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE"], "http://mock-gcp/token"
-            )
-            self.assertEqual(env["GOOGLE_IAM_CUSTOM_ENDPOINT"], "http://mock-gcp/iam")
+            # The token and IAM URIs have no environment variable.
+            self.assertNotIn("GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE", env)
+            self.assertNotIn("GOOGLE_IAM_CUSTOM_ENDPOINT", env)
             self.assertEqual(env["GOOGLE_OAUTH_ACCESS_TOKEN"], ACCESS_TOKEN)
             # Prowler only reads the token from this one.
             self.assertEqual(env["CLOUDSDK_AUTH_ACCESS_TOKEN"], ACCESS_TOKEN)
             self.assertNotIn("GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT", env)
             self.assertNotIn(ACCESS_TOKEN, repr(credential))
 
-    def test_gcp_oauth2_overrides_are_independent(self):
-        resolved = replace(GCP_OAUTH2, gcp_custom_iam_uri="http://mock-gcp/iam")
+    def test_gcp_oauth2_token_and_iam_uris_do_not_change_the_environment(self):
+        resolved = replace(
+            GCP_OAUTH2,
+            gcp_custom_token_uri="http://mock-gcp/token",
+            gcp_custom_iam_uri="http://mock-gcp/iam",
+        )
 
         with self.materialize(resolved) as credential:
-            self.assertEqual(
-                set(credential.env) - set(self._env(GCP_OAUTH2)),
-                {"GOOGLE_IAM_CUSTOM_ENDPOINT"},
-            )
+            self.assertEqual(set(credential.env), set(self._env(GCP_OAUTH2)))
 
     def test_gcp_service_account_resource_manager_override(self):
         resolved = replace(
