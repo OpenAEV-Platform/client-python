@@ -293,15 +293,14 @@ def _gcp_oauth2(secret: GcpOAuth2Secret, workspace: _Workspace) -> Dict[str, str
         suffix=".json",
     )
     env = _gcp_env(credentials_file, secret.gcp_scope, secret.gcp_project_id)
-    if secret.gcp_custom_token_uri:
-        env["GOOGLE_OAUTH2_TOKEN_URI_OVERRIDE"] = secret.gcp_custom_token_uri
-    if secret.gcp_custom_iam_uri:
-        env["GOOGLE_IAM_CUSTOM_ENDPOINT"] = secret.gcp_custom_iam_uri
     if secret.gcp_custom_oauth_access_token:
         # Terraform (stratus) reads the former, Prowler and gcloud the latter.
         # Prowler then prefers the token over the credentials file.
         env["GOOGLE_OAUTH_ACCESS_TOKEN"] = secret.gcp_custom_oauth_access_token
         env["CLOUDSDK_AUTH_ACCESS_TOKEN"] = secret.gcp_custom_oauth_access_token
+
+        if secret.gcp_project_id:
+            env["GOOGLE_CLOUD_PROJECT"] = secret.gcp_project_id
     return env
 
 
