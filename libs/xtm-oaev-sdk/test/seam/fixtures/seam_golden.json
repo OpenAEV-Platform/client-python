@@ -337,11 +337,11 @@
   },
   "xtm_oaev_sdk.seam.port_io.models.ExecutionDetails": {
     "kind": "pydantic model",
-    "sha256": "4d9546d2033c3d68bc31a688481bc580fb876fa1f984495bd8d1ac4bb8c6ce15"
+    "sha256": "25624ca9f13cf3c6f63e696387392b9c7dd075de5c536f0d2e8a7a09035850a8"
   },
   "xtm_oaev_sdk.seam.port_io.models.ExecutionStatus": {
     "kind": "class",
-    "sha256": "1ac92fe06592d1ef55703df64941baf70b75c646d138e4f7698abe02bba50af0"
+    "sha256": "995f92f6347f41e6283f67db054c43bc5af96840d22654c970a508a21ced7cba"
   },
   "xtm_oaev_sdk.seam.port_io.models.ExpectationSignatureGroup": {
     "kind": "pydantic model",
@@ -353,7 +353,7 @@
   },
   "xtm_oaev_sdk.seam.port_io.models.PORT_IO_CONTRACT_VERSION": {
     "kind": "assignment",
-    "sha256": "4b3aa3a5b079ff1222ce2bb723750e882555bc2c857097f589066dcae2398d0a"
+    "sha256": "bc502ccda84bd144f61cedbf436da83a9dec614d11e6793c73254ba0ddb16b45"
   },
   "xtm_oaev_sdk.seam.port_io.models.SignatureCallbackPayload": {
     "kind": "pydantic model",
@@ -382,6 +382,66 @@
   "xtm_oaev_sdk.seam.port_io.models.TargetSignatures": {
     "kind": "pydantic model",
     "sha256": "59c1618a317ff3f4390d3c0531e815168dce910204987062c9e044c6466b908d"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.AgentOutput": {
+    "kind": "pydantic model",
+    "sha256": "e5a03a29edde2e3fcf79720ca9a1d36b1286c186cc397c9c2421a74293a48542"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.AssetGroupSimple": {
+    "kind": "pydantic model",
+    "sha256": "7bba28225fb8e3ef21c4ede2653104378710099425a52b176d1bad1733fe1d10"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.EndpointTargetOutput": {
+    "kind": "pydantic model",
+    "sha256": "2732c6bf5381c60c04463d14c7af1c900bdd619875eb680955ebe5cf40195194"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.ExecutableInject": {
+    "kind": "pydantic model",
+    "sha256": "66bbc429eceebc4a900841d2ae5073d6efd82dd936b6239f47df702abd9ea6b6"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.ExecutableInjection": {
+    "kind": "pydantic model",
+    "sha256": "eb5ff654af2703fad27e76d02b92f7ab771f6d148536b75faec98959b6f24f27"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.ExecutableInjectorContract": {
+    "kind": "pydantic model",
+    "sha256": "3c9f3f953e5d24117115c0cfb451c0e3ad07f382482de238b45f5e6a0010b795"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExecutionInput": {
+    "kind": "pydantic model",
+    "sha256": "edb50a4d3b023fc93316be07b4dc74bcf15e90b05e3e61d4f79e4d1d4ddaf45c"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationBulkUpdateInput": {
+    "kind": "pydantic model",
+    "sha256": "fc2f108d8f5ca66f5bc891884096930289309827b0dead17e913e10364e8bf30"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationOutput": {
+    "kind": "pydantic model",
+    "sha256": "80f48cd4fb3975078e4b3b07e31e9957d4671b0c07c9b34cc77e7373facde503"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationResult": {
+    "kind": "pydantic model",
+    "sha256": "4d751cc56164aa36e8dab73e6dbcced7a3642ab326d5cf08ea60e0b1ed558ad1"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationSignature": {
+    "kind": "pydantic model",
+    "sha256": "35a0407e78a7386e90024f87d947aba14968f43203d07121c701a6fd0aad6215"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationTraceBulkInsertInput": {
+    "kind": "pydantic model",
+    "sha256": "8f815936b5d93bdfb21d0d170a250a5a8fbce9c6c2a9965ebd0bff9b6b38b757"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationTraceInput": {
+    "kind": "pydantic model",
+    "sha256": "9c85d1469b81a5a68cca849f8d32280f9e89c0ed3e34eb05d3e61765b818b190"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectExpectationUpdateFromCollectorInput": {
+    "kind": "pydantic model",
+    "sha256": "a62e51dc9da19bc9659a7ba52901187ca3b3d0f18e26d0a730e1ed47370fe505"
+  },
+  "xtm_oaev_sdk.seam.port_io.platform.InjectReceptionInput": {
+    "kind": "pydantic model",
+    "sha256": "92a669071470c38f9dd1a16b1e9f27b1cb3e21eb77a08700a7c18d18519f58be"
   },
   "xtm_oaev_sdk.seam.signatures.models.ExtraSignatureData": {
     "kind": "pydantic model",

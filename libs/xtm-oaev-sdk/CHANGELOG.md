@@ -4,6 +4,28 @@ Every notable change to xtm-oaev-sdk lands here. Every seam change too, with the
 version of its seam
 ([seam-changes-are-versioned-contract-changes](docs/tdr/seam-changes-are-versioned-contract-changes.tdr.md)).
 
+## [Unreleased]
+
+### Added
+
+- `port_io`: the platform's own payloads, key for key, so injectors and collectors
+  running without the platform read and write the same JSON. Injector side:
+  `ExecutableInject` (the queue message, with `ExecutableInjection`,
+  `ExecutableInjectorContract`, `EndpointTargetOutput`, `AgentOutput`,
+  `AssetGroupSimple`), `InjectReceptionInput` and `InjectExecutionInput`. Collector
+  side: `InjectExpectationOutput` (with `InjectExpectationSignature`,
+  `InjectExpectationResult`), `InjectExpectationUpdateFromCollectorInput`,
+  `InjectExpectationBulkUpdateInput`, `InjectExpectationTraceInput` and
+  `InjectExpectationTraceBulkInsertInput`. Each model is written by hand from the
+  platform DTO it mirrors, names that DTO in its docstring, and ships with a sample
+  payload. Dates are kept as the platform wrote them, ISO text or epoch numbers.
+  `PORT_IO_CONTRACT_VERSION` `1.1.0`.
+
+### Changed
+
+- `port_io`: `ExecutionStatus` gains `ASSET_CLEARANCE_RESTRICTED`, a status the
+  platform accepts. `PORT_IO_CONTRACT_VERSION` `1.1.0`.
+
 ## [0.1.0] - Unreleased
 
 First version. The shared, client-free code of `pyoaev` 3.261014.1 moves out and into

@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from xtm_oaev_sdk.seam.signatures.seam import ToolOutput
 
 #: Version of the port I/O wire schema. Bump on any breaking contract change.
-PORT_IO_CONTRACT_VERSION = "1.0.0"
+PORT_IO_CONTRACT_VERSION = "1.1.0"
 
 # --- Wire vocabulary -----------------------------------------------------------
 # The three enums that appear in the JSON contract below. They live here, in
@@ -83,6 +83,7 @@ class ExecutionStatus(str, Enum):
     TIMEOUT = "TIMEOUT"
     INTERRUPTED = "INTERRUPTED"
     ASSET_AGENTLESS = "ASSET_AGENTLESS"
+    ASSET_CLEARANCE_RESTRICTED = "ASSET_CLEARANCE_RESTRICTED"
     AGENT_INACTIVE = "AGENT_INACTIVE"
     AGENT_OVERLOADED = "AGENT_OVERLOADED"
     INFO = "INFO"
