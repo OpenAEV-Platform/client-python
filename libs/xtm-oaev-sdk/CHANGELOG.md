@@ -20,11 +20,27 @@ version of its seam
   platform DTO it mirrors, names that DTO in its docstring, and ships with a sample
   payload. Dates are kept as the platform wrote them, ISO text or epoch numbers.
   `PORT_IO_CONTRACT_VERSION` `1.1.0`.
+- `daemons`: the dev options common to every daemon. `DevOptions` (seam model) and
+  `dev_options(argv=None)` expose `--dev`, `--out`, `--record`, `--replay` and the dev
+  help (`-h` / `--help`, only together with `--dev`); `dev_help()` describes them, and
+  `dev_argument_parser(description=None, epilog=None)` returns a new parser holding
+  them, which the injector and collector SDKs extend with their own options. They are
+  read only under their full name, and flags the daemon does not own are left alone,
+  since every daemon reads them, dev or not. The port gains
+  `DaemonRuntimePort.dev_argument_parser`, `dev_options` and `dev_help`. Seam `1.1.0`.
 
 ### Changed
 
 - `port_io`: `ExecutionStatus` gains `ASSET_CLEARANCE_RESTRICTED`, a status the
   platform accepts. `PORT_IO_CONTRACT_VERSION` `1.1.0`.
+- `daemons`: a daemon no longer exits with code 2 on a command-line flag it does not
+  own. `--dump-config-schema` detection only passes that flag to its parser, so dev
+  flags and the daemon's own flags can share the command line. Seam `1.1.0`.
+- `configuration`: under `--dev`, a settings model no longer needs the platform URL
+  and token. A last, lowest-priority source fills every `ConfigLoaderOAEV` section the
+  configuration leaves out with an unreachable platform (`http://platform.openaev.invalid`);
+  whatever the configuration gives still wins, and without `--dev` both stay required.
+  Seam `1.1.0`.
 
 ## [0.1.0] - Unreleased
 

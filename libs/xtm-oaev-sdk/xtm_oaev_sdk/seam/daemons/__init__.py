@@ -6,9 +6,10 @@ the common seam. Closed: it imports nothing from ``xtm_oaev_sdk._core`` nor
 :data:`SEAM_VERSION`.
 """
 
+from xtm_oaev_sdk.seam.daemons.models import DevOptions
 from xtm_oaev_sdk.seam.daemons.ports import DaemonRuntimePort, HeartbeatPort
 
 #: Version of the daemons seam. Bump on any contract change.
-SEAM_VERSION = "1.0.0"
+SEAM_VERSION = "1.1.0"
 
-__all__ = ["SEAM_VERSION", "DaemonRuntimePort", "HeartbeatPort"]
+__all__ = ["SEAM_VERSION", "DaemonRuntimePort", "DevOptions", "HeartbeatPort"]

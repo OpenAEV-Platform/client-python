@@ -137,4 +137,5 @@ class SettingsSourcesPort(Protocol):
         settings_cls: type[BaseSettings],
         env_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        """Environment variables first, then the YAML or .env file found."""
+        """Environment variables first, then the YAML or .env file found. In dev
+        mode, a last source fills the platform URL and token the others leave out."""

@@ -31,6 +31,7 @@ from xtm_oaev_sdk._core.configuration import (
     SettingsSourceSelector,
     Truthiness,
 )
+from xtm_oaev_sdk._core.daemons import DaemonRuntime
 from xtm_oaev_sdk.seam.configuration import (
     CONFIGURATION_TYPES,
     BaseConfigModel,
@@ -47,6 +48,7 @@ from xtm_oaev_sdk.seam.configuration import (
     TimedeltaInSeconds,
     TruthinessPort,
 )
+from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort
 
 __all__ = [
     "BaseConfigModel",
@@ -71,7 +73,10 @@ _truthiness: TruthinessPort = Truthiness()
 _sources: ConfigurationSourcesPort = ConfigurationSources()
 _resolver: ConfigurationResolverPort = ConfigurationResolver(_sources, _truthiness)
 _schema: ConnectorSchemaPort = ConnectorSchemaTransformer()
-_settings_sources: SettingsSourcesPort = SettingsSourceSelector()
+_daemon_runtime: DaemonRuntimePort = DaemonRuntime()
+_settings_sources: SettingsSourcesPort = SettingsSourceSelector(
+    dev_enabled=lambda: _daemon_runtime.dev_options().enabled
+)
 
 
 def is_truthy(value: str) -> bool:

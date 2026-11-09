@@ -25,7 +25,7 @@ from xtm_oaev_sdk.seam.configuration.ports import (
 )
 
 #: Version of the configuration seam. Bump on any contract change.
-SEAM_VERSION = "1.0.0"
+SEAM_VERSION = "1.1.0"
 
 __all__ = [
     "SEAM_VERSION",

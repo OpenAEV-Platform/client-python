@@ -101,7 +101,7 @@
   },
   "xtm_oaev_sdk.seam.configuration.SEAM_VERSION": {
     "kind": "assignment",
-    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+    "sha256": "4ea7962865d6821b35941c5f6e578940ab9b3c7328476859f83002b83cd93323"
   },
   "xtm_oaev_sdk.seam.configuration.models.BaseConfigModel": {
     "kind": "pydantic model",
@@ -313,11 +313,15 @@
   },
   "xtm_oaev_sdk.seam.daemons.SEAM_VERSION": {
     "kind": "assignment",
-    "sha256": "c26dc544bb2976ca7c5a7465be69719edcc7893657a494ef17b0285e7e2a37db"
+    "sha256": "4ea7962865d6821b35941c5f6e578940ab9b3c7328476859f83002b83cd93323"
+  },
+  "xtm_oaev_sdk.seam.daemons.models.DevOptions": {
+    "kind": "class",
+    "sha256": "3311adeee20df5f574e51734a684973c56b8952b6c7d30c2ecbd017bc3eac2dd"
   },
   "xtm_oaev_sdk.seam.daemons.ports.DaemonRuntimePort": {
     "kind": "class",
-    "sha256": "057f096c283a09b2cb560b9d39de886df4f237c20c438ce02acab991523c2e2f"
+    "sha256": "d453ae1407f6d091eb0edfdafdb1621a101754a4f51a96361960f5cb3576d0b3"
   },
   "xtm_oaev_sdk.seam.daemons.ports.HeartbeatPort": {
     "kind": "class",

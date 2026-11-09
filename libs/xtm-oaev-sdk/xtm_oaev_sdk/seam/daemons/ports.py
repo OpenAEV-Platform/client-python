@@ -1,10 +1,12 @@
 """Daemon ports: the behaviour the public daemon runtime expects from the core."""
 
+import argparse
 import threading
 from typing import Any, Callable, Protocol, runtime_checkable
 
 from xtm_oaev_sdk.seam.common import BaseClient
 from xtm_oaev_sdk.seam.configuration import ConfigurationProtocol
+from xtm_oaev_sdk.seam.daemons.models import DevOptions
 
 __all__ = ["DaemonRuntimePort", "HeartbeatPort"]
 
@@ -29,7 +31,22 @@ class DaemonRuntimePort(Protocol):
         for), logging and swallowing any error."""
 
     def dump_config_schema_requested(self) -> bool:
-        """Whether the daemon was started with ``--dump-config-schema``."""
+        """Whether the daemon was started with ``--dump-config-schema``. Flags the
+        daemon does not own are ignored."""
+
+    def dev_argument_parser(
+        self, description: str | None = None, epilog: str | None = None
+    ) -> argparse.ArgumentParser:
+        """A new parser holding the dev options common to every daemon, which an
+        injector or collector SDK extends with its own option group. It reads options
+        only under their full name and never prints help nor exits on its own."""
+
+    def dev_options(self, argv: list[str] | None = None) -> DevOptions:
+        """Common dev options read from ``argv`` (the process arguments when ``None``).
+        Flags the daemon does not own are ignored."""
+
+    def dev_help(self) -> str:
+        """Help of the common dev options: each option and what it is for."""
 
     def dump_config_schema(self, configuration: ConfigurationProtocol) -> None:
         """Print the configuration JSON schema."""

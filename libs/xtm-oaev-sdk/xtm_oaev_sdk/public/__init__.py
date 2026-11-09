@@ -98,7 +98,14 @@ from xtm_oaev_sdk.public.contracts import (
 )
 
 # --- Daemons ---
-from xtm_oaev_sdk.public.daemons import BaseDaemon, PingAlive
+from xtm_oaev_sdk.public.daemons import (
+    BaseDaemon,
+    DevOptions,
+    PingAlive,
+    dev_argument_parser,
+    dev_help,
+    dev_options,
+)
 
 # --- Seam / compatibility ---
 from xtm_oaev_sdk.public.deprecation import make_deprecated_getattr
@@ -249,7 +256,11 @@ __all__ = [
     "prepare_contracts",
     # Daemons
     "BaseDaemon",
+    "DevOptions",
     "PingAlive",
+    "dev_argument_parser",
+    "dev_help",
+    "dev_options",
     # Signatures
     "CloudInjectorConfig",
     "ExecutionDetails",

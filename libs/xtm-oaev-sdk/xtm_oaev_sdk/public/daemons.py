@@ -1,9 +1,10 @@
-"""Daemon adapters: the base daemon runtime and its heartbeat.
+"""Daemon adapters: the base daemon runtime, its heartbeat and its dev options.
 
 Each adapter speaks the daemons seam types and delegates to the core
 implementation of its port. The API client is injected (``BaseClient``).
 """
 
+import argparse
 import threading
 from abc import ABC, abstractmethod
 
@@ -11,12 +12,49 @@ from xtm_oaev_sdk._core.daemons import DaemonRuntime, Heartbeat
 from xtm_oaev_sdk.public.common import logger
 from xtm_oaev_sdk.public.configuration import Configuration
 from xtm_oaev_sdk.seam.common import BaseClient
-from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort, HeartbeatPort
+from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort, DevOptions, HeartbeatPort
 
-__all__ = ["BaseDaemon", "PingAlive"]
+__all__ = [
+    "BaseDaemon",
+    "DevOptions",
+    "PingAlive",
+    "dev_argument_parser",
+    "dev_help",
+    "dev_options",
+]
 
 _runtime: DaemonRuntimePort = DaemonRuntime()
 _heartbeat: HeartbeatPort = Heartbeat()
+
+
+def dev_options(argv: list[str] | None = None) -> DevOptions:
+    """Reads the dev options common to every daemon from its command line.
+
+    :param argv: the arguments to read, the process arguments when omitted.
+    :return: the options, frozen. Flags the daemon does not own are ignored, options
+        are only read under their full name, and ``help`` is only set together with
+        ``--dev``.
+    """
+    return _runtime.dev_options(argv)
+
+
+def dev_help() -> str:
+    """Returns the help of the dev options common to every daemon."""
+    return _runtime.dev_help()
+
+
+def dev_argument_parser(
+    description: str | None = None, epilog: str | None = None
+) -> argparse.ArgumentParser:
+    """Returns a new parser holding the dev options common to every daemon.
+
+    An injector or collector SDK adds its own option group to it, then reads its
+    options with ``parse_known_args`` and prints ``format_help()`` as its dev help.
+
+    :param description: what dev mode does for that kind of daemon.
+    :param epilog: what follows the options in the help (exit codes, guide).
+    """
+    return _runtime.dev_argument_parser(description, epilog)
 
 
 class BaseDaemon(ABC):
