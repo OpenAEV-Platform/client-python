@@ -19,6 +19,7 @@ from xtm_oaev_sdk.seam.port_io import (
     InjectExecutionInput,
     InjectExpectationBulkUpdateInput,
     InjectExpectationTraceBulkInsertInput,
+    InjectExpectationTraceInput,
     InjectExpectationUpdateFromCollectorInput,
     InjectReceptionInput,
 )
@@ -55,6 +56,11 @@ _PAYLOADS = (
         "POST",
         re.compile(r"^/api/inject-expectations-traces/bulk$"),
         InjectExpectationTraceBulkInsertInput,
+    ),
+    (
+        "POST",
+        re.compile(r"^/api/inject-expectations-traces$"),
+        InjectExpectationTraceInput,
     ),
 )
 

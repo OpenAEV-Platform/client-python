@@ -38,7 +38,9 @@ version of its seam
   time, or written once, on close, to stdout or stderr. It also writes the run's notes
   and refusals on stderr. `environment_secret_values(environ=None)` lists the values of
   the secret-named environment variables. A run can `wait_for(condition, timeout)` a
-  call another thread records, the `complete` callback of an inject for one. Ports
+  call another thread records, the `complete` callback of an inject for one. The
+  paths checked are the injector's execution reception and callback, and the
+  collector's expectation update, bulk update, trace and bulk traces. Ports
   `DevSinkPort` and `DevSinkFactoryPort`. Seam `1.1.0`.
 - `common`: `NeedsPlatformError`, the `OpenAEVError` of a call only the platform can
   answer, made by a daemon running without it; `call` names the call refused. Seam
