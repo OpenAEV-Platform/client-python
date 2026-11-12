@@ -11,7 +11,8 @@ satisfies the credential type declared on the contract field.
 
 import base64
 from dataclasses import MISSING, dataclass, field, fields
-from typing import Any, ClassVar, Dict, Optional, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, Optional, Tuple, Type, TypeVar, Union
+from urllib.parse import urlsplit
 
 from pyoaev.credential.errors import (
     CredentialErrorCode,
@@ -52,6 +53,37 @@ def _decode_base64(value: str) -> bytes:
     return base64.b64decode(value, validate=True)
 
 
+def _decode_pem_certificate(value: str) -> bytes:
+    certificate = _decode_base64(value)
+    # A DER certificate (common for .cer/.crt files) written as .pem is
+    # rejected by OpenSSL and silently ignored by Go (empty root pool).
+    if b"-----BEGIN CERTIFICATE-----" not in certificate:
+        raise ValueError("The certificate is not PEM encoded")
+    return certificate
+
+
+def _endpoint_url(value: str, schemes: Tuple[str, ...] = ("http", "https")) -> str:
+    # The value is never quoted in the error: it may embed credentials.
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        raise ValueError("Invalid endpoint URL") from None
+    if (
+        any(character.isspace() for character in value)
+        or parsed.scheme not in schemes
+        or not parsed.hostname
+        # A user info part would leak credentials in every request log.
+        or "@" in parsed.netloc
+    ):
+        raise ValueError("Invalid endpoint URL")
+    return value
+
+
+def _https_endpoint_url(value: str) -> str:
+    # azure-identity and the Go SDK refuse an authority that is not TLS.
+    return _endpoint_url(value, schemes=("https",))
+
+
 @dataclass(frozen=True)
 class ResolvedSecret:
     secret_type: ClassVar[SecretType]
@@ -85,6 +117,8 @@ class AwsAccessKeySecret(ResolvedSecret):
     aws_secret_access_key: str = _secret()
     aws_default_region: Optional[str] = None
     aws_session_token: Optional[str] = _secret(default=None)
+    aws_account_id: Optional[str] = None
+    aws_endpoint_url: Optional[str] = _parsed_with(_endpoint_url, default=None)
 
 
 @dataclass(frozen=True)
@@ -99,6 +133,8 @@ class AwsAssumeRoleSecret(ResolvedSecret):
     aws_external_id: Optional[str] = _secret(default=None)
     aws_source_profile_access_key_id: Optional[str] = _secret(default=None)
     aws_source_profile_secret_access_key: Optional[str] = _secret(default=None)
+    aws_account_id: Optional[str] = None
+    aws_endpoint_url: Optional[str] = _parsed_with(_endpoint_url, default=None)
 
     def __post_init__(self) -> None:
         # A static source identity cannot assume the role without its keys.
@@ -119,6 +155,13 @@ class AzureServicePrincipalSecret(ResolvedSecret):
     azure_client_secret: str = _secret()
     azure_tenant_id: str
     azure_subscription_id: Optional[str] = None
+    azure_authority_host_uri: Optional[str] = _parsed_with(
+        _https_endpoint_url, default=None
+    )
+    # Java ``byte[]``, sent base64 encoded by the platform; PEM content only.
+    azure_requests_certificate: Optional[bytes] = _parsed_with(
+        _decode_pem_certificate, repr=False, default=None
+    )
 
 
 @dataclass(frozen=True)
@@ -128,6 +171,13 @@ class AzureManagedIdentitySecret(ResolvedSecret):
     azure_environment: str
     azure_client_id: Optional[str] = None
     azure_subscription_id: Optional[str] = None
+    azure_authority_host_uri: Optional[str] = _parsed_with(
+        _https_endpoint_url, default=None
+    )
+    # Java ``byte[]``, sent base64 encoded by the platform; PEM content only.
+    azure_requests_certificate: Optional[bytes] = _parsed_with(
+        _decode_pem_certificate, repr=False, default=None
+    )
 
 
 @dataclass(frozen=True)
@@ -138,6 +188,9 @@ class GcpServiceAccountSecret(ResolvedSecret):
     # Java ``byte[]``, sent base64 encoded by the platform.
     gcp_private_key_json: bytes = _parsed_with(_decode_base64, repr=False)
     gcp_project_id: Optional[str] = None
+    gcp_custom_resource_manager_uri: Optional[str] = _parsed_with(
+        _endpoint_url, default=None
+    )
 
 
 @dataclass(frozen=True)
@@ -149,6 +202,9 @@ class GcpOAuth2Secret(ResolvedSecret):
     gcp_oauth_client_secret: str = _secret()
     gcp_oauth_refresh_token: str = _secret()
     gcp_project_id: Optional[str] = None
+    gcp_custom_token_uri: Optional[str] = _parsed_with(_endpoint_url, default=None)
+    gcp_custom_iam_uri: Optional[str] = _parsed_with(_endpoint_url, default=None)
+    gcp_custom_oauth_access_token: Optional[str] = _secret(default=None)
 
 
 _RESOLVED_SECRET_CLASSES: Dict[SecretType, Type[ResolvedSecret]] = {

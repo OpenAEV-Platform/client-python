@@ -25,6 +25,27 @@ from pyoaev.credential import (
 REFERENCE = "credential-reference-id"
 SECRET = "super-secret-value"
 GCP_KEY_JSON = b'{"type": "service_account", "private_key": "super-secret-value"}'
+ACCESS_TOKEN = "custom-oauth-access-token"
+CERTIFICATE = b"-----BEGIN CERTIFICATE-----\nMIIBsovereign\n-----END CERTIFICATE-----\n"
+
+SOVEREIGN_FIELDS = {
+    SecretType.AWS_ACCESS_KEY: ("aws_account_id", "aws_endpoint_url"),
+    SecretType.AWS_ASSUME_ROLE: ("aws_account_id", "aws_endpoint_url"),
+    SecretType.AZURE_SERVICE_PRINCIPAL: (
+        "azure_authority_host_uri",
+        "azure_requests_certificate",
+    ),
+    SecretType.AZURE_MANAGED_IDENTITY: (
+        "azure_authority_host_uri",
+        "azure_requests_certificate",
+    ),
+    SecretType.GCP_SERVICE_ACCOUNT: ("gcp_custom_resource_manager_uri",),
+    SecretType.GCP_OAUTH2: (
+        "gcp_custom_token_uri",
+        "gcp_custom_iam_uri",
+        "gcp_custom_oauth_access_token",
+    ),
+}
 
 PAYLOADS = {
     SecretType.USERNAME_PASSWORD: {
@@ -240,6 +261,170 @@ class ParseResolvedSecretTest(unittest.TestCase):
                 gcp_project_id="project-id",
             ),
         )
+
+    def test_aws_sovereign_fields(self):
+        for secret_type in (SecretType.AWS_ACCESS_KEY, SecretType.AWS_ASSUME_ROLE):
+            with self.subTest(secret_type=secret_type):
+                resolved = _parse(
+                    secret_type,
+                    aws_account_id="000000000000",
+                    aws_endpoint_url="http://mock-aws:4566",
+                )
+
+                self.assertEqual(resolved.aws_account_id, "000000000000")
+                self.assertEqual(resolved.aws_endpoint_url, "http://mock-aws:4566")
+
+    def test_gcp_oauth2_sovereign_fields(self):
+        resolved = _parse(
+            SecretType.GCP_OAUTH2,
+            gcp_custom_token_uri="http://mock-gcp/token",
+            gcp_custom_iam_uri="http://mock-gcp/iam",
+            gcp_custom_oauth_access_token=SECRET,
+        )
+
+        self.assertEqual(resolved.gcp_custom_token_uri, "http://mock-gcp/token")
+        self.assertEqual(resolved.gcp_custom_iam_uri, "http://mock-gcp/iam")
+        self.assertEqual(resolved.gcp_custom_oauth_access_token, SECRET)
+
+    def test_gcp_service_account_sovereign_fields(self):
+        resolved = _parse(
+            SecretType.GCP_SERVICE_ACCOUNT,
+            gcp_custom_resource_manager_uri="http://mock-gcp/rm",
+        )
+
+        self.assertEqual(resolved.gcp_custom_resource_manager_uri, "http://mock-gcp/rm")
+
+    def test_azure_sovereign_fields(self):
+        for secret_type in (
+            SecretType.AZURE_SERVICE_PRINCIPAL,
+            SecretType.AZURE_MANAGED_IDENTITY,
+        ):
+            with self.subTest(secret_type=secret_type):
+                resolved = _parse(
+                    secret_type,
+                    azure_authority_host_uri="https://mock-azure/",
+                    azure_requests_certificate=base64.b64encode(CERTIFICATE).decode(),
+                )
+
+                self.assertEqual(
+                    resolved.azure_authority_host_uri, "https://mock-azure/"
+                )
+                self.assertEqual(resolved.azure_requests_certificate, CERTIFICATE)
+
+    def test_sovereign_fields_default_to_none_when_absent_or_empty(self):
+        for secret_type, names in SOVEREIGN_FIELDS.items():
+            for absent in (None, ""):
+                with self.subTest(secret_type=secret_type, absent=absent):
+                    resolved = _parse(secret_type, **{name: absent for name in names})
+
+                    for name in names:
+                        self.assertIsNone(getattr(resolved, name))
+
+    def test_sovereign_fields_are_none_in_payloads_without_them(self):
+        for secret_type, names in SOVEREIGN_FIELDS.items():
+            with self.subTest(secret_type=secret_type):
+                resolved = _parse(secret_type)
+
+                for name in names:
+                    self.assertIsNone(getattr(resolved, name))
+
+    def test_azure_certificate_with_invalid_base64(self):
+        for secret_type in (
+            SecretType.AZURE_SERVICE_PRINCIPAL,
+            SecretType.AZURE_MANAGED_IDENTITY,
+        ):
+            with self.subTest(secret_type=secret_type):
+                with self.assertRaises(InvalidResolvedSecretError) as context:
+                    _parse(secret_type, azure_requests_certificate="not base64!")
+
+                self.assertIsNone(context.exception.__cause__)
+                self.assertIsNone(context.exception.__context__)
+
+    def test_azure_certificate_must_be_pem(self):
+        # A DER certificate (.cer/.crt) starts with an ASN.1 sequence byte.
+        der = base64.b64encode(b"\x30\x82\x01\x0a-der-content").decode()
+        for secret_type in (
+            SecretType.AZURE_SERVICE_PRINCIPAL,
+            SecretType.AZURE_MANAGED_IDENTITY,
+        ):
+            with self.subTest(secret_type=secret_type):
+                with self.assertRaises(InvalidResolvedSecretError) as context:
+                    _parse(secret_type, azure_requests_certificate=der)
+
+                self.assertIsNone(context.exception.__cause__)
+                self.assertIsNone(context.exception.__context__)
+
+    def test_invalid_endpoint_urls_are_rejected(self):
+        fields_by_type = {
+            SecretType.AWS_ACCESS_KEY: "aws_endpoint_url",
+            SecretType.AWS_ASSUME_ROLE: "aws_endpoint_url",
+            SecretType.AZURE_SERVICE_PRINCIPAL: "azure_authority_host_uri",
+            SecretType.AZURE_MANAGED_IDENTITY: "azure_authority_host_uri",
+            SecretType.GCP_SERVICE_ACCOUNT: "gcp_custom_resource_manager_uri",
+            SecretType.GCP_OAUTH2: "gcp_custom_token_uri",
+        }
+        invalid_urls = (
+            "https://host ",
+            " https://host",
+            "https://ho st/",
+            "https://host/\n[profile x]",
+            "ftp://host/",
+            "host:4566",
+            "https://",
+            "https://user:password@host/",
+            "https://[::1/",
+        )
+        for secret_type, name in fields_by_type.items():
+            for url in invalid_urls:
+                with self.subTest(secret_type=secret_type, url=url):
+                    with self.assertRaises(InvalidResolvedSecretError) as context:
+                        _parse(secret_type, **{name: url})
+
+                    self.assertIsNone(context.exception.__cause__)
+                    self.assertIsNone(context.exception.__context__)
+                    self.assertNotIn(url, str(context.exception))
+
+    def test_gcp_oauth2_iam_uri_is_validated(self):
+        with self.assertRaises(InvalidResolvedSecretError):
+            _parse(SecretType.GCP_OAUTH2, gcp_custom_iam_uri="https://host ")
+
+    def test_azure_authority_host_must_use_https(self):
+        for secret_type in (
+            SecretType.AZURE_SERVICE_PRINCIPAL,
+            SecretType.AZURE_MANAGED_IDENTITY,
+        ):
+            with self.subTest(secret_type=secret_type):
+                with self.assertRaises(InvalidResolvedSecretError):
+                    _parse(secret_type, azure_authority_host_uri="http://mock-azure/")
+
+    def test_mock_endpoints_may_use_http_and_a_port(self):
+        resolved = _parse(
+            SecretType.AWS_ACCESS_KEY, aws_endpoint_url="http://localhost:4566"
+        )
+
+        self.assertEqual(resolved.aws_endpoint_url, "http://localhost:4566")
+
+    def test_repr_and_str_never_expose_the_token_nor_the_certificate(self):
+        resolved_secrets = (
+            _parse(
+                SecretType.GCP_OAUTH2,
+                gcp_custom_oauth_access_token=ACCESS_TOKEN,
+            ),
+            _parse(
+                SecretType.AZURE_SERVICE_PRINCIPAL,
+                azure_requests_certificate=base64.b64encode(CERTIFICATE).decode(),
+            ),
+            _parse(
+                SecretType.AZURE_MANAGED_IDENTITY,
+                azure_requests_certificate=base64.b64encode(CERTIFICATE).decode(),
+            ),
+        )
+        for resolved in resolved_secrets:
+            with self.subTest(secret_type=resolved.secret_type):
+                for rendered in (repr(resolved), str(resolved)):
+                    self.assertNotIn(ACCESS_TOKEN, rendered)
+                    self.assertNotIn(CERTIFICATE.decode(), rendered)
+                    self.assertNotIn(base64.b64encode(CERTIFICATE).decode(), rendered)
 
     def test_every_type_exposes_its_secret_and_credential_type(self):
         for secret_type, credential_type in EXPECTED_CREDENTIAL_TYPES.items():
