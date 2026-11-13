@@ -177,7 +177,7 @@ class SignatureManager:
 
         Args:
             execution_signatures: A single post-execution ExecutionSignature or a list (multi-targets).
-            targets_meta: Target metadata dict(s) with keys like agent, asset, asset_group.
+            targets_meta: Target metadata dict(s) with keys like agent, asset.
             expectation_types: The 1+ expectation type labels (e.g. ['DETECTION', 'PREVENTION']).
             extra_signatures: Optional mapping of expectation types to additional signature fields that will be merged
             into the base post_signatures.
@@ -221,7 +221,6 @@ class SignatureManager:
                     signature_target=SignatureTarget(
                         agent=target.agent_id,
                         asset=target.asset_id,
-                        asset_group=target.asset_group_id,
                     ),
                     signature_values=signature_values,
                 )

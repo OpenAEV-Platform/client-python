@@ -86,7 +86,6 @@ def context():
 _CANONICAL_SIGNATURE_TARGET = {
     "agent": "b044fbc7-f277-4c8c-aeae-5c5497598c51",
     "asset": "asset-host-a",
-    "asset_group": "asset-group-internal",
 }
 
 
@@ -239,7 +238,6 @@ def compiled_large_payload(context):
                 "signature_target": {
                     "agent": f"agent-{index:08d}-0000-0000-0000-000000000000",
                     "asset": f"asset-{index}",
-                    "asset_group": "asset-group-bulk",
                 },
                 "signature_values": [
                     {

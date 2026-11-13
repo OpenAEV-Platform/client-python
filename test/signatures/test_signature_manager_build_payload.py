@@ -14,7 +14,7 @@ from pyoaev.signatures.models import (
 from pyoaev.signatures.signature_manager import SignatureManager
 from pyoaev.signatures.types import SignatureTypes
 
-TARGET = SimpleNamespace(agent_id="agent-1", asset_id="asset-1", asset_group_id=None)
+TARGET = SimpleNamespace(agent_id="agent-1", asset_id="asset-1")
 CANONICAL_TYPES = {signature_type.value for signature_type in SignatureTypes}
 
 
