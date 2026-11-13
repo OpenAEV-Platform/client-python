@@ -370,5 +370,46 @@ class TestLoggingExpectationModelsForSource(TestCase):
         self.assertEqual([], models)
 
 
+class TestBulkUpdate(TestCase):
+    @mock.patch("requests.Session.request")
+    def test_empty_2xx_body_is_success(self, mock_request):
+        class EmptyResponse:
+            status_code = 200
+            history = None
+            content = b""
+            headers = {}
+
+            def json(self):
+                raise ValueError("Expecting value: line 1 column 1 (char 0)")
+
+        mock_request.return_value = EmptyResponse()
+        api_client = OpenAEV("url", "token")
+
+        result = api_client.inject_expectation.bulk_update(
+            {"exp-1": {"collector_id": "c-1", "result": "Detected", "is_success": True}}
+        )
+
+        self.assertIsNone(result)
+        _, kwargs = mock_request.call_args
+        self.assertEqual(kwargs["url"], "url/api/injects/expectations/bulk")
+
+    @mock.patch("requests.Session.request")
+    def test_non_json_non_empty_body_still_raises(self, mock_request):
+        class HtmlResponse:
+            status_code = 200
+            history = None
+            content = b"<html>"
+            headers = {}
+
+            def json(self):
+                raise ValueError("Expecting value")
+
+        mock_request.return_value = HtmlResponse()
+        api_client = OpenAEV("url", "token")
+
+        with self.assertRaises(OpenAEVParsingError):
+            api_client.inject_expectation.bulk_update({"exp-1": {}})
+
+
 if __name__ == "__main__":
     main()
