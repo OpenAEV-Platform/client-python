@@ -418,6 +418,9 @@ class OpenAEV:
             raw=raw,
             **kwargs,
         )
+        if not raw and not result.content:
+            # void endpoints answer 2xx with an empty body
+            return {}
         try:
             json_result = result.json()
             if TYPE_CHECKING:
