@@ -36,6 +36,7 @@ _SECRET_TYPE_TO_CREDENTIAL_TYPE = {
     SecretType.AZURE_MANAGED_IDENTITY: CredentialType.CLOUD_AZURE,
     SecretType.GCP_SERVICE_ACCOUNT: CredentialType.CLOUD_GCP,
     SecretType.GCP_OAUTH2: CredentialType.CLOUD_GCP,
+    SecretType.API_TOKEN: CredentialType.API,
 }
 
 
@@ -207,6 +208,13 @@ class GcpOAuth2Secret(ResolvedSecret):
     gcp_custom_oauth_access_token: Optional[str] = _secret(default=None)
 
 
+@dataclass(frozen=True)
+class ApiTokenSecret(ResolvedSecret):
+    secret_type: ClassVar[SecretType] = SecretType.API_TOKEN
+
+    api_token: str = _secret()
+
+
 _RESOLVED_SECRET_CLASSES: Dict[SecretType, Type[ResolvedSecret]] = {
     cls.secret_type: cls
     for cls in (
@@ -218,6 +226,7 @@ _RESOLVED_SECRET_CLASSES: Dict[SecretType, Type[ResolvedSecret]] = {
         AzureManagedIdentitySecret,
         GcpServiceAccountSecret,
         GcpOAuth2Secret,
+        ApiTokenSecret,
     )
 }
 
@@ -308,6 +317,7 @@ def ensure_compatible(
 
 
 __all__ = [
+    "ApiTokenSecret",
     "AwsAccessKeySecret",
     "AwsAssumeRoleSecret",
     "AzureManagedIdentitySecret",

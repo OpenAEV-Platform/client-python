@@ -94,6 +94,9 @@ PAYLOADS = {
         "gcp_oauth_client_secret": SECRET,
         "gcp_oauth_refresh_token": SECRET,
     },
+    SecretType.API_TOKEN: {
+        "api_token": SECRET,
+    },
 }
 
 EXPECTED_CREDENTIAL_TYPES = {
@@ -105,6 +108,7 @@ EXPECTED_CREDENTIAL_TYPES = {
     SecretType.AZURE_MANAGED_IDENTITY: CredentialType.CLOUD_AZURE,
     SecretType.GCP_SERVICE_ACCOUNT: CredentialType.CLOUD_GCP,
     SecretType.GCP_OAUTH2: CredentialType.CLOUD_GCP,
+    SecretType.API_TOKEN: CredentialType.API,
 }
 
 
@@ -129,6 +133,7 @@ class SecretTypeTest(unittest.TestCase):
                 "AZURE_MANAGED_IDENTITY",
                 "GCP_SERVICE_ACCOUNT",
                 "GCP_OAUTH2",
+                "API_TOKEN",
             ],
         )
 

@@ -35,21 +35,6 @@ class InjectManager(RESTManager):
         result = self.openaev.http_post(path, post_data=data, **kwargs)
         return result
 
-    @exc.on_http_error(exc.OpenAEVGetError)
-    def resolve_ai_target_token(
-        self, inject_id: str, asset_id: str, authorisation: str, **kwargs: Any
-    ) -> Optional[str]:
-        """Return the token of an AI target the running inject targets, or None.
-
-        Must be called while the inject is being executed, with the
-        authorisation code received with the job.
-        """
-        path = f"{self.path}/{inject_id}/targets/{asset_id}/ai-token"
-        result = self.openaev.http_post(
-            path, post_data={"authorisation": authorisation}, **kwargs
-        )
-        return result.get("value") if isinstance(result, dict) else None
-
     def resolve_attachment_secret(
         self, inject_id: str, attachment_id: str, authorisation: str, **kwargs: Any
     ) -> Dict[str, Any]:
