@@ -14,6 +14,7 @@ class CredentialType(str, Enum):
     CLOUD_AWS = "CLOUD_AWS"
     CLOUD_AZURE = "CLOUD_AZURE"
     CLOUD_GCP = "CLOUD_GCP"
+    API = "API"
 
 
 class SecretType(str, Enum):
@@ -27,6 +28,7 @@ class SecretType(str, Enum):
     AZURE_MANAGED_IDENTITY = "AZURE_MANAGED_IDENTITY"
     GCP_SERVICE_ACCOUNT = "GCP_SERVICE_ACCOUNT"
     GCP_OAUTH2 = "GCP_OAUTH2"
+    API_TOKEN = "API_TOKEN"
 
 
 class AwsSourceIdentityType(str, Enum):
