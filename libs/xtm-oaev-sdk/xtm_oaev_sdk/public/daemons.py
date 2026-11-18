@@ -1,22 +1,99 @@
-"""Daemon adapters: the base daemon runtime and its heartbeat.
+"""Daemon adapters: the base daemon runtime, its heartbeat and its dev options.
 
 Each adapter speaks the daemons seam types and delegates to the core
 implementation of its port. The API client is injected (``BaseClient``).
 """
 
+import argparse
 import threading
 from abc import ABC, abstractmethod
+from typing import Iterable, Mapping, Sequence
 
-from xtm_oaev_sdk._core.daemons import DaemonRuntime, Heartbeat
+from xtm_oaev_sdk._core.daemons import DaemonRuntime, DevSinkFactory, Heartbeat
 from xtm_oaev_sdk.public.common import logger
 from xtm_oaev_sdk.public.configuration import Configuration
 from xtm_oaev_sdk.seam.common import BaseClient
-from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort, HeartbeatPort
+from xtm_oaev_sdk.seam.daemons import (
+    DaemonRuntimePort,
+    DevOptions,
+    DevSinkFactoryPort,
+    DevSinkPort,
+    HeartbeatPort,
+)
 
-__all__ = ["BaseDaemon", "PingAlive"]
+__all__ = [
+    "BaseDaemon",
+    "DevOptions",
+    "DevSinkPort",
+    "PingAlive",
+    "dev_argument_parser",
+    "dev_help",
+    "dev_options",
+    "dev_sink",
+    "environment_secret_values",
+]
 
 _runtime: DaemonRuntimePort = DaemonRuntime()
 _heartbeat: HeartbeatPort = Heartbeat()
+_sinks: DevSinkFactoryPort = DevSinkFactory()
+
+
+def dev_options(argv: list[str] | None = None) -> DevOptions:
+    """Reads the dev options common to every daemon from its command line.
+
+    :param argv: the arguments to read, the process arguments when omitted.
+    :return: the options, frozen. Flags the daemon does not own are ignored, options
+        are only read under their full name, and ``help`` is only set together with
+        ``--dev``.
+    """
+    return _runtime.dev_options(argv)
+
+
+def dev_help() -> str:
+    """Returns the help of the dev options common to every daemon."""
+    return _runtime.dev_help()
+
+
+def dev_argument_parser(
+    description: str | None = None, epilog: str | None = None
+) -> argparse.ArgumentParser:
+    """Returns a new parser holding the dev options common to every daemon.
+
+    An injector or collector SDK adds its own option group to it, then reads its
+    options with ``parse_known_args`` and prints ``format_help()`` as its dev help.
+
+    :param description: what dev mode does for that kind of daemon.
+    :param epilog: what follows the options in the help (exit codes, guide).
+    """
+    return _runtime.dev_argument_parser(description, epilog)
+
+
+def dev_sink(
+    out: str | None = None,
+    secrets: Sequence[str] = (),
+    keep: Iterable[str] = (),
+    to_stderr: bool = False,
+) -> DevSinkPort:
+    """Opens the sink a daemon in dev mode writes the platform's calls to.
+
+    Each call is checked against the payload the platform accepts, redacted, and kept
+    in one JSON list, indented, keys in the payload's order: rewritten whole after each
+    call in ``out``, so the file is valid JSON at any time, or written once, on close, to
+    stdout (stderr when ``to_stderr``) when there is no ``out``.
+
+    :param out: the output file, stdout or stderr when omitted.
+    :param secrets: the values never to write (``Configuration.secret_values()``,
+        ``environment_secret_values()``).
+    :param keep: the body keys never redacted (ids, statuses, dates).
+    :param to_stderr: write to stderr rather than stdout when there is no ``out``.
+    """
+    return _sinks.open(out, secrets, keep, to_stderr)
+
+
+def environment_secret_values(environ: Mapping[str, str] | None = None) -> list[str]:
+    """Returns the values of the environment variables whose name says they hold a
+    secret (``*_TOKEN``, ``*_SECRET``, ``*_PASSWORD``, ``*_KEY``…)."""
+    return _sinks.environment_secrets(environ)
 
 
 class BaseDaemon(ABC):

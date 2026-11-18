@@ -1,0 +1,12 @@
+{
+  "expectation_traces": [
+    {
+      "inject_expectation_trace_expectation": "4e5d-expectation",
+      "inject_expectation_trace_source_id": "c0ffee-collector",
+      "inject_expectation_trace_alert_name": "Suspicious port scan",
+      "inject_expectation_trace_alert_link": "https://siem.example/alerts/a-42",
+      "inject_expectation_trace_date": "2026-11-05T20:01:00Z",
+      "inject_expectation_trace_match_type": "marker"
+    }
+  ]
+}

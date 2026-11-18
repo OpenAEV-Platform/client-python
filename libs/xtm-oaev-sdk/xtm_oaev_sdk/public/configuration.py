@@ -31,6 +31,7 @@ from xtm_oaev_sdk._core.configuration import (
     SettingsSourceSelector,
     Truthiness,
 )
+from xtm_oaev_sdk._core.daemons import DaemonRuntime
 from xtm_oaev_sdk.seam.configuration import (
     CONFIGURATION_TYPES,
     BaseConfigModel,
@@ -47,6 +48,7 @@ from xtm_oaev_sdk.seam.configuration import (
     TimedeltaInSeconds,
     TruthinessPort,
 )
+from xtm_oaev_sdk.seam.daemons import DaemonRuntimePort
 
 __all__ = [
     "BaseConfigModel",
@@ -71,7 +73,10 @@ _truthiness: TruthinessPort = Truthiness()
 _sources: ConfigurationSourcesPort = ConfigurationSources()
 _resolver: ConfigurationResolverPort = ConfigurationResolver(_sources, _truthiness)
 _schema: ConnectorSchemaPort = ConnectorSchemaTransformer()
-_settings_sources: SettingsSourcesPort = SettingsSourceSelector()
+_daemon_runtime: DaemonRuntimePort = DaemonRuntime()
+_settings_sources: SettingsSourcesPort = SettingsSourceSelector(
+    dev_enabled=lambda: _daemon_runtime.dev_options().enabled
+)
 
 
 def is_truthy(value: str) -> bool:
@@ -309,6 +314,21 @@ class Configuration:
             value: The new value to return for this key.
         """
         _resolver.override(self.__config_hints, config_key, value)
+
+    def secret_values(self) -> list[str]:
+        """Values that must never be written out, longest first.
+
+        The values of the keys whose name says they hold a secret (``*_token``,
+        ``*_secret``, ``*_password``, ``*_key``…) and every ``SecretStr`` of the
+        settings model, wherever they were read from (``config.yml``, environment).
+
+        Returns:
+            The secret values, longest first, so that one containing another is
+            replaced whole.
+        """
+        return _resolver.secret_values(
+            self.__config_hints, self.__config_values, self.__base_model
+        )
 
     def schema(self) -> dict[str, Any]:
         """Generate the connector configuration JSON schema.

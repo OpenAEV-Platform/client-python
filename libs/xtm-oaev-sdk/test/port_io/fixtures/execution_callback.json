@@ -1,0 +1,11 @@
+{
+  "execution_message": "Scan completed",
+  "execution_output_structured": "{\"scan_results\": [{\"host\": \"10.0.0.5\", \"port\": 22}]}",
+  "execution_output_raw": "PORT   STATE SERVICE\n22/tcp open  ssh",
+  "execution_status": "SUCCESS",
+  "execution_duration": 3,
+  "execution_action": "complete",
+  "execution_context_identifiers": [
+    "0d3f7d1a-web-01"
+  ]
+}

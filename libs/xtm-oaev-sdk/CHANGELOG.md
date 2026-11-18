@@ -4,6 +4,100 @@ Every notable change to xtm-oaev-sdk lands here. Every seam change too, with the
 version of its seam
 ([seam-changes-are-versioned-contract-changes](docs/tdr/seam-changes-are-versioned-contract-changes.tdr.md)).
 
+## [Unreleased]
+
+### Added
+
+- `port_io`: the platform's own payloads, key for key, so injectors and collectors
+  running without the platform read and write the same JSON. Injector side:
+  `ExecutableInject` (the queue message, with `ExecutableInjection`,
+  `ExecutableInjectorContract`, `EndpointTargetOutput`, `AgentOutput`,
+  `AssetGroupSimple`), `InjectReceptionInput` and `InjectExecutionInput`. Collector
+  side: `InjectExpectationOutput` (with `InjectExpectationSignature`,
+  `InjectExpectationResult`), `InjectExpectationUpdateFromCollectorInput`,
+  `InjectExpectationBulkUpdateInput`, `InjectExpectationTraceInput` and
+  `InjectExpectationTraceBulkInsertInput`. Each model is written by hand from the
+  platform DTO it mirrors, names that DTO in its docstring, and ships with a sample
+  payload. Dates are kept as the platform wrote them, ISO text or epoch numbers.
+  `PORT_IO_CONTRACT_VERSION` `1.1.0`.
+- `daemons`: the dev options common to every daemon. `DevOptions` (seam model) and
+  `dev_options(argv=None)` expose `--dev`, `--out`, `--record`, `--replay` and the dev
+  help (`-h` / `--help`, only together with `--dev`); `dev_help()` describes them, and
+  `dev_argument_parser(description=None, epilog=None)` returns a new parser holding
+  them, which the injector and collector SDKs extend with their own options. They are
+  read only under their full name, and flags the daemon does not own are left alone,
+  since every daemon reads them, dev or not. The port gains
+  `DaemonRuntimePort.dev_argument_parser`, `dev_options` and `dev_help`. Seam `1.1.0`.
+- `daemons`: the dev sink, where a daemon in dev mode writes the calls the platform
+  would have received. `dev_sink(out=None, secrets=(), keep=(), to_stderr=False)`
+  checks each call against the payload the platform accepts on its path (a body it
+  would reject raises `OpenAEVHttpError` with `response_code` 400, and nothing is
+  written), redacts the secrets (`***`, JSON text redacted as JSON) except in the
+  `keep` keys, and writes the calls as one JSON list, indented, keys in the payload's
+  order: rewritten whole after each call in `out`, so the file is valid JSON at any
+  time, or written once, on close, to stdout or stderr. It also writes the run's notes
+  and refusals on stderr. `environment_secret_values(environ=None)` lists the values of
+  the secret-named environment variables. A run can `wait_for(condition, timeout)` a
+  call another thread records, the `complete` callback of an inject for one. The
+  paths checked are the injector's execution reception and callback, and the
+  collector's expectation update, bulk update, trace and bulk traces. Ports
+  `DevSinkPort` and `DevSinkFactoryPort`. Seam `1.1.0`.
+- `common`: `NeedsPlatformError`, the `OpenAEVError` of a call only the platform can
+  answer, made by a daemon running without it; `call` names the call refused. Seam
+  `1.1.0`.
+- `configuration`: `Configuration.secret_values()` returns the values that must never
+  be written out, longest first: those of the keys whose name says they hold a secret
+  (`*_token`, `*_secret`, `*_password`, `*_key`…) and every `SecretStr` of the settings
+  model, wherever they were read from. Port `ConfigurationResolverPort.secret_values`.
+  Seam `1.1.0`.
+- `contracts`: `ContractValidator` checks inject content against a contract without
+  the platform, by the platform's own health-check rules (`HealthCheckUtils`,
+  `InjectModelHelper`): mandatory fields (a text field with a non-blank default counts
+  as set), mandatory groups and conditionally mandatory fields, plus select choices and
+  single-value cardinality. `provided` names the fields the inject carries apart from
+  its content, or maps them to the ids a condition compares. It returns
+  `ContractViolation` records; the port is `ContractValidationPort`. Its verdicts are
+  checked against the cases of the platform's `HealthCheckUtilsTest`. Seam `1.1.0`.
+- `tape` (new): the call tape. `CallTape(path, mode, secrets=(), daemon=None)`
+  records the process's outside calls (HTTP through `http.client`, so `requests`,
+  urllib3 and `urllib.request`; commands through `subprocess.run`) and their answers
+  to a tape, or replays them offline. A tape is one JSON document (`Tape`), indented,
+  a header (`tape_version` `1`, `sdk_version`, `daemon`, `recorded_at`) then the calls,
+  rewritten whole after each call so it is valid JSON at any time. A JSON body is kept
+  as JSON (`TapedBody.json`), a compressed answer decompressed when readable
+  (`TapedHttpResponse.decoded_from`) and replayed without its `Content-Encoding`.
+  Replay matches a call by method, URL and body (JSON by value), answers identical
+  calls in the order recorded then the last one again, and fails a call the tape does
+  not hold with `TapeMissError` (a `ConnectionError`), as it fails any other outbound
+  connection. A tape it cannot read (not JSON, another tape version, a call it does
+  not model) is refused, saying why. Secrets (the given values, secret-named headers,
+  parameters and body fields) stay off the tape, and replay matches a call whatever
+  secret it carries. `lint_tape(path, secrets=())` names each place of a tape holding
+  what looks like a secret. Port `CallTapePort`. Seam `tape` `1.0.0`.
+- `signatures`: `LEGACY_SIGNATURE_TYPES` maps each legacy signature name to its
+  signature type (`start_time` to `start_date`, `source_ipv4` to
+  `source_ipv4_address`, `target_hostname` to `target_hostname_address`, and so on: the
+  pairs of the platform's migration of stored signatures). Seam `1.1.0`.
+
+### Changed
+
+- `port_io`: `ExecutionStatus` gains `ASSET_CLEARANCE_RESTRICTED`, a status the
+  platform accepts. `PORT_IO_CONTRACT_VERSION` `1.1.0`.
+- `daemons`: a daemon no longer exits with code 2 on a command-line flag it does not
+  own. `--dump-config-schema` detection only passes that flag to its parser, so dev
+  flags and the daemon's own flags can share the command line. Seam `1.1.0`.
+- `configuration`: under `--dev`, a settings model no longer needs the platform URL
+  and token. A last, lowest-priority source fills every `ConfigLoaderOAEV` section the
+  configuration leaves out with an unreachable platform (`http://platform.openaev.invalid`);
+  whatever the configuration gives still wins, and without `--dev` both stay required.
+  Seam `1.1.0`.
+- `signatures`: `SignatureManager.build_payload` sends the signature types instead of
+  the `ExecutionSignature` field names (`start_date`, not `start_time`): the types are
+  what collectors match on. This applies with and without `--dev`. Seam `1.1.0`.
+- `signatures`: `SignatureTypes` reads a legacy name as its signature type
+  (`SignatureTypes("start_time") is SignatureTypes.SIG_TYPE_START_DATE`), so an
+  expectation stored with a legacy name still loads. Seam `1.1.0`.
+
 ## [0.1.0] - Unreleased
 
 First version. The shared, client-free code of `pyoaev` 3.261014.1 moves out and into

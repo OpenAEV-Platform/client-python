@@ -30,6 +30,7 @@ from xtm_oaev_sdk.seam.contracts.models import (
     ContractTextArea,
     ContractTuple,
     ContractVariable,
+    ContractViolation,
     CredentialType,
     Domain,
     Expectation,
@@ -44,11 +45,12 @@ from xtm_oaev_sdk.seam.contracts.ports import (
     ContractBuilderProtocol,
     ContractCredentialsPort,
     ContractSerializerPort,
+    ContractValidationPort,
     ContractVariablesPort,
 )
 
 #: Version of the contracts seam. Bump on any contract change.
-SEAM_VERSION = "1.0.0"
+SEAM_VERSION = "1.1.0"
 
 __all__ = [
     "SEAM_VERSION",
@@ -90,5 +92,7 @@ __all__ = [
     "ContractBuilderProtocol",
     "ContractCredentialsPort",
     "ContractSerializerPort",
+    "ContractValidationPort",
+    "ContractViolation",
     "ContractVariablesPort",
 ]

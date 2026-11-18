@@ -597,3 +597,17 @@ class ContractPayload(ContractCardinalityElement):
     @property
     def get_type(self) -> str:
         return ContractFieldType.Payload.value
+
+
+@dataclass(frozen=True)
+class ContractViolation:
+    """One way inject content fails its contract.
+
+    ``kind`` is ``mandatory``, ``mandatory_group`` or ``mandatory_condition`` (the
+    platform's own mandatory-field checks), ``choice`` (a select value outside its
+    choices) or ``cardinality`` (several values for a single-value field).
+    """
+
+    key: str
+    kind: str
+    message: str

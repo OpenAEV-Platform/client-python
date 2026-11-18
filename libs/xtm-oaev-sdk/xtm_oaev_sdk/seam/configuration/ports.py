@@ -105,6 +105,16 @@ class ConfigurationResolverPort(Protocol):
     ) -> dict[str, Any]:
         """Connector configuration JSON schema of ``base_model``."""
 
+    def secret_values(
+        self,
+        hints: dict[str, ConfigurationHint],
+        values: dict[str, Any],
+        base_model: Any,
+    ) -> list[str]:
+        """Values that must never be written out, longest first: those of the keys
+        whose name says they hold a secret, and every ``SecretStr`` of
+        ``base_model``."""
+
 
 @runtime_checkable
 class ConnectorSchemaPort(Protocol):
@@ -137,4 +147,5 @@ class SettingsSourcesPort(Protocol):
         settings_cls: type[BaseSettings],
         env_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        """Environment variables first, then the YAML or .env file found."""
+        """Environment variables first, then the YAML or .env file found. In dev
+        mode, a last source fills the platform URL and token the others leave out."""

@@ -16,6 +16,7 @@ from xtm_oaev_sdk.seam.port_io import (
     TargetSignatures,
 )
 from xtm_oaev_sdk.seam.signatures import (
+    LEGACY_SIGNATURE_TYPES,
     CloudInjectorConfig,
     ExecutionSignature,
     ExtraSignatureData,
@@ -106,7 +107,10 @@ class SignatureEngine:
                 signature_data = signature.model_dump(exclude_none=True)
                 signature_data.update(extra_signatures.get_extra(expectation_type))
                 values = [
-                    SignatureValue(signature_type=key, signature_value=value)
+                    SignatureValue(
+                        signature_type=LEGACY_SIGNATURE_TYPES.get(key, key),
+                        signature_value=value,
+                    )
                     for key, value in signature_data.items()
                 ]
                 signature_values.append(

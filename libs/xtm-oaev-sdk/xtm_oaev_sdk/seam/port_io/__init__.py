@@ -33,6 +33,23 @@ from xtm_oaev_sdk.seam.port_io.models import (
     SignatureValue,
     TargetSignatures,
 )
+from xtm_oaev_sdk.seam.port_io.platform import (
+    AgentOutput,
+    AssetGroupSimple,
+    EndpointTargetOutput,
+    ExecutableInject,
+    ExecutableInjection,
+    ExecutableInjectorContract,
+    InjectExecutionInput,
+    InjectExpectationBulkUpdateInput,
+    InjectExpectationOutput,
+    InjectExpectationResult,
+    InjectExpectationSignature,
+    InjectExpectationTraceBulkInsertInput,
+    InjectExpectationTraceInput,
+    InjectExpectationUpdateFromCollectorInput,
+    InjectReceptionInput,
+)
 
 __all__ = [
     "PORT_IO_CONTRACT_VERSION",
@@ -47,4 +64,19 @@ __all__ = [
     "SignatureValue",
     "SignatureExpectationType",
     "TargetSignatures",
+    "AgentOutput",
+    "AssetGroupSimple",
+    "EndpointTargetOutput",
+    "ExecutableInject",
+    "ExecutableInjection",
+    "ExecutableInjectorContract",
+    "InjectExecutionInput",
+    "InjectExpectationBulkUpdateInput",
+    "InjectExpectationOutput",
+    "InjectExpectationResult",
+    "InjectExpectationSignature",
+    "InjectExpectationTraceBulkInsertInput",
+    "InjectExpectationTraceInput",
+    "InjectExpectationUpdateFromCollectorInput",
+    "InjectReceptionInput",
 ]

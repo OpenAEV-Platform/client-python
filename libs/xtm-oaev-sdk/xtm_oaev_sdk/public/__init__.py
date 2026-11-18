@@ -15,6 +15,7 @@ from xtm_oaev_sdk.public.common import (
     CustomJsonFormatter,
     DaemonProtocol,
     EnhancedJSONEncoder,
+    NeedsPlatformError,
     OpenAEVAuthenticationError,
     OpenAEVCreateError,
     OpenAEVDeleteError,
@@ -83,7 +84,9 @@ from xtm_oaev_sdk.public.contracts import (
     ContractText,
     ContractTextArea,
     ContractTuple,
+    ContractValidator,
     ContractVariable,
+    ContractViolation,
     CredentialType,
     Domain,
     Expectation,
@@ -98,13 +101,24 @@ from xtm_oaev_sdk.public.contracts import (
 )
 
 # --- Daemons ---
-from xtm_oaev_sdk.public.daemons import BaseDaemon, PingAlive
+from xtm_oaev_sdk.public.daemons import (
+    BaseDaemon,
+    DevOptions,
+    DevSinkPort,
+    PingAlive,
+    dev_argument_parser,
+    dev_help,
+    dev_options,
+    dev_sink,
+    environment_secret_values,
+)
 
 # --- Seam / compatibility ---
 from xtm_oaev_sdk.public.deprecation import make_deprecated_getattr
 
 # --- Signatures ---
 from xtm_oaev_sdk.public.signatures import (
+    LEGACY_SIGNATURE_TYPES,
     CloudInjectorConfig,
     ExecutionSignature,
     ExtraSignatureData,
@@ -124,13 +138,43 @@ from xtm_oaev_sdk.public.signatures import (
     build_network_configs,
 )
 
+# --- Call tape ---
+from xtm_oaev_sdk.public.tape import (
+    TAPE_VERSION,
+    CallTape,
+    Tape,
+    TapedBody,
+    TapedCall,
+    TapedCommand,
+    TapedHttpCall,
+    TapedHttpRequest,
+    TapedHttpResponse,
+    TapeMissError,
+    lint_tape,
+)
+
 # --- Port I/O contract (versioned wire schema) ---
 from xtm_oaev_sdk.seam.port_io import (
     PORT_IO_CONTRACT_VERSION,
+    AgentOutput,
+    AssetGroupSimple,
+    EndpointTargetOutput,
+    ExecutableInject,
+    ExecutableInjection,
+    ExecutableInjectorContract,
     ExecutionDetails,
     ExecutionStatus,
     ExpectationSignatureGroup,
     InjectExecutionActions,
+    InjectExecutionInput,
+    InjectExpectationBulkUpdateInput,
+    InjectExpectationOutput,
+    InjectExpectationResult,
+    InjectExpectationSignature,
+    InjectExpectationTraceBulkInsertInput,
+    InjectExpectationTraceInput,
+    InjectExpectationUpdateFromCollectorInput,
+    InjectReceptionInput,
     SignatureCallbackPayload,
     SignatureExpectationType,
     SignatureOutputStructure,
@@ -150,6 +194,7 @@ __all__ = [
     "OpenAEVError",
     "OpenAEVGetError",
     "OpenAEVHeadError",
+    "NeedsPlatformError",
     "OpenAEVHttpError",
     "OpenAEVListError",
     "OpenAEVParsingError",
@@ -220,7 +265,9 @@ __all__ = [
     "ContractText",
     "ContractTextArea",
     "ContractTuple",
+    "ContractValidator",
     "ContractVariable",
+    "ContractViolation",
     "CredentialType",
     "Domain",
     "Expectation",
@@ -234,7 +281,14 @@ __all__ = [
     "prepare_contracts",
     # Daemons
     "BaseDaemon",
+    "DevOptions",
+    "DevSinkPort",
     "PingAlive",
+    "dev_argument_parser",
+    "dev_help",
+    "dev_options",
+    "dev_sink",
+    "environment_secret_values",
     # Signatures
     "CloudInjectorConfig",
     "ExecutionDetails",
@@ -256,6 +310,7 @@ __all__ = [
     "SignatureTarget",
     "SignatureTransportProtocol",
     "SignatureType",
+    "LEGACY_SIGNATURE_TYPES",
     "SignatureTypes",
     "SignatureValue",
     "TargetSignatures",
@@ -264,7 +319,34 @@ __all__ = [
     "ToolTimeoutInfo",
     "build_marker",
     "build_network_configs",
+    # Call tape
+    "CallTape",
+    "TAPE_VERSION",
+    "Tape",
+    "lint_tape",
+    "TapeMissError",
+    "TapedBody",
+    "TapedCall",
+    "TapedCommand",
+    "TapedHttpCall",
+    "TapedHttpRequest",
+    "TapedHttpResponse",
     # Seam / compatibility
     "PORT_IO_CONTRACT_VERSION",
+    "AgentOutput",
+    "AssetGroupSimple",
+    "EndpointTargetOutput",
+    "ExecutableInject",
+    "ExecutableInjection",
+    "ExecutableInjectorContract",
+    "InjectExecutionInput",
+    "InjectExpectationBulkUpdateInput",
+    "InjectExpectationOutput",
+    "InjectExpectationResult",
+    "InjectExpectationSignature",
+    "InjectExpectationTraceBulkInsertInput",
+    "InjectExpectationTraceInput",
+    "InjectExpectationUpdateFromCollectorInput",
+    "InjectReceptionInput",
     "make_deprecated_getattr",
 ]

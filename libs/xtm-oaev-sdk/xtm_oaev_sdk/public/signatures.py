@@ -17,6 +17,7 @@ from xtm_oaev_sdk._core.signatures import (
 )
 from xtm_oaev_sdk.seam.port_io import ExecutionDetails
 from xtm_oaev_sdk.seam.signatures import (
+    LEGACY_SIGNATURE_TYPES,
     CloudInjectorConfig,
     ContainerAddressPort,
     ExecutionSignature,
@@ -49,6 +50,7 @@ __all__ = [
     "SignatureMatch",
     "SignatureTransportProtocol",
     "SignatureType",
+    "LEGACY_SIGNATURE_TYPES",
     "SignatureTypes",
     "ToolErrorInfo",
     "ToolOutput",
