@@ -26,5 +26,6 @@ class InjectorManager(GetMixin, ListMixin, CreateMixin, UpdateMixin, RESTManager
             # connector source code (not user config). The platform attributes
             # every contract of this injector to an organization of this name.
             "injector_author",
+            "injector_commit",
         ),
     )

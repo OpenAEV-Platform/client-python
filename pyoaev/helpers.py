@@ -342,6 +342,8 @@ class OpenAEVInjectorHelper:
             ),
             # Publisher/author of the injector's contracts (source-declared).
             "injector_author": config.get_conf("injector_author", default=None),
+            # Set by the image build
+            "injector_commit": os.environ.get("INJECTOR_COMMIT") or None,
         }
 
         self.logger_class = utils.logger(
