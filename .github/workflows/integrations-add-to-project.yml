@@ -29,7 +29,7 @@ jobs:
           owner: FiligranHQ
           permission-organization-projects: write
 
-      - uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
+      - uses: actions/add-to-project@f2c1f1fa649a891be84948ea89b5dfba1526ef05 # v2.0.1
         with:
           project-url: ${{ vars.XTM_INTEGRATIONS_PROJECT_URL }}
           github-token: ${{ steps.app-token.outputs.token }}
