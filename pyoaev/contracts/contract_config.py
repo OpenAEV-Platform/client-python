@@ -33,6 +33,8 @@ class ContractFieldType(str, Enum):
     AiTarget: str = "ai-target"
     Payload: str = "payload"
     CredentialReference: str = "credential-reference"
+    AssetGroupReference: str = "asset-group-reference"
+    Tags: str = "tags"
 
 
 class ContractFieldKey(str, Enum):
@@ -439,6 +441,39 @@ class ContractAssetGroup(ContractCardinalityElement):
     @property
     def get_type(self) -> str:
         return ContractFieldType.AssetGroup.value
+
+
+@dataclass
+class ContractAssetGroupReference(ContractCardinalityElement):
+    """Picker of existing asset groups used as a parameter, not as a target.
+
+    Unlike ``ContractAssetGroup`` (key fixed to ``asset_groups``, stored in the
+    inject targets, expectations computed on the group's assets), the key is
+    free-form and the selected id (cardinality one) or list of ids (cardinality
+    multiple) is stored in the inject content under that key. Several such fields
+    may sit in one contract. Matches the platform's
+    ``ContractFieldType.AssetGroupReference`` ("asset-group-reference").
+    """
+
+    @property
+    def get_type(self) -> str:
+        return ContractFieldType.AssetGroupReference.value
+
+
+@dataclass
+class ContractTags(ContractCardinalityElement):
+    """Tag picker: the selected tag ids are stored in the inject content under the
+    field key. Always multiple, whatever cardinality is passed (as the platform's
+    ``ContractTags``, ``ContractFieldType.Tags`` = "tags").
+    """
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.cardinality = ContractCardinality.Multiple
+
+    @property
+    def get_type(self) -> str:
+        return ContractFieldType.Tags.value
 
 
 @dataclass
