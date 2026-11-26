@@ -1,9 +1,9 @@
 from typing import Any, Dict
-
+from pyoaev.utils import RequiredOptional
 from pyoaev import exceptions as exc
 from pyoaev.base import RESTManager, RESTObject
 from pyoaev.mixins import CreateMixin, GetMixin, ListMixin, UpdateMixin
-from pyoaev.utils import RequiredOptional
+
 
 
 class Collector(RESTObject):
