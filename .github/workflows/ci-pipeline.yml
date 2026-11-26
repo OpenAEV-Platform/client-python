@@ -1,0 +1,186 @@
+name: OpenAEV Client-Python CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "*"
+
+  pull_request:
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────
+  # Lint & Format (
+  # ──────────────────────────────────────────────────────────────────
+  lint-format:
+    name: Lint & Format
+    uses: $/.github/workflows/lint-format.yml
+
+  # ──────────────────────────────────────────────────────────────────
+  # Tests
+  # ──────────────────────────────────────────────────────────────────
+  tests:
+    name: Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: $/.github/actions/checkout
+
+      - name: Setup Python Environment
+        uses: $/.github/actions/setup-python
+
+      - name: Run Tests
+        run: python -m pytest
+
+  # ──────────────────────────────────────────────────────────────────
+  # Build
+  # ──────────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    needs:
+      - lint-format
+      - tests
+
+    steps:
+      - name: Checkout Repository
+        uses: $/.github/actions/checkout
+
+      - name: Setup Python Environment
+        uses: $/.github/actions/setup-python
+
+      - name: Check Version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          package_version="$(
+            python -c 'import pyoaev; print(pyoaev.__version__)'
+          )"
+
+          tag_version="${GITHUB_REF_NAME}"
+          if [ "${tag_version}" != "${package_version}" ]; then
+            echo "::error::Version mismatch: Git tag version '${tag_version}' does not match package version '${package_version}'."
+            exit 1
+          fi
+
+      - name: Build Package
+        run: |
+          SOURCE_DATE_EPOCH="$(git log -1 --pretty=%ct)" \
+            python -m build
+
+  # ──────────────────────────────────────────────────────────────────
+  # Pipeline Gate
+  # Required branch-protection check: "Pipeline Gate"
+  # Fails if any mandatory upstream job did not succeed.
+  # ──────────────────────────────────────────────────────────────────
+  pipeline-gate:
+    name: "Pipeline Gate"
+    needs:
+      - lint-format
+      - tests
+      - build
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions: {}
+
+    steps:
+      - name: Check all upstream job results
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+
+          FAILED=0
+          TOTAL=0
+
+          echo "══════════════════════════════════════════════════"
+          echo "  🔎 Upstream Job Results"
+          echo "══════════════════════════════════════════════════"
+          echo ""
+
+          # Initialize GitHub Actions Summary
+          {
+            echo "## Upstream Job Results"
+            echo ""
+            echo "| Job | Status |"
+            echo "|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Dynamically iterate over all jobs declared in needs
+          for job in $(echo "$NEEDS_JSON" | jq -r 'keys[]'); do
+            result=$(echo "$NEEDS_JSON" | jq -r --arg j "$job" '.[$j].result')
+            TOTAL=$((TOTAL + 1))
+
+            case "$result" in
+              success)
+                icon="✅"
+                status="Passed"
+                ;;
+              skipped)
+                icon="⏭️"
+                status="Skipped"
+                FAILED=$((FAILED + 1))
+                ;;
+              failure)
+                icon="❌"
+                status="Failed"
+                FAILED=$((FAILED + 1))
+                ;;
+              cancelled)
+                icon="🚫"
+                status="Cancelled"
+                FAILED=$((FAILED + 1))
+                ;;
+              *)
+                icon="❓"
+                status="Unknown"
+                FAILED=$((FAILED + 1))
+                ;;
+            esac
+
+            # Display result in workflow logs
+            printf "  %s  %-30s %s\n" "$icon" "$job" "$result"
+
+            # Add result to GitHub Actions Summary
+            printf "| %s `%s` | %s |\n" \
+              "$icon" "$job" "$status" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+          echo ""
+          echo "══════════════════════════════════════════════════"
+
+          if [[ "$FAILED" -gt 0 ]]; then
+            echo "❌ Gate failed: $FAILED/$TOTAL job(s) did not succeed."
+
+            {
+              echo ""
+              echo "**❌ Gate failed: $FAILED/$TOTAL required job(s) did not succeed.**"
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            exit 1
+          fi
+
+          echo "✅ All $TOTAL upstream jobs succeeded."
+          echo "✅ Pipeline Gate passed."
+
+          {
+            echo ""
+            echo "**✅ All $TOTAL upstream jobs succeeded.**"
+            echo ""
+            echo "### Pipeline Gate: Passed"
+          } >> "$GITHUB_STEP_SUMMARY"
