@@ -157,7 +157,7 @@ jobs:
             printf "  %s  %-30s %s\n" "$icon" "$job" "$result"
 
             # Add result to GitHub Actions Summary
-            printf "| %s `%s` | %s |\n" \
+            printf "| %s %s | %s |\n" \
               "$icon" "$job" "$status" >> "$GITHUB_STEP_SUMMARY"
           done
 
