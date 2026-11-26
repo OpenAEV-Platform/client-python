@@ -24,7 +24,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────
   lint-format:
     name: Lint & Format
-    uses: $/.github/workflows/lint-format.yml
+    uses: $/.github/workflows/ci-lint-format.yml
 
   # ──────────────────────────────────────────────────────────────────
   # Tests
