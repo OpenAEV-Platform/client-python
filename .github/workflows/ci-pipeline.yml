@@ -1,9 +1,11 @@
-name: OpenAEV Client-Python CI
+name: "[Client Python] CI"
 
 on:
   push:
     branches:
       - "main"
+      # Temporary
+      - "ci/391-migrate-ci-pipeline-from-circleci-to-github-actions"
     tags:
       - "*"
 
@@ -81,6 +83,15 @@ jobs:
         run: |
           SOURCE_DATE_EPOCH="$(git log -1 --pretty=%ct)" \
             python -m build
+
+      # https://github.com/actions/upload-artifact/releases/tag/v7.0.2
+      - name: Upload Package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pyoaev-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
 
   # ──────────────────────────────────────────────────────────────────
   # Pipeline Gate
