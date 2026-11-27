@@ -184,8 +184,15 @@ jobs:
             # Find corresponding job in GitHub API response
             job_data=$(jq -c \
               --arg name "$job" \
-              '.jobs | map(select(.name == $name)) | first // empty' \
-              <<< "$JOBS_JSON")
+              '
+                def normalize:
+                  ascii_downcase
+                  | gsub("[^a-z0-9]+"; "-")
+                  | gsub("(^-+|-+$)"; "");
+            
+                [.jobs[] | select((.name | normalize) == ($name | normalize))]
+                | first // empty
+              ' <<< "$JOBS_JSON")
   
             if [[ -n "$job_data" ]]; then
               started_at=$(jq -r '.started_at // empty' <<< "$job_data")
