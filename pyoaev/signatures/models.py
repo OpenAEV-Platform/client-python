@@ -185,7 +185,7 @@ class ExecutionDetails(BaseModel):
     @property
     def execution_message(self) -> str:
         action = self.execution_action.value if self.execution_action else "unknown"
-        status = self.execution_action.value if self.execution_action else "unknown"
+        status = self.execution_status.value if self.execution_status else "unknown"
         return f"Current action: {action} - Current status: {status}"
 
     @computed_field
