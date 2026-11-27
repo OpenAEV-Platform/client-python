@@ -5,7 +5,7 @@ orbs:
 jobs:
   ensure_formatting:
     docker:
-      - image: cimg/python:3.13
+      - image: cimg/python:3.15
     working_directory: ~/repo
     steps:
       - checkout
@@ -30,7 +30,7 @@ jobs:
           template: basic_fail_1
   test:
     docker:
-      - image: cimg/python:3.13
+      - image: cimg/python:3.15
     working_directory: ~/repo
     steps:
       - checkout
@@ -63,7 +63,7 @@ jobs:
   build:
     working_directory: ~/openaev-client
     docker:
-      - image: cimg/python:3.13
+      - image: cimg/python:3.15
     steps:
       - checkout
       - run:
@@ -97,7 +97,7 @@ jobs:
   deploy:
     working_directory: ~/openaev-client
     docker:
-      - image: cimg/python:3.13
+      - image: cimg/python:3.15
     steps:
       - checkout
       - attach_workspace:
