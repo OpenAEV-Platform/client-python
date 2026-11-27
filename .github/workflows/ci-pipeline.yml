@@ -180,17 +180,28 @@ jobs:
             started="—"
             finished="—"
             duration="—"
-  
-            # Find corresponding job in GitHub API response
-            job_data=$(jq -r '
+          
+            jq -r '
               def normalize:
                 ascii_downcase
-                | gsub("[[:space:]]*-[[:space:]]*"; "-")
-                | gsub("[[:space:]]+"; "-")
+                | gsub("[^a-z0-9]+"; "-")
                 | gsub("(^-+|-+$)"; "");
+              
+                .jobs[] |
+                "API: [\(.name)] -> [\(.name | normalize)]"
+            ' <<< "$JOBS_JSON"
+          
+            # Find corresponding job in GitHub API response
+            job_data=$(jq -c \
+              --arg name "$job" \
+              '
+                def normalize:
+                  ascii_downcase
+                  | gsub("[^a-z0-9]+"; "-")
+                  | gsub("(^-+|-+$)"; "");
             
-              .jobs[] |
-              "API: [\(.name)] -> [\(.name | normalize)]"
+                [.jobs[] | select((.name | normalize) == ($name | normalize))]
+                | first // empty
               ' <<< "$JOBS_JSON")
   
             if [[ -n "$job_data" ]]; then
