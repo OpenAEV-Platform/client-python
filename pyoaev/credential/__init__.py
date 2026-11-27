@@ -15,6 +15,7 @@ from .errors import (
 )
 from .materializer import CredentialCleanupError, MaterializedCredential, materialize
 from .resolved import (
+    ApiTokenSecret,
     AwsAccessKeySecret,
     AwsAssumeRoleSecret,
     AzureManagedIdentitySecret,
@@ -39,6 +40,7 @@ def build_single_referenced_credential_element(provider_name: str):
 
 
 __all__ = [
+    "ApiTokenSecret",
     "AwsAccessKeySecret",
     "AwsAssumeRoleSecret",
     "AwsSourceIdentityType",

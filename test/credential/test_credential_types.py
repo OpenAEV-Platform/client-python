@@ -11,6 +11,7 @@ class CredentialTypeTest(unittest.TestCase):
             "CLOUD_AWS",
             "CLOUD_AZURE",
             "CLOUD_GCP",
+            "API",
         }
         actual_labels = {member.value for member in CredentialType}
         self.assertEqual(actual_labels, expected_labels)
