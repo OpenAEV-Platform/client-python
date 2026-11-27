@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "main"
-      # Temporary
-      - "ci/391-migrate-ci-pipeline-from-circleci-to-github-actions"
     tags:
       - "*"
 
