@@ -25,7 +25,7 @@ jobs:
   # Lint & Format
   # ──────────────────────────────────────────────────────────────────
   lint-format:
-    name: Lint & Format
+    name: Lint - Format
     uses: $/.github/workflows/ci-lint-format.yml
 
   # ──────────────────────────────────────────────────────────────────
@@ -187,7 +187,8 @@ jobs:
               '
                 def normalize:
                   ascii_downcase
-                  | gsub("[^a-z0-9]+"; "-")
+                  | gsub("[[:space:]]*-[[:space:]]*"; "-")
+                  | gsub("[[:space:]]+"; "-")
                   | gsub("(^-+|-+$)"; "");
             
                 [.jobs[] | select((.name | normalize) == ($name | normalize))]
