@@ -131,9 +131,9 @@ jobs:
 
           # Retrieve actual job timestamps from GitHub API
           JOBS_JSON=$(curl -fsSL \
-          -H "Authorization: Bearer $GH_TOKEN" \
-          -H "Accept: application/vnd.github+json" \
-          "$GH_API_URL/repos/$GH_REPOSITORY/actions/runs/$GH_RUN_ID/jobs?per_page=100")
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$GH_API_URL/repos/$GH_REPOSITORY/actions/runs/$GH_RUN_ID/jobs?per_page=100")
 
           # Initialize GitHub Actions Summary
           {
@@ -181,17 +181,6 @@ jobs:
             finished="—"
             duration="—"
           
-            jq -r '
-              def normalize:
-                ascii_downcase
-                | gsub("[^a-z0-9]+"; "-")
-                | gsub("(^-+|-+$)"; "");
-              
-                .jobs[] |
-                "API: [\(.name)] -> [\(.name | normalize)]"
-            ' <<< "$JOBS_JSON"
-          
-            # Find corresponding job in GitHub API response
             job_data=$(jq -c \
               --arg name "$job" \
               '
@@ -200,8 +189,33 @@ jobs:
                   | gsub("[^a-z0-9]+"; "-")
                   | gsub("(^-+|-+$)"; "");
             
-                [.jobs[] | select((.name | normalize) == ($name | normalize))]
-                | first // empty
+                ($name | normalize) as $target |
+            
+                [
+                  .jobs[]
+                  | select(
+                      (.name | normalize) == $target
+                      or
+                      (.name | normalize | startswith($target + "-"))
+                    )
+                ] as $matches |
+            
+                if ($matches | length) == 0 then
+                  empty
+                else
+                  {
+                    started_at: (
+                      [$matches[].started_at | select(. != null)]
+                      | sort
+                      | first // null
+                    ),
+                    completed_at: (
+                      [$matches[].completed_at | select(. != null)]
+                      | sort
+                      | last // null
+                    )
+                  }
+                end
               ' <<< "$JOBS_JSON")
   
             if [[ -n "$job_data" ]]; then
