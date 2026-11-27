@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────────────────────────────
-  # Lint & Format (
+  # Lint & Format
   # ──────────────────────────────────────────────────────────────────
   lint-format:
     name: Lint & Format
@@ -104,15 +104,20 @@ jobs:
       - lint-format
       - tests
       - build
-    if: ${{ !cancelled() }}
+    if: ${{ always() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    permissions: {}
+    permissions:
+      actions: read
 
     steps:
       - name: Check all upstream job results
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_API_URL: ${{ github.api_url }}
         run: |
           set -euo pipefail
 
@@ -124,17 +129,23 @@ jobs:
           echo "══════════════════════════════════════════════════"
           echo ""
 
+          # Retrieve actual job timestamps from GitHub API
+          JOBS_JSON=$(curl -fsSL \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          "$GH_API_URL/repos/$GH_REPOSITORY/actions/runs/$GH_RUN_ID/jobs?per_page=100")
+
           # Initialize GitHub Actions Summary
           {
             echo "## Upstream Job Results"
             echo ""
-            echo "| Job | Status |"
-            echo "|---|---|"
+            echo "| Job | Started | Finished | Duration | Status |"
+            echo "|---|---|---|---|---|"
           } >> "$GITHUB_STEP_SUMMARY"
 
           # Dynamically iterate over all jobs declared in needs
-          for job in $(echo "$NEEDS_JSON" | jq -r 'keys[]'); do
-            result=$(echo "$NEEDS_JSON" | jq -r --arg j "$job" '.[$j].result')
+          for job in $(jq -r 'keys[]' <<< "$NEEDS_JSON"); do
+            result=$(jq -r --arg j "$job" '.[$j].result' <<< "$NEEDS_JSON")
             TOTAL=$((TOTAL + 1))
 
             case "$result" in
@@ -163,13 +174,53 @@ jobs:
                 FAILED=$((FAILED + 1))
                 ;;
             esac
-
+          
+            started_at=""
+            finished_at=""
+            started="—"
+            finished="—"
+            duration="—"
+  
+            # Find corresponding job in GitHub API response
+            job_data=$(jq -c \
+              --arg name "$job" \
+              '.jobs | map(select(.name == $name)) | first // empty' \
+              <<< "$JOBS_JSON")
+  
+            if [[ -n "$job_data" ]]; then
+              started_at=$(jq -r '.started_at // empty' <<< "$job_data")
+              finished_at=$(jq -r '.completed_at // empty' <<< "$job_data")
+            fi
+  
+            # Format start timestamp
+            if [[ -n "$started_at" ]]; then
+              started=$(date -u -d "$started_at" '+%Y-%m-%d %H:%M:%S UTC')
+            fi
+  
+            # Format finish timestamp
+            if [[ -n "$finished_at" ]]; then
+              finished=$(date -u -d "$finished_at" '+%Y-%m-%d %H:%M:%S UTC')
+            fi
+  
+            # Calculate job duration
+            if [[ -n "$started_at" && -n "$finished_at" ]]; then
+              start_epoch=$(date -u -d "$started_at" +%s)
+              finish_epoch=$(date -u -d "$finished_at" +%s)
+              duration_seconds=$((finish_epoch - start_epoch))
+  
+              duration=$(printf '%02dm %02ds' \
+                $((duration_seconds / 60)) \
+                $((duration_seconds % 60)))
+            fi
+  
             # Display result in workflow logs
             printf "  %s  %-30s %s\n" "$icon" "$job" "$result"
-
+  
             # Add result to GitHub Actions Summary
-            printf "| %s %s | %s |\n" \
-              "$icon" "$job" "$status" >> "$GITHUB_STEP_SUMMARY"
+            printf "| %s %s | %s | %s | %s | %s |\n" \
+              "$icon" "$job" "$started" "$finished" "$duration" "$status" \
+              >> "$GITHUB_STEP_SUMMARY"
+  
           done
 
           echo ""
