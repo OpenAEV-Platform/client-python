@@ -162,9 +162,19 @@ workflows:
             - ensure_formatting
             - linter
             - test
-      - deploy:
+      # Manual only: the upload to PyPI waits for an approval in CircleCI
+      - approve_deploy:
+          type: approval
           requires:
             - build
+          filters:
+            tags:
+              only: /[0-9]+(\.[0-9]+)+(\.[0-9]+)?\.?(\w)*/
+            branches:
+              ignore: /.*/
+      - deploy:
+          requires:
+            - approve_deploy
           filters:
             tags:
               only: /[0-9]+(\.[0-9]+)+(\.[0-9]+)?\.?(\w)*/
